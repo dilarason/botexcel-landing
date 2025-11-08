@@ -119,20 +119,33 @@ const pricingPlans = [
     highlight: false,
   },
   {
-    name: "Pro",
-    price: "199 ₺ / ay",
-    tagline: "Finans ve operasyon ekipleri için.",
-    bullets: ["Ayda 50 dosya", "AI etiketleme aktif", "Öncelikli destek"],
-    cta: "Pro'ya Geç",
+    name: "Plus",
+    price: "299 ₺ / ay",
+    tagline: "20 dosya/ay + AI etiketleme + öncelikli destek.",
+    bullets: ["Ayda 20 dosya", "Gelişmiş OCR + AI etiketleme", "Öncelikli destek ve audit trail"],
+    cta: "Plus'a Geç",
     highlight: true,
   },
   {
-    name: "Business",
+    name: "Pro",
     price: "799 ₺ / ay",
-    tagline: "Ekipler ve entegrasyonlar için.",
-    bullets: ["Sınırsız dosya", "Özel şablonlar", "API erişimi"],
-    cta: "Satışla Konuş",
+    tagline: "Finans, operasyon ve entegrasyon ekipleri için.",
+    bullets: ["Ayda 200 dosya", "Özel şablonlar ve API erişimi", "Takım bazlı yetkilendirme"],
+    cta: "Pro'yu Seç",
     highlight: false,
+  },
+  {
+    name: "Business",
+    price: "Özel fiyat",
+    tagline: "İhtiyacınıza göre paket tasarlayalım.",
+    bullets: [
+      "Dosya limiti talebinize göre",
+      "Özel SLA ve raporlama",
+      "Dedicated müşteri temsilcisi",
+    ],
+    cta: "Ekiple Görüş",
+    highlight: false,
+    contact: true,
   },
 ];
 
@@ -1266,7 +1279,7 @@ const BotExcelScrollDemo: React.FC = () => {
                 </p>
               </header>
 
-              <div className="grid md:grid-cols-3 gap-4 text-xs">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-xs">
                 {pricingPlans.map((plan) => (
                   <article
                     key={plan.name}
@@ -1294,7 +1307,9 @@ const BotExcelScrollDemo: React.FC = () => {
                     <button
                       className={
                         "mt-auto inline-flex justify-center px-3 py-1.5 rounded-full text-[11px] font-medium " +
-                        (plan.highlight
+                        (plan.contact
+                          ? "border border-emerald-400 text-emerald-100 hover:bg-emerald-400 hover:text-emerald-950"
+                          : plan.highlight
                           ? "bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
                           : "border border-slate-600 text-slate-100 hover:bg-slate-800")
                       }

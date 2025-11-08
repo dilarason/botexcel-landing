@@ -5,7 +5,7 @@ import React, { useRef, useState } from "react";
 import { getApiBase } from "../lib/api";
 import { getPersistedSource } from "../lib/source";
 
-type DemoState = "idle" | "uploading" | "success" | "error" | "limit";
+type DemoState = "idle" | "uploading" | "success" | "error" | "limit" | "plan_limit";
 
 type DemoUploaderProps = {
   variant?: "anonymous" | "authenticated";
@@ -56,6 +56,7 @@ function buildSimpleFingerprint(): string {
 export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
   const [state, setState] = useState<DemoState>("idle");
+  const [planInfo, setPlanInfo] = useState<{ plan: string; limit: number } | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -68,6 +69,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
     setState("uploading");
     setErrorMessage(null);
     setDownloadUrl(null);
+    setPlanInfo(null);
 
     const fingerprint = buildSimpleFingerprint();
 
@@ -95,6 +97,15 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
               "Demo hakkını zaten kullandın. Devam etmek için ücretsiz hesap açman gerekiyor."
           );
           track("demo_limit_reached", { source: "landing" });
+          return;
+        }
+        if (data?.error === "plan_limit") {
+          setPlanInfo({
+            plan: data?.plan || "plan",
+            limit: Number(data?.limit) || 0,
+          });
+          setState("plan_limit");
+          track("plan_limit_reached", { plan: data?.plan || "unknown" });
           return;
         }
         if (data?.error === "ip_rate_limited") {
@@ -218,6 +229,33 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
           >
             Ücretsiz hesap aç
           </a>
+        </div>
+      )}
+
+      {state === "plan_limit" && planInfo && (
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-2">
+          <p className="text-sm font-semibold text-amber-900">
+            {planInfo.plan === "free" ? "Ücretsiz plan limitine ulaştın." : "Plan limitine ulaştın."}
+          </p>
+          <p className="text-xs text-amber-900">
+            Bu ay {planInfo.limit} belge sınırını doldurdun. Daha fazla dosya dönüştürmek için planını yükseltebilirsin.
+          </p>
+          <div className="flex items-center gap-2">
+            <a
+              href="/billing"
+              className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+              onClick={() => track("upgrade_clicked", { source: "plan_limit" })}
+            >
+              Planı yükselt
+            </a>
+            <button
+              type="button"
+              onClick={() => setState("idle")}
+              className="text-xs text-amber-900 underline"
+            >
+              Daha sonra
+            </button>
+          </div>
         </div>
       )}
 

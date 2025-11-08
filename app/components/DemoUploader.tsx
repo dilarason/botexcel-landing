@@ -1,0 +1,247 @@
+"use client";
+
+import React, { useRef, useState } from "react";
+
+import { getApiBase } from "../lib/api";
+import { getPersistedSource } from "../lib/source";
+
+type DemoState = "idle" | "uploading" | "success" | "error" | "limit";
+
+type DemoUploaderProps = {
+  variant?: "anonymous" | "authenticated";
+};
+
+const track = (eventName: string, props?: Record<string, any>) => {
+  if (typeof window === "undefined") return;
+  const w = window as any;
+  const plausible = w?.plausible;
+  if (typeof plausible !== "function") return;
+  const source = getPersistedSource();
+  const finalProps = {
+    ...(props || {}),
+    ...(source || {}),
+  };
+  const payload = Object.keys(finalProps).length ? { props: finalProps } : undefined;
+  plausible(eventName, payload);
+};
+
+function buildSimpleFingerprint(): string {
+  const nav = typeof window !== "undefined" ? window.navigator : undefined;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+  const ua = nav?.userAgent || "";
+  const lang = nav?.language || "";
+  const langs = (nav?.languages || []).join(",");
+  const screenInfo = typeof window !== "undefined"
+    ? `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`
+    : "";
+
+  // Canvas tabanlı ufak bir hash ile fingerprint'i biraz daha güçlendiriyorum.
+  let canvasHash = "";
+  try {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.textBaseline = "top";
+      ctx.font = "14px 'Arial'";
+      ctx.fillText("botexcel_demo_fingerprint", 2, 2);
+      canvasHash = canvas.toDataURL();
+    }
+  } catch {
+    canvasHash = "";
+  }
+
+  return [ua, lang, langs, tz, screenInfo, canvasHash].join("||");
+}
+
+export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProps) {
+  const fileRef = useRef<HTMLInputElement | null>(null);
+  const [state, setState] = useState<DemoState>("idle");
+  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Burada demo hakkını anonim kullanıcı bazında sadece 1 kez verecek akışı yönetiyorum.
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    track("demo_started", { source: "landing" });
+    setState("uploading");
+    setErrorMessage(null);
+    setDownloadUrl(null);
+
+    const fingerprint = buildSimpleFingerprint();
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("fingerprint", fingerprint);
+
+    // İleride captcha entegrasyonu yaptığımda buraya token'ı ekleyeceğim.
+    // form.append("captcha_token", captchaToken);
+
+    try {
+      const res = await fetch(`${getApiBase()}/api/demo-convert`, {
+        method: "POST",
+        body: form,
+        credentials: "include",
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (data?.error === "demo_limit_reached") {
+          setState("limit");
+          setErrorMessage(
+            data?.message ||
+              "Demo hakkını zaten kullandın. Devam etmek için ücretsiz hesap açman gerekiyor."
+          );
+          track("demo_limit_reached", { source: "landing" });
+          return;
+        }
+        if (data?.error === "ip_rate_limited") {
+          setState("error");
+          setErrorMessage(
+            data?.message ||
+              "Bu IP adresinden şu anda çok fazla demo denemesi var. Bir süre beklemen gerekiyor."
+          );
+          return;
+        }
+        setState("error");
+        setErrorMessage(
+          data?.message || "Demo çalışırken beklenmeyen bir hata oluştu."
+        );
+        track("demo_failed", { status: res.status });
+        return;
+      }
+
+      if (!data?.download_url) {
+        setState("error");
+        setErrorMessage("Sunucudan indirme bağlantısı alamadım.");
+        return;
+      }
+
+      setDownloadUrl(data.download_url);
+      setState("success");
+      track("demo_succeeded", { source: "landing" });
+
+      // Çıktıyı otomatik indirmeyi tercih ediyorum; kullanıcı ayrıca linke tıklayarak da indirebilir.
+      const a = document.createElement("a");
+      a.href = data.download_url;
+      a.download = "";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error(err);
+      setState("error");
+      setErrorMessage("Sunucuya ulaşırken bir ağ hatası oluştu.");
+      track("demo_failed", { status: "network_error" });
+    }
+  }
+
+  function handleClickSelect() {
+    fileRef.current?.click();
+  }
+
+  return (
+    <div className="space-y-3 rounded-xl border border-gray-200 bg-white/60 p-4 shadow-sm backdrop-blur-sm">
+      {state === "idle" && (
+        <>
+          <p className="text-sm text-gray-700">
+            {variant === "authenticated"
+              ? "Dosyanı yüklediğinde dönüşüm geçmişine ekleyip Excel çıktını hazırlıyorum."
+              : "Anonim ziyaretçi için tek seferlik, tam özellikli bir demo sunuyorum."}
+          </p>
+          <button
+            type="button"
+            onClick={handleClickSelect}
+            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Dosya seç ve dene
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".pdf,.csv,.txt,.doc,.docx,.jpg,.jpeg,.png"
+            onChange={handleFileChange}
+            className="hidden"
+          />
+          {variant === "anonymous" && (
+            <p className="text-xs text-gray-500">
+              Not: Demo hakkı tarayıcıya özel sadece 1 kez tanımlanıyor. Sonraki adımda hesap açmaya yönlendirmek istiyorum.
+            </p>
+          )}
+        </>
+      )}
+
+      {state === "uploading" && (
+        <p className="text-sm text-gray-700">
+          Dosyayı yüklüyorum ve demo motorunda işliyorum. Bu aşamada hem kullanım hakkını kilitliyorum
+          hem de çıkacak Excel için tek kullanımlık bir indirme linki hazırlıyorum.
+        </p>
+      )}
+
+      {state === "success" && downloadUrl && (
+        <div className="mt-4 space-y-3">
+          <a
+            href={downloadUrl}
+            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+          >
+            Excel çıktısını indir
+          </a>
+          <p className="text-xs text-slate-600">
+            Çıktıyı beğendiysen, bunu her gün kullanmak için hesabını oluştur:
+            <a
+              href="/register"
+              className="ml-1 font-semibold text-emerald-700 underline"
+              onClick={() => track("signup_clicked", { source: "demo_success" })}
+            >
+              Ücretsiz hesap aç
+            </a>
+          </p>
+        </div>
+      )}
+
+      {state === "limit" && (
+        <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 space-y-2">
+          <p className="text-sm font-semibold text-amber-800">
+            Demo hakkın doldu.
+          </p>
+          <p className="text-xs text-amber-800">
+            BotExcel'i sınırsız kullanmak için ücretsiz hesap açman gerekiyor.
+            Demo sadece tadımlık; faturaların, ekstrelerin ve sözleşmelerin için
+            kalıcı alan açalım.
+          </p>
+          <a
+            href="/register"
+            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            onClick={() => track("signup_clicked", { source: "demo_limit" })}
+          >
+            Ücretsiz hesap aç
+          </a>
+        </div>
+      )}
+
+      {state === "error" && (
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-red-700">
+            Demo sırasında bir sorun oluştu.
+          </p>
+          {errorMessage && (
+            <p className="text-xs text-red-700">{errorMessage}</p>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              setState("idle");
+              setErrorMessage(null);
+              setDownloadUrl(null);
+            }}
+            className="inline-flex items-center rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50"
+          >
+            Tekrar dene
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

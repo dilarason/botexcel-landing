@@ -1,6 +1,5 @@
-import React from "react";
-import BotExcelScrollDemo from "./BotExcelScrollDemo";
+import LandingPage from "./components/LandingPage";
 
 export default function Page() {
-  return <BotExcelScrollDemo />;
+  return <LandingPage />;
 }

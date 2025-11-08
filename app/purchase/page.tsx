@@ -1,74 +1,14 @@
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
 
+import { mockUser, purchasePlans } from "../lib/plans";
+
 export const metadata = {
   title: "Satın Al | BotExcel",
   description:
     "BotExcel planınızı seçin ve belgelerinizi dakikalar içinde Excel'e dönüştürmeye başlayın.",
 };
 
-const mockUser = {
-  name: "Aylin Yılmaz",
-  email: "aylin@botexcel.com",
-  currentPlan: "Free (3 dosya/ay)",
-};
-
-const plans = [
-  {
-    name: "Free",
-    price: "0 ₺ / ay",
-    limit: "Ayda 3 dosya dönüştürme",
-    description:
-      "Küçük ekipler için risksiz başlangıç: OCR, temel AI ve BotExcel arayüzünü keşfetme imkânı.",
-    perks: ["3 dosya/ay", "Temel OCR", "Community desteği"],
-    cta: "Ücretsiz Dene",
-    href: "/register",
-  },
-  {
-    name: "Plus",
-    price: "299 ₺ / ay",
-    limit: "Ayda 20 dosya",
-    description:
-      "AI etiketleme, audit trail ve öncelikli destek ile dinamik ekipler için ideal. 299 TL/ay ile hızlı sonuç alın.",
-    perks: [
-      "20 dosya/ay dönüştürme",
-      "AI etiketleme + gelişmiş OCR",
-      "Öncelikli destek ve audit trail",
-    ],
-    cta: "Plus'a Geç",
-    href: "/register?plan=plus",
-    highlight: true,
-  },
-  {
-    name: "Pro",
-    price: "799 ₺ / ay",
-    limit: "Ayda 200 dosya",
-    description:
-      "Finans, operasyon ve entegrasyon ekipleri için özel şablonlar, API erişimi ve takım bazlı yetkiler.",
-    perks: [
-      "200 dosya/ay",
-      "Özel şablon + API erişimi",
-      "Takım bazlı rol yönetimi",
-    ],
-    cta: "Pro'yu Seç",
-    href: "/register?plan=pro",
-  },
-  {
-    name: "Business",
-    price: "İletişime geçin",
-    limit: "Talebinize göre dosya limiti",
-    description:
-      "İhtiyaçlarınıza göre bir paket oluşturmak için ekibimizle iletişime geçin; dosya limiti, SLA ve raporlama sürecini birlikte tasarlayalım.",
-    perks: [
-      "Özel SLA ve raporlama",
-      "Dedicated müşteri temsilcisi",
-      "Yerinde veya özel entegrasyon desteği",
-    ],
-    cta: "Ekiple Görüş",
-    href: "mailto:sales@botexcel.com",
-    contact: true,
-  },
-];
 
 export default function PurchasePage() {
   return (
@@ -100,7 +40,7 @@ export default function PurchasePage() {
         </section>
 
         <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {plans.map((plan) => (
+          {purchasePlans.map((plan) => (
             <div
               key={plan.name}
               className={`flex h-full flex-col gap-3 rounded-2xl border p-5 ${

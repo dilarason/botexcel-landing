@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BotExcel Landing
 
-## Getting Started
+Next.js 16 (App Router) landing sayfası. Ana domain (`botexcel.pro / www.botexcel.pro`) bu servis tarafından sunulur, API çağrıları ise `api.botexcel.pro` alt alanındaki FastAPI proxy’sine yönlendirilir.
 
-First, run the development server:
+## 🚧 Geliştirme
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Proje “app/” dizini altında tek bir ana bileşenden ayrıştırıldı (`BotExcelScrollDemo`).
+- Plan verileri `app/lib/plans.ts` dosyasında tutulur; landing ve satın alma sayfası bu modülü paylaşır.
+- Demo uploader ve scroll animasyonları `app/BotExcelScrollDemo.tsx` içinde çalışır; pricing bölümü `app/components/PricingSection.tsx` olarak ayrıldı.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🌱 Ortam Değişkenleri
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Değişken | Açıklama |
+| --- | --- |
+| `NEXT_PUBLIC_API_BASE` | Frontend’in çağıracağı FastAPI / proxy adresi. Örn. `https://api.botexcel.pro`. |
 
-## Learn More
+`NEXT_PUBLIC_` ile başlayan değişkenler build sırasında gömüldüğü için Render’da Environment sekmesinde ayarlandıktan sonra yeniden deploy edilmelidir.
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Render Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Build Command**: `npm install && npm run build`
+2. **Start Command**: `npm run start`
+3. Servis türü: Node 20, Starter plan (uykuya geçmeyen sürekli ayakta instance).
+4. Deploy tetikleyici: *Auto Deploy → On Commit* (main dalına her push otomatik olarak build edilir).
+5. Custom domainler: `botexcel.pro` ve `www.botexcel.pro` bu servise, `api.botexcel.pro` ise FastAPI proxy’sine yönlendirilir. DNS tarafında kök domain için Render’ın verdiği A kayıtları, `www` için CNAME kullanılır.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Yeni commit sonrası Render’daki “Deploys” sekmesinde build durumunu takip edebilir veya gerektiğinde “Deploy Latest Commit” ile manuel dağıtım yapabilirsin.
 
-## Deploy on Vercel
+## 🧪 Lint
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run lint
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+ESLint `next/image` kullanımı ve App Router kurallarını enforce eder. CI/CD’de build öncesi bu komut çalıştırılırsa production ile aynı sonuç elde edilir.

@@ -59,6 +59,11 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
   const [planInfo, setPlanInfo] = useState<{ plan: string; limit: number } | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [resultInfo, setResultInfo] = useState<{ real: boolean; originalName: string; outputName: string }>({
+    real: false,
+    originalName: "",
+    outputName: "",
+  });
 
   // Burada demo hakkını anonim kullanıcı bazında sadece 1 kez verecek akışı yönetiyorum.
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -70,6 +75,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
     setErrorMessage(null);
     setDownloadUrl(null);
     setPlanInfo(null);
+    setResultInfo({ real: false, originalName: "", outputName: "" });
 
     const fingerprint = buildSimpleFingerprint();
 
@@ -131,8 +137,13 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
       }
 
       setDownloadUrl(data.download_url);
+      setResultInfo({
+        real: Boolean(data.real_conversion),
+        originalName: data.original_name || file.name,
+        outputName: data.output_name || "botexcel_demo.xlsx",
+      });
       setState("success");
-      track("demo_succeeded", { source: "landing" });
+      track("demo_succeeded", { source: "landing", mode: data.real_conversion ? "real" : "stub" });
 
       // Çıktıyı otomatik indirmeyi tercih ediyorum; kullanıcı ayrıca linke tıklayarak da indirebilir.
       const a = document.createElement("a");
@@ -199,16 +210,38 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
           >
             Excel çıktısını indir
           </a>
-          <p className="text-xs text-slate-600">
-            Çıktıyı beğendiysen, bunu her gün kullanmak için hesabını oluştur:
-            <a
-              href="/register"
-              className="ml-1 font-semibold text-emerald-700 underline"
-              onClick={() => track("signup_clicked", { source: "demo_success" })}
-            >
-              Ücretsiz hesap aç
-            </a>
-          </p>
+          <div className="text-xs text-slate-600 space-y-1">
+            <div className="flex items-center gap-2 text-[11px]">
+              <span className="font-semibold text-slate-400">Belge:</span>
+              <span>{resultInfo.originalName || fileRef.current?.value || "Dosya"}</span>
+            </div>
+            <div className="flex items-center gap-2 text-[11px]">
+              <span className="font-semibold text-slate-400">Excel:</span>
+              <span>{resultInfo.outputName || "botexcel_demo.xlsx"}</span>
+            </div>
+            <p className="pt-1">
+              {resultInfo.real ? (
+                <span className="text-emerald-600">
+                  Bu çıktı gerçek belgen üzerinden üretildi. Hesabına giriş yaparak sınırsız dönüştürmeye devam edebilirsin.
+                </span>
+              ) : (
+                <>
+                  Bu canlı demo gerçek dönüştürme yerine örnek tablo gösterir.
+                  Gerçek hesapla bağlandığında dosyan canlı olarak işlenecek.
+                </>
+              )}
+            </p>
+            <p>
+              Çıktıyı beğendiysen, bunu her gün kullanmak için hesabını oluştur:
+              <a
+                href="/register"
+                className="ml-1 font-semibold text-emerald-700 underline"
+                onClick={() => track("signup_clicked", { source: resultInfo.real ? "demo_success_real" : "demo_success" })}
+              >
+                Ücretsiz hesap aç
+              </a>
+            </p>
+          </div>
         </div>
       )}
 

@@ -1,74 +1,120 @@
-import Link from "next/link";
+"use client";
 
-export const metadata = {
-  title: "Giriş Yap | BotExcel",
-  description:
-    "BotExcel hesabınıza giriş yapın, belgelerinizi dakikalar içinde Excel'e dönüştürün.",
-};
+import React, { useState } from "react";
+import { getApiBase } from "@/app/lib/api";
 
 export default function LoginPage() {
-  return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-16 text-slate-50">
-      <div className="w-full max-w-md rounded-2xl border border-slate-800 bg-slate-900/80 px-6 py-8 shadow-lg shadow-emerald-500/10">
-        <header className="text-center">
-          <h1 className="text-2xl font-semibold tracking-tight text-emerald-200">
-            BotExcel hesabına giriş yap
-          </h1>
-          <p className="mt-2 text-sm text-slate-400">
-            Belgelerinizi yükleyin, AI destekli Excel çıktısına dakikalar
-            içinde ulaşın.
-          </p>
-        </header>
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
+    "idle"
+  );
+  const [error, setError] = useState<string | null>(null);
 
-        <form className="mt-6 space-y-4">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-slate-200">E-posta adresi</span>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setState("loading");
+    setError(null);
+
+    try {
+      const res = await fetch(`${getApiBase()}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
+        setState("error");
+        setError(data.error || "Giriş başarısız. Email veya şifre hatalı.");
+        return;
+      }
+
+      setState("success");
+
+      // İsteğe bağlı: analytics
+      if (typeof window !== "undefined" && (window as any).plausible) {
+        (window as any).plausible("login_succeeded", {
+          props: { email },
+        });
+      }
+
+      setTimeout(() => {
+        window.location.href = "/app";
+      }, 500);
+    } catch (e) {
+      setState("error");
+      setError("Sunucuya ulaşılamadı. Birazdan tekrar dene.");
+    }
+  };
+
+  const disabled = state === "loading";
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
+        <h1 className="mb-2 text-2xl font-semibold">Giriş yap</h1>
+        <p className="mb-6 text-xs text-slate-400">
+          BotExcel hesabınla kaldığın yerden devam et.
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-200">
+              E-posta adresi
+            </label>
             <input
               type="email"
               required
-              autoComplete="email"
-              placeholder="ornek@botexcel.com"
-              className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+              placeholder="ornek@firma.com"
             />
-          </label>
+          </div>
 
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-slate-200">Şifre</span>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-200">
+              Şifre
+            </label>
             <input
               type="password"
               required
-              autoComplete="current-password"
-              placeholder="••••••••"
-              className="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+              placeholder="Şifren"
             />
-          </label>
+          </div>
+
+          {state === "error" && error && (
+            <p className="text-xs text-rose-400">{error}</p>
+          )}
+
+          {state === "success" && (
+            <p className="text-xs text-emerald-400">
+              Giriş başarılı. Yönlendiriliyorsun…
+            </p>
+          )}
 
           <button
             type="submit"
-            className="w-full rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-emerald-950 transition hover:bg-emerald-400"
+            disabled={disabled}
+            className="mt-2 flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
-            Giriş Yap
+            {state === "loading" ? "Giriş yapılıyor..." : "Giriş yap"}
           </button>
         </form>
 
-        <div className="mt-6 space-y-2 text-center text-sm text-slate-400">
-          <Link
-            href="/register"
-            className="text-emerald-300 transition hover:text-emerald-200"
-          >
-            Henüz hesabın yok mu? Kayıt Ol
-          </Link>
-          <p>
-            Şifreni mi unuttun?{" "}
-            <a
-              href="mailto:support@botexcel.com"
-              className="text-emerald-300 transition hover:text-emerald-200"
-            >
-              support@botexcel.com
-            </a>{" "}
-            adresine yaz.
-          </p>
-        </div>
+        <p className="mt-4 text-xs text-slate-400">
+          Henüz hesabın yok mu?{" "}
+          <a href="/register" className="text-emerald-400 hover:underline">
+            Ücretsiz hesap aç
+          </a>
+        </p>
       </div>
     </main>
   );

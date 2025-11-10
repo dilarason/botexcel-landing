@@ -1,121 +1,121 @@
 "use client";
 
-import React, { useState, FormEvent, useEffect } from "react";
-
-import { getApiBase } from "../lib/api";
-import { getPersistedSource } from "../lib/source";
-
-type FormState = "idle" | "submitting" | "success" | "error";
-
-const track = (eventName: string, props?: Record<string, any>) => {
-  if (typeof window === "undefined") return;
-  const w = window as any;
-  if (typeof w.plausible !== "function") return;
-  const source = getPersistedSource();
-  const finalProps = {
-    ...(props || {}),
-    ...(source || {}),
-  };
-  w.plausible(eventName, Object.keys(finalProps).length ? { props: finalProps } : undefined);
-};
+import React, { useState } from "react";
+import { getApiBase } from "@/app/lib/api";
 
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [state, setState] = useState<FormState>("idle");
+  const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
+    "idle"
+  );
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (state !== "success") return;
-    const timer = setTimeout(() => {
-      if (typeof window !== "undefined") {
-        window.location.href = "/app";
-      }
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [state]);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setState("submitting");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setState("loading");
     setError(null);
-    track("signup_started", { form: "register_page" });
 
     try {
       const res = await fetch(`${getApiBase()}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
         credentials: "include",
+        body: JSON.stringify({ email, password }),
       });
 
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        const message = data?.error || data?.message || "Kayıt işlemi başarısız.";
-        setError(message);
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.ok) {
         setState("error");
-        track("signup_failed", { form: "register_page", status: res.status });
+        setError(data.error || "Kayıt başarısız. Tekrar dene.");
         return;
       }
 
+      // analytics isteğe bağlı
+      if (typeof window !== "undefined" && (window as any).plausible) {
+        (window as any).plausible("signup_succeeded", {
+          props: { email },
+        });
+      }
+
       setState("success");
-      track("signup_succeeded", { form: "register_page" });
-    } catch (err) {
-      setError("Sunucuya ulaşılamadı, lütfen tekrar dene.");
+
+      // Kısa bir bekleme sonrası dashboard'a yönlendir
+      setTimeout(() => {
+        window.location.href = "/app";
+      }, 800);
+    } catch (e) {
       setState("error");
-      track("signup_failed", { form: "register_page", status: "network_error" });
+      setError("Sunucuya ulaşılamadı. Birazdan tekrar dene.");
     }
   };
 
+  const disabled = state === "loading";
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12">
-      <div className="w-full max-w-md space-y-4 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl">
-        <div>
-          <h1 className="text-xl font-semibold text-white">BotExcel'e ücretsiz kayıt ol</h1>
-          <p className="mt-1 text-xs text-slate-400">
-            Demo çıktısını beğendiysen, sınırsız kullanım için birkaç saniyede hesap oluştur.
-          </p>
-        </div>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-xs font-medium text-slate-300">
-              E-posta
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+    <main className="min-h-screen bg-slate-950 text-slate-50">
+      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
+        <h1 className="mb-2 text-2xl font-semibold">BotExcel’e kaydol</h1>
+        <p className="mb-6 text-xs text-slate-400">
+          Ücretsiz planda her ay sınırlı sayıda belgeyi Excel’e dönüştürebilirsin.
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-200">
+              E-posta adresi
             </label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+              placeholder="ornek@firma.com"
+            />
           </div>
-          <div>
-            <label className="block text-xs font-medium text-slate-300">
+
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-200">
               Şifre
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
             </label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+              placeholder="En az 6 karakter"
+            />
           </div>
-          {error && <p className="text-xs text-rose-400">{error}</p>}
+
+          {state === "error" && error && (
+            <p className="text-xs text-rose-400">{error}</p>
+          )}
+
           {state === "success" && (
             <p className="text-xs text-emerald-400">
-              Hesabın oluşturuldu. Yönlendirme için e-postanı ve gelen kutunu kontrol et.
+              Kayıt başarılı. Yönlendiriliyorsun…
             </p>
           )}
+
           <button
             type="submit"
-            disabled={state === "submitting"}
-            className="inline-flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+            disabled={disabled}
+            className="mt-2 flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
           >
-            {state === "submitting" ? "Kaydediliyor..." : "Ücretsiz hesap aç"}
+            {state === "loading" ? "Kaydediliyor..." : "Ücretsiz hesap aç"}
           </button>
         </form>
+
+        <p className="mt-4 text-xs text-slate-400">
+          Zaten hesabın var mı?{" "}
+          <a href="/login" className="text-emerald-400 hover:underline">
+            Giriş yap
+          </a>
+        </p>
       </div>
     </main>
   );

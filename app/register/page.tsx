@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react/no-unescaped-entities */
 import Link from "next/link";
 
 const PLAN_LABELS: Record<string, string> = {

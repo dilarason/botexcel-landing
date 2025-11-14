@@ -1,13 +1,12 @@
-"use client";
-
 import React, { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
 import { landingPlans } from "../lib/plans";
 
-const RegisterForm: React.FC = () => {
-  const searchParams = useSearchParams();
-  const planSlug = searchParams?.get("plan") ?? "free";
+type RegisterPageProps = {
+  searchParams?: { plan?: string | string[] };
+};
+
+const RegisterForm: React.FC<{ planSlug: string }> = ({ planSlug }) => {
 
   const selectedPlan = useMemo(
     () =>
@@ -140,6 +139,12 @@ const RegisterForm: React.FC = () => {
   );
 };
 
-export default function RegisterPage() {
-  return <RegisterForm />;
+"use client";
+
+export default function RegisterPage({ searchParams }: RegisterPageProps) {
+  const planSlug =
+    typeof searchParams?.plan === "string"
+      ? searchParams.plan
+      : "free";
+  return <RegisterForm planSlug={planSlug} />;
 }

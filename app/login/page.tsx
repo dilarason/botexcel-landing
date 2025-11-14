@@ -1,14 +1,13 @@
-"use client";
-
 import React, { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
 import { landingPlans } from "../lib/plans";
 
-const LoginForm: React.FC = () => {
-  const searchParams = useSearchParams();
-  const planSlug = searchParams?.get("plan");
-  const selectedPlan = useMemo(() => {
+type LoginPageProps = {
+  searchParams?: { plan?: string | string[] };
+};
+
+const LoginForm: React.FC<{ planSlug?: string }> = ({ planSlug }) => {
+const selectedPlan = useMemo(() => {
     if (!planSlug) return null;
     return (
       landingPlans.find(
@@ -143,6 +142,10 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default function LoginPage() {
-  return <LoginForm />;
+"use client";
+
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const planSlug =
+    typeof searchParams?.plan === "string" ? searchParams.plan : undefined;
+  return <LoginForm planSlug={planSlug} />;
 }

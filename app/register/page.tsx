@@ -1,9 +1,21 @@
-"use client";
+ "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
+import { landingPlans } from "../lib/plans";
 
 export default function RegisterPage() {
+  const searchParams = useSearchParams();
+  const planSlug = searchParams?.get("plan") ?? "free";
+  const selectedPlan = useMemo(
+    () =>
+      landingPlans.find(
+        (plan) => plan.slug === planSlug.toLowerCase()
+      ) ?? landingPlans[0],
+    [planSlug]
+  );
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
@@ -21,7 +33,11 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email,
+        password,
+        plan: selectedPlan.slug,
+      }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -35,9 +51,9 @@ export default function RegisterPage() {
       // analytics isteğe bağlı
       if (typeof window !== "undefined" && (window as any).plausible) {
         (window as any).plausible("signup_succeeded", {
-          props: { email },
-        });
-      }
+        props: { email, plan: selectedPlan.slug },
+      });
+    }
 
       setState("success");
 
@@ -57,9 +73,14 @@ export default function RegisterPage() {
     <main className="min-h-screen bg-slate-950 text-slate-50">
       <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
         <h1 className="mb-2 text-2xl font-semibold">BotExcel’e kaydol</h1>
-        <p className="mb-6 text-xs text-slate-400">
-          Ücretsiz planda her ay sınırlı sayıda belgeyi Excel’e dönüştürebilirsin.
-        </p>
+        <p className="mb-1 text-xs text-slate-400">Seçtiğin plan:</p>
+        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs text-slate-300">
+          <div className="text-[12px] font-semibold text-slate-50">
+            {selectedPlan.name} · {selectedPlan.price}
+          </div>
+          <p className="text-slate-400">{selectedPlan.limit}</p>
+          <p className="mt-1 text-[11px]">{selectedPlan.tagline}</p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">

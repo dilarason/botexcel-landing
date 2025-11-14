@@ -1,4 +1,5 @@
 export type LandingPlan = {
+  slug: string;
   name: string;
   price: string;
   limit: string;
@@ -30,6 +31,7 @@ export const mockUser = {
 
 export const landingPlans: LandingPlan[] = [
   {
+    slug: "free",
     name: "Free",
     price: "0 ₺ / ay",
     limit: "Ayda 3 dosya",
@@ -39,6 +41,7 @@ export const landingPlans: LandingPlan[] = [
     cta: "Ücretsiz Dene",
   },
   {
+    slug: "plus",
     name: "Plus",
     price: "299 ₺ / ay",
     limit: "Ayda 20 dosya",
@@ -53,6 +56,7 @@ export const landingPlans: LandingPlan[] = [
     cta: "Plus'a Geç",
   },
   {
+    slug: "pro",
     name: "Pro",
     price: "799 ₺ / ay",
     limit: "Ayda 200 dosya",
@@ -62,6 +66,7 @@ export const landingPlans: LandingPlan[] = [
     cta: "Pro'yu Seç",
   },
   {
+    slug: "business",
     name: "Business",
     price: "Özel fiyat",
     limit: "Talebe göre dosya limiti",

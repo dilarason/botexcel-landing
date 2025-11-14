@@ -1,9 +1,22 @@
-"use client";
+ "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
+import { landingPlans } from "../lib/plans";
 
 export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const planSlug = searchParams?.get("plan");
+  const selectedPlan = useMemo(() => {
+    if (!planSlug) return null;
+    return (
+      landingPlans.find(
+        (plan) => plan.slug === planSlug.toLowerCase()
+      ) ?? null
+    );
+  }, [planSlug]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
@@ -21,7 +34,11 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email, password }),
+      body: JSON.stringify({
+        email,
+        password,
+        plan: selectedPlan?.slug ?? undefined,
+      }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -37,9 +54,9 @@ export default function LoginPage() {
       // İsteğe bağlı: analytics
       if (typeof window !== "undefined" && (window as any).plausible) {
         (window as any).plausible("login_succeeded", {
-          props: { email },
-        });
-      }
+        props: { email, plan: selectedPlan?.slug },
+      });
+    }
 
       setTimeout(() => {
         window.location.href = "/app";
@@ -56,9 +73,15 @@ export default function LoginPage() {
     <main className="min-h-screen bg-slate-950 text-slate-50">
       <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
         <h1 className="mb-2 text-2xl font-semibold">Giriş yap</h1>
-        <p className="mb-6 text-xs text-slate-400">
-          BotExcel hesabınla kaldığın yerden devam et.
-        </p>
+        {selectedPlan ? (
+          <p className="mb-6 text-xs text-emerald-300">
+            {selectedPlan.name} planını seçmiştin; giriş yapıp hemen kullanmaya başlayabilirsin.
+          </p>
+        ) : (
+          <p className="mb-6 text-xs text-slate-400">
+            BotExcel hesabınla kaldığın yerden devam et.
+          </p>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">

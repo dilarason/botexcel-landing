@@ -1,13 +1,14 @@
- "use client";
+"use client";
 
 import React, { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
 import { landingPlans } from "../lib/plans";
 
-export default function LoginPage() {
-  const searchParams = useSearchParams();
-  const planSlug = searchParams?.get("plan");
+type LoginFormProps = {
+  planSlug?: string;
+};
+
+const LoginForm: React.FC<LoginFormProps> = ({ planSlug }) => {
   const selectedPlan = useMemo(() => {
     if (!planSlug) return null;
     return (
@@ -34,11 +35,11 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-      body: JSON.stringify({
-        email,
-        password,
-        plan: selectedPlan?.slug ?? undefined,
-      }),
+        body: JSON.stringify({
+          email,
+          password,
+          plan: selectedPlan?.slug,
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -51,12 +52,11 @@ export default function LoginPage() {
 
       setState("success");
 
-      // İsteğe bağlı: analytics
       if (typeof window !== "undefined" && (window as any).plausible) {
         (window as any).plausible("login_succeeded", {
-        props: { email, plan: selectedPlan?.slug },
-      });
-    }
+          props: { email, plan: selectedPlan?.slug },
+        });
+      }
 
       setTimeout(() => {
         window.location.href = "/app";
@@ -75,7 +75,8 @@ export default function LoginPage() {
         <h1 className="mb-2 text-2xl font-semibold">Giriş yap</h1>
         {selectedPlan ? (
           <p className="mb-6 text-xs text-emerald-300">
-            {selectedPlan.name} planını seçmiştin; giriş yapıp hemen kullanmaya başlayabilirsin.
+            {selectedPlan.name} planını seçmiştin; giriş yapıp hemen kullanmaya
+            başlayabilirsin.
           </p>
         ) : (
           <p className="mb-6 text-xs text-slate-400">
@@ -141,4 +142,14 @@ export default function LoginPage() {
       </div>
     </main>
   );
+};
+
+type LoginPageProps = {
+  searchParams?: {
+    plan?: string;
+  };
+};
+
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  return <LoginForm planSlug={searchParams?.plan} />;
 }

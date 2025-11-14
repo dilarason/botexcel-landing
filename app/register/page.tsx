@@ -1,13 +1,14 @@
- "use client";
+"use client";
 
 import React, { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
 import { landingPlans } from "../lib/plans";
 
-export default function RegisterPage() {
-  const searchParams = useSearchParams();
-  const planSlug = searchParams?.get("plan") ?? "free";
+type RegisterFormProps = {
+  planSlug: string;
+};
+
+const RegisterForm: React.FC<RegisterFormProps> = ({ planSlug }) => {
   const selectedPlan = useMemo(
     () =>
       landingPlans.find(
@@ -33,11 +34,11 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-      body: JSON.stringify({
-        email,
-        password,
-        plan: selectedPlan.slug,
-      }),
+        body: JSON.stringify({
+          email,
+          password,
+          plan: selectedPlan.slug,
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -48,16 +49,13 @@ export default function RegisterPage() {
         return;
       }
 
-      // analytics isteğe bağlı
       if (typeof window !== "undefined" && (window as any).plausible) {
         (window as any).plausible("signup_succeeded", {
-        props: { email, plan: selectedPlan.slug },
-      });
-    }
+          props: { email, plan: selectedPlan.slug },
+        });
+      }
 
       setState("success");
-
-      // Kısa bir bekleme sonrası dashboard'a yönlendir
       setTimeout(() => {
         window.location.href = "/app";
       }, 800);
@@ -140,4 +138,15 @@ export default function RegisterPage() {
       </div>
     </main>
   );
+};
+
+type RegisterPageProps = {
+  searchParams?: {
+    plan?: string;
+  };
+};
+
+export default function RegisterPage({ searchParams }: RegisterPageProps) {
+  const planSlug = searchParams?.plan ?? "free";
+  return <RegisterForm planSlug={planSlug} />;
 }

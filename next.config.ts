@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
+import { dirname } from "path";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   reactCompiler: true,
+  outputFileTracingRoot: dirname(__dirname),
 };
 
 export default nextConfig;

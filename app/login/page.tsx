@@ -1,148 +1,103 @@
-"use client";
+import Link from "next/link";
 
-import React, { useMemo, useState } from "react";
-import type { PageProps } from "next";
-import { getApiBase } from "../lib/api";
-import { landingPlans } from "../lib/plans";
+type LoginPageProps = {
+  searchParams?: { plan?: string | string[] | undefined };
+};
 
-const LoginForm: React.FC<{ planSlug?: string }> = ({ planSlug }) => {
-  const selectedPlan = useMemo(() => {
-    if (!planSlug) return null;
-    return (
-      landingPlans.find(
-        (plan) => plan.slug === planSlug.toLowerCase()
-      ) ?? null
-    );
-  }, [planSlug]);
+const PLAN_LABELS: Record<string, string> = {
+  free: "Free",
+  plus: "Plus",
+  pro: "Pro",
+  business: "Business",
+};
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
-    "idle"
-  );
-  const [error, setError] = useState<string | null>(null);
+export default function LoginPage({ searchParams }: LoginPageProps) {
+  const planParam = searchParams?.plan;
+  const planSlug =
+    typeof planParam === "string" ? planParam.toLowerCase() : undefined;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setState("loading");
-    setError(null);
-
-    try {
-      const res = await fetch(`${getApiBase()}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email,
-          password,
-          plan: selectedPlan?.slug,
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data.ok) {
-        setState("error");
-        setError(data.error || "Giriş başarısız. Email veya şifre hatalı.");
-        return;
-      }
-
-      setState("success");
-
-      if (typeof window !== "undefined" && (window as any).plausible) {
-        (window as any).plausible("login_succeeded", {
-          props: { email, plan: selectedPlan?.slug },
-        });
-      }
-
-      setTimeout(() => {
-        window.location.href = "/app";
-      }, 500);
-    } catch (e) {
-      setState("error");
-      setError("Sunucuya ulaşılamadı. Birazdan tekrar dene.");
-    }
-  };
-
-  const disabled = state === "loading";
+  const planLabel =
+    planSlug && PLAN_LABELS[planSlug]
+      ? PLAN_LABELS[planSlug]
+      : undefined;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
-      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-        <h1 className="mb-2 text-2xl font-semibold">Giriş yap</h1>
-        {selectedPlan ? (
-          <p className="mb-6 text-xs text-emerald-300">
-            {selectedPlan.name} planını seçmiştin; giriş yapıp hemen kullanmaya
-            başlayabilirsin.
+    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-6">
+        <header className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            BotExcel hesabına giriş
+          </h1>
+          <p className="text-sm text-slate-400">
+            Belgelerini otomatik olarak Excel'e çevir, audit trail ve AI
+            etiketleme ile takip et.
           </p>
-        ) : (
-          <p className="mb-6 text-xs text-slate-400">
-            BotExcel hesabınla kaldığın yerden devam et.
-          </p>
-        )}
+          {planLabel && (
+            <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
+              Seçili plan: <span className="font-medium">{planLabel}</span>
+            </p>
+          )}
+        </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-200">
-              E-posta adresi
+        <form
+          className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/40 backdrop-blur"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-200">
+              E-posta
             </label>
             <input
+              name="email"
               type="email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none ring-emerald-500/60 focus:border-emerald-400 focus:ring-2"
               placeholder="ornek@firma.com"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-200">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-200">
               Şifre
             </label>
             <input
+              name="password"
               type="password"
               required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
-              placeholder="Şifren"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none ring-emerald-500/60 focus:border-emerald-400 focus:ring-2"
+              placeholder="••••••••"
             />
           </div>
 
-          {state === "error" && error && (
-            <p className="text-xs text-rose-400">{error}</p>
-          )}
-
-          {state === "success" && (
-            <p className="text-xs text-emerald-400">
-              Giriş başarılı. Yönlendiriliyorsun…
-            </p>
-          )}
-
           <button
             type="submit"
-            disabled={disabled}
-            className="mt-2 flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
-            {state === "loading" ? "Giriş yapılıyor..." : "Giriş yap"}
+            Giriş yap
           </button>
+
+          <p className="mt-2 text-center text-xs text-slate-500">
+            Hesabın yok mu?{' '}
+            <Link
+              href={
+                planSlug
+                  ? `/register?plan=${encodeURIComponent(planSlug)}`
+                  : "/register"
+              }
+              className="font-medium text-emerald-400 hover:text-emerald-300"
+            >
+              Kayıt ol
+            </Link>
+          </p>
         </form>
 
-        <p className="mt-4 text-xs text-slate-400">
-          Henüz hesabın yok mu?{" "}
-          <a href="/register" className="text-emerald-400 hover:underline">
-            Ücretsiz hesap aç
-          </a>
+        <p className="text-center text-[11px] text-slate-500">
+          Bu ekran şimdilik sadece arayüzdür. Giriş akışını daha sonra kimlik
+          doğrulama ve plan atamasıyla backend'e bağlayacağız.
         </p>
       </div>
     </main>
   );
-};
-export default function LoginPage({ searchParams }: PageProps) {
-  const planParam = searchParams?.plan;
-  const planSlug =
-    typeof planParam === "string" ? planParam : undefined;
-  return <LoginForm planSlug={planSlug} />;
 }

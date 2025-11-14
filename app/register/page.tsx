@@ -1,146 +1,102 @@
-"use client";
+import Link from "next/link";
 
-import React, { useMemo, useState } from "react";
-import type { PageProps } from "next";
-import { getApiBase } from "../lib/api";
-import { landingPlans } from "../lib/plans";
+const PLAN_LABELS: Record<string, string> = {
+  free: "Free",
+  plus: "Plus",
+  pro: "Pro",
+  business: "Business",
+};
 
-const RegisterForm: React.FC<{ planSlug: string }> = ({ planSlug }) => {
-
-  const selectedPlan = useMemo(
-    () =>
-      landingPlans.find(
-        (plan) => plan.slug === planSlug.toLowerCase()
-      ) ?? landingPlans[0],
-    [planSlug]
-  );
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [state, setState] = useState<"idle" | "loading" | "error" | "success">(
-    "idle"
-  );
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setState("loading");
-    setError(null);
-
-    try {
-      const res = await fetch(`${getApiBase()}/api/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email,
-          password,
-          plan: selectedPlan.slug,
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok || !data.ok) {
-        setState("error");
-        setError(data.error || "Kayıt başarısız. Tekrar dene.");
-        return;
-      }
-
-      if (typeof window !== "undefined" && (window as any).plausible) {
-        (window as any).plausible("signup_succeeded", {
-          props: { email, plan: selectedPlan.slug },
-        });
-      }
-
-      setState("success");
-      setTimeout(() => {
-        window.location.href = "/app";
-      }, 800);
-    } catch (e) {
-      setState("error");
-      setError("Sunucuya ulaşılamadı. Birazdan tekrar dene.");
-    }
-  };
-
-  const disabled = state === "loading";
+export default function RegisterPage({
+  searchParams,
+}: {
+  searchParams?: { plan?: string | string[] | undefined };
+}) {
+  const planParam = searchParams?.plan;
+  const planSlugRaw =
+    typeof planParam === "string" ? planParam.toLowerCase() : undefined;
+  const planSlug =
+    planSlugRaw && PLAN_LABELS[planSlugRaw] ? planSlugRaw : "free";
+  const planLabel = PLAN_LABELS[planSlug] ?? "Free";
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50">
-      <div className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
-        <h1 className="mb-2 text-2xl font-semibold">BotExcel’e kaydol</h1>
-        <p className="mb-1 text-xs text-slate-400">Seçtiğin plan:</p>
-        <div className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs text-slate-300">
-          <div className="text-[12px] font-semibold text-slate-50">
-            {selectedPlan.name} · {selectedPlan.price}
-          </div>
-          <p className="text-slate-400">{selectedPlan.limit}</p>
-          <p className="mt-1 text-[11px]">{selectedPlan.tagline}</p>
-        </div>
+    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-md space-y-6">
+        <header className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            BotExcel hesabı oluştur
+          </h1>
+          <p className="text-sm text-slate-400">
+            Belgelerini Excel'e otomatik aktarmak için birkaç saniyede kayıt ol.
+          </p>
+          <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
+            Seçilen plan: <span className="font-medium">{planLabel}</span>
+          </p>
+        </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-200">
-              E-posta adresi
+        <form
+          className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/40 backdrop-blur"
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <input type="hidden" name="plan" value={planSlug} />
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-200">
+              E-posta
             </label>
             <input
+              name="email"
               type="email"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none ring-emerald-500/60 focus:border-emerald-400 focus:ring-2"
               placeholder="ornek@firma.com"
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-slate-200">
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-slate-200">
               Şifre
             </label>
             <input
+              name="password"
               type="password"
               required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
-              placeholder="En az 6 karakter"
+              minLength={8}
+              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none ring-emerald-500/60 focus:border-emerald-400 focus:ring-2"
+              placeholder="En az 8 karakter"
             />
           </div>
 
-          {state === "error" && error && (
-            <p className="text-xs text-rose-400">{error}</p>
-          )}
-
-          {state === "success" && (
-            <p className="text-xs text-emerald-400">
-              Kayıt başarılı. Yönlendiriliyorsun…
-            </p>
-          )}
-
           <button
             type="submit"
-            disabled={disabled}
-            className="mt-2 flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
-            {state === "loading" ? "Kaydediliyor..." : "Ücretsiz hesap aç"}
+            Kayıt ol
           </button>
+
+          <p className="mt-2 text-center text-xs text-slate-500">
+            Zaten hesabın var mı?{' '}
+            <Link
+              href={
+                planSlug
+                  ? `/login?plan=${encodeURIComponent(planSlug)}`
+                  : "/login"
+              }
+              className="font-medium text-emerald-400 hover:text-emerald-300"
+            >
+              Giriş yap
+            </Link>
+          </p>
         </form>
 
-        <p className="mt-4 text-xs text-slate-400">
-          Zaten hesabın var mı?{" "}
-          <a href="/login" className="text-emerald-400 hover:underline">
-            Giriş yap
-          </a>
+        <p className="text-center text-[11px] text-slate-500">
+          Şu an sadece arayüz hazırlanıyor. Kayıt olduğunda seçtiğin plan
+          backend'e gönderilecek; plan limitleri ve faturalama orada
+          devreye girecek.
         </p>
       </div>
     </main>
   );
-};
-
-export default function RegisterPage({ searchParams }: PageProps) {
-  const planParam = searchParams?.plan;
-  const planSlug =
-    typeof planParam === "string" ? planParam : "free";
-  return <RegisterForm planSlug={planSlug} />;
 }

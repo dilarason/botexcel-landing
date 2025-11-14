@@ -1,99 +1,39 @@
-import Link from "next/link";
+import React from "react";
+import LoginForm from "./LoginForm";
 
-const PLAN_LABELS: Record<string, string> = {
-  free: "Free",
-  plus: "Plus",
-  pro: "Pro",
-  business: "Business",
+export const metadata = {
+  title: "Giriş Yap | BotExcel",
+  description:
+    "BotExcel hesabına giriş yap ve yapay zekâ destekli Excel otomasyonunu kullan.",
 };
 
-const LoginForm: React.FC<{ planSlug?: string }> = ({ planSlug }) => {
-  const planLabel =
-    planSlug && PLAN_LABELS[planSlug] ? PLAN_LABELS[planSlug] : undefined;
-
+export default function LoginPage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md space-y-6">
-        <header className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            BotExcel hesabına giriş
+    <main className="min-h-screen w-full bg-slate-950 text-slate-50 flex items-center justify-center px-4">
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-10 md:gap-16 items-center">
+        <section className="hidden md:block">
+          <h2 className="text-sm font-semibold tracking-wide text-emerald-400 uppercase mb-3">
+            BotExcel · Kontrol paneline dönüş
+          </h2>
+          <h1 className="text-3xl md:text-4xl font-semibold text-slate-50 mb-4">
+            Veri karmaşasından tablo netliğine, kaldığın yerden devam et.
           </h1>
-          <p className="text-sm text-slate-400">
-            Belgelerini otomatik olarak Excel'e çevir, audit trail ve AI
-            etiketleme ile takip et.
+          <p className="text-sm md:text-base text-slate-300 mb-6 leading-relaxed">
+            Daha önce yüklediğin faturalar, ekstreler ve raporlar hesap
+            altında saklanır. Giriş yaptıktan sonra son dönüşümlerini, audit
+            loglarını ve Excel çıktılarının tamamını tek ekrandan yönetebilirsin.
           </p>
-          {planLabel && (
-            <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
-              Seçili plan: <span className="font-medium">{planLabel}</span>
-            </p>
-          )}
-        </header>
+          <ul className="space-y-2 text-sm text-slate-300">
+            <li>• Geçmiş dönüşümlerine eriş</li>
+            <li>• Aynı şablonla tekrar tekrar Excel üret</li>
+            <li>• Audit log ile kim, ne zaman, hangi dosyayı işledi gör</li>
+          </ul>
+        </section>
 
-        <form className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/40 backdrop-blur">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-200">
-              E-posta
-            </label>
-            <input
-              name="email"
-              type="email"
-              required
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none ring-emerald-500/60 focus:border-emerald-400 focus:ring-2"
-              placeholder="ornek@firma.com"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-200">
-              Şifre
-            </label>
-            <input
-              name="password"
-              type="password"
-              required
-              className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm outline-none ring-emerald-500/60 focus:border-emerald-400 focus:ring-2"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="mt-2 inline-flex w-full items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-slate-950 transition hover:bg-emerald-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
-          >
-            Giriş yap
-          </button>
-
-          <p className="mt-2 text-center text-xs text-slate-500">
-            Hesabın yok mu?{" "}
-            <Link
-              href={
-                planSlug
-                  ? `/register?plan=${encodeURIComponent(planSlug)}`
-                  : "/register"
-              }
-              className="font-medium text-emerald-400 hover:text-emerald-300"
-            >
-              Kayıt ol
-            </Link>
-          </p>
-        </form>
-
-        <p className="text-center text-[11px] text-slate-500">
-          Bu ekran şimdilik sadece arayüzdür. Giriş akışını daha sonra kimlik
-          doğrulama ve plan atamasıyla backend'e bağlayacağız.
-        </p>
+        <section>
+          <LoginForm />
+        </section>
       </div>
     </main>
   );
-};
-
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams?: any;
-}) {
-  const planParam = searchParams?.plan;
-  const planSlug =
-    typeof planParam === "string" ? planParam.toLowerCase() : undefined;
-  return <LoginForm planSlug={planSlug} />;
 }

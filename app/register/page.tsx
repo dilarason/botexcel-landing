@@ -27,8 +27,7 @@ export default function RegisterPage({
             BotExcel hesabı oluştur
           </h1>
           <p className="text-sm text-slate-400">
-            Belgelerini Excel&apos;e otomatik aktarmak için birkaç saniyede
-            kayıt ol.
+            Belgelerini Excel&apos;e otomatik aktarmak için birkaç saniyede kayıt ol.
           </p>
           <p className="mt-2 inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-200">
             Seçilen plan: <span className="font-medium">{planLabel}</span>
@@ -73,7 +72,7 @@ export default function RegisterPage({
           </button>
 
           <p className="mt-2 text-center text-xs text-slate-500">
-            Zaten hesabın var mı?{" "}
+            Zaten hesabın var mı?{' '}
             <Link
               href={
                 planSlug
@@ -89,8 +88,8 @@ export default function RegisterPage({
 
         <p className="text-center text-[11px] text-slate-500">
           Şu an sadece arayüz hazırlanıyor. Kayıt olduğunda seçtiğin plan
-          backend&apos;e gönderilecek; plan limitleri ve faturalama orada
-          devreye girecek.
+          backend'e gönderilecek; plan limitleri ve faturalama orada devreye
+          girecek.
         </p>
       </div>
     </main>

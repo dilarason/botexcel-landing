@@ -1,9 +1,5 @@
 import Link from "next/link";
 
-type LoginPageProps = {
-  searchParams?: { plan?: string | string[] | undefined };
-};
-
 const PLAN_LABELS: Record<string, string> = {
   free: "Free",
   plus: "Plus",
@@ -11,7 +7,11 @@ const PLAN_LABELS: Record<string, string> = {
   business: "Business",
 };
 
-export default function LoginPage({ searchParams }: LoginPageProps) {
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams?: { plan?: string | string[] | undefined };
+}) {
   const planParam = searchParams?.plan;
   const planSlug =
     typeof planParam === "string" ? planParam.toLowerCase() : undefined;

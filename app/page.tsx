@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 import BotExcelScrollDemo from "./BotExcelScrollDemo";
 
-export default function Page() {
+export default function HomePage() {
   return <BotExcelScrollDemo />;
 }

@@ -7,19 +7,9 @@ const PLAN_LABELS: Record<string, string> = {
   business: "Business",
 };
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams?: { plan?: string | string[] | undefined };
-}) {
-  const planParam = searchParams?.plan;
-  const planSlug =
-    typeof planParam === "string" ? planParam.toLowerCase() : undefined;
-
+const LoginForm: React.FC<{ planSlug?: string }> = ({ planSlug }) => {
   const planLabel =
-    planSlug && PLAN_LABELS[planSlug]
-      ? PLAN_LABELS[planSlug]
-      : undefined;
+    planSlug && PLAN_LABELS[planSlug] ? PLAN_LABELS[planSlug] : undefined;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center px-4">
@@ -39,12 +29,7 @@ export default function LoginPage({
           )}
         </header>
 
-        <form
-          className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/40 backdrop-blur"
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
+        <form className="space-y-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-xl shadow-black/40 backdrop-blur">
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-200">
               E-posta
@@ -79,7 +64,7 @@ export default function LoginPage({
           </button>
 
           <p className="mt-2 text-center text-xs text-slate-500">
-            Hesabın yok mu?{' '}
+            Hesabın yok mu?{" "}
             <Link
               href={
                 planSlug
@@ -100,4 +85,15 @@ export default function LoginPage({
       </div>
     </main>
   );
+};
+
+export default function LoginPage({
+  searchParams,
+}: {
+  searchParams?: any;
+}) {
+  const planParam = searchParams?.plan;
+  const planSlug =
+    typeof planParam === "string" ? planParam.toLowerCase() : undefined;
+  return <LoginForm planSlug={planSlug} />;
 }

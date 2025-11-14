@@ -144,8 +144,6 @@ const selectedPlan = useMemo(() => {
   );
 };
 
-"use client";
-
 export default function LoginPage({ searchParams }: LoginPageProps) {
   const planSlug =
     typeof searchParams?.plan === "string" ? searchParams.plan : undefined;

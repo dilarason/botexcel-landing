@@ -141,8 +141,6 @@ const RegisterForm: React.FC<{ planSlug: string }> = ({ planSlug }) => {
   );
 };
 
-"use client";
-
 export default function RegisterPage({ searchParams }: RegisterPageProps) {
   const planSlug =
     typeof searchParams?.plan === "string"

@@ -1,14 +1,13 @@
-"use client";
+ "use client";
 
 import React, { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { getApiBase } from "../lib/api";
 import { landingPlans } from "../lib/plans";
 
-type LoginFormProps = {
-  planSlug?: string;
-};
-
-const LoginForm: React.FC<LoginFormProps> = ({ planSlug }) => {
+const LoginForm: React.FC = () => {
+  const searchParams = useSearchParams();
+  const planSlug = searchParams?.get("plan");
   const selectedPlan = useMemo(() => {
     if (!planSlug) return null;
     return (
@@ -144,12 +143,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ planSlug }) => {
   );
 };
 
-type LoginPageProps = {
-  searchParams?: {
-    plan?: string;
-  };
-};
-
-export default function LoginPage({ searchParams }: LoginPageProps) {
-  return <LoginForm planSlug={searchParams?.plan} />;
+export default function LoginPage() {
+  return <LoginForm />;
 }

@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-const API_BASE =
-  (process.env.NEXT_PUBLIC_BACKEND ?? "").replace(/\/$/, "") ?? "";
+const BASE_URL = (process.env.NEXT_PUBLIC_BACKEND ?? "").replace(/\/$/, "");
+const REGISTER_API = BASE_URL ? `${BASE_URL}/api/register` : "/api/register";
 
 type Status = {
   type: "success" | "error";
@@ -46,7 +46,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE || ""}/api/register`, {
+      const response = await fetch(REGISTER_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

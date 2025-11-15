@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-const API_BASE =
-  (process.env.NEXT_PUBLIC_BACKEND ?? "").replace(/\/$/, "") ?? "";
+const BASE_URL = (process.env.NEXT_PUBLIC_BACKEND ?? "").replace(/\/$/, "");
+const LOGIN_API = BASE_URL ? `${BASE_URL}/api/login` : "/api/login";
 
 type Status = {
   type: "success" | "error";
@@ -34,7 +34,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_BASE || ""}/api/login`, {
+      const response = await fetch(LOGIN_API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, remember }),

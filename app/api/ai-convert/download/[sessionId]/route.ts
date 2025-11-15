@@ -5,13 +5,11 @@ import { loadSession } from "../../../../../lib/aiSession";
 
 export async function GET(
   _request: NextRequest,
-  {
-    params,
-  }: {
+  context: {
     params: { sessionId: string };
   }
 ) {
-  const sessionId = params.sessionId;
+  const sessionId = context.params.sessionId;
   const session = await loadSession(sessionId);
   if (!session || !session.output_path) {
     return NextResponse.json(

@@ -1,8 +1,11 @@
+import "./globals.css";
+
 import type { ReactNode } from "react";
 
 export const metadata = {
   title: "BotExcel – AI destekli PDF → Excel dönüşümleri",
-  description: "Faturaları, ekstreleri ve sözleşmeleri dakikalar içinde temiz Excel tablolarına çevir.",
+  description:
+    "Faturaları, ekstreleri ve sözleşmeleri dakikalar içinde temiz Excel tablolarına çevir.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -15,7 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           src="https://plausible.io/js/script.js"
         />
       </head>
-      <body>{children}</body>
+      <body className="bg-slate-950 text-slate-50">{children}</body>
     </html>
   );
 }

@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { AppRouteHandlerFnContext } from "next/dist/server/route-modules/app-route/module";
 import { loadSession } from "../../../../../lib/aiSession";
+
+type RouteContext = {
+  params?: Promise<Record<string, string | string[] | undefined>>;
+};
 
 export async function GET(
   _request: NextRequest,
-  context: AppRouteHandlerFnContext
+  context: RouteContext
 ) {
-  const params = await context.params;
+  const params = await (context.params ?? {});
   const sessionId = params?.sessionId;
   if (!sessionId) {
     return NextResponse.json(

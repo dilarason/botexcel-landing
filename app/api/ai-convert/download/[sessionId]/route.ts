@@ -8,10 +8,16 @@ export async function GET(
   {
     params,
   }: {
-    params: { sessionId: string };
+    params?: { sessionId: string };
   }
 ) {
-  const sessionId = params.sessionId;
+  const sessionId = params?.sessionId;
+  if (!sessionId) {
+    return NextResponse.json(
+      { ok: false, message: "session_id eksik." },
+      { status: 400 }
+    );
+  }
   const session = await loadSession(sessionId);
   if (!session || !session.output_path) {
     return NextResponse.json(

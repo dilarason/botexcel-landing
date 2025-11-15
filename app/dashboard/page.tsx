@@ -1,12 +1,7 @@
 // app/dashboard/page.tsx
 
-import RecentActivity from "../../components/RecentActivity";
+import AiWorkspace from "../../components/AiWorkspace";
 
 export default function DashboardPage() {
-  return (
-    <main>
-      {/* ... */}
-      <RecentActivity limit={10} />
-    </main>
-  );
+  return <AiWorkspace />;
 }

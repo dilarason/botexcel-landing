@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { useRef, useState } from "react";
 
 type AiMessage = {
@@ -155,26 +156,38 @@ export default function AiWorkspace() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      <main className="mx-auto max-w-6xl space-y-10 px-4 py-12">
-        <header className="space-y-3 text-center">
-          <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">
-            BotExcel.AI
-          </p>
-          <h1 className="text-3xl font-semibold text-slate-50 md:text-4xl">
-            Konuşarak belgeyi Excel’e dönüşümü başlatın
-          </h1>
-          <p className="max-w-2xl text-sm text-slate-300">
-            Dosyanızı yükleyin, BotExcel.AI ön analizini yapıp sorularla netlik
-            sağlayarak Excel’i hazırlasın.
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-12">
+        <header className="flex flex-col items-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-5 text-center shadow-xl shadow-black/40 md:flex-row md:justify-between md:text-left">
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-1">
+              <Image
+                src="/botexcel-logo.svg"
+                alt="BotExcel"
+                fill
+                className="rounded-xl object-cover"
+                sizes="40px"
+              />
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">
+                BotExcel.AI
+              </p>
+              <h1 className="text-2xl font-semibold text-slate-50 md:text-3xl">
+                Chat tabanlı dönüşüm
+              </h1>
+            </div>
+          </div>
+          <p className="text-sm text-slate-300 max-w-2xl">
+            Dosyanızı yükleyin, BotExcel.AI aklındaki soruları sorarak
+            belgelerinizi doğru Excel tablosuna dönüştürsün. Sohbet arayüzünde
+            ilerlerken Excel hazır olduğunda indir butonu çıkar.
           </p>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-[1.3fr,0.9fr]">
+        <section className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
           <article className="space-y-6 rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg shadow-black/30">
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-slate-50">
-                Dosya gönder
-              </h2>
+              <h2 className="text-lg font-semibold text-slate-50">Dosya gönder</h2>
               <p className="text-sm text-slate-400">
                 PDF, fotoğraf, CSV, DOCX ya da XLSX dosyanızı yükleyin. Mobilde
                 fotoğraf çekip de gönderebilirsiniz.
@@ -189,10 +202,10 @@ export default function AiWorkspace() {
                   onChange={handleFileInput}
                 />
                 <span className="block text-xs uppercase tracking-[0.4em] text-slate-500">
-                  Dosya seç
+                  BotExcel’e yükle
                 </span>
                 <strong className="text-sm font-semibold text-slate-50">
-                  Şuraya sürükleyin ya da gözatın.
+                  Dosyanı sürükleyin veya gözatın.
                 </strong>
                 <p className="mt-2 text-[11px] text-slate-500">
                   Maksimum 20 MB, PDF/IMG/CSV/DOCX/XLSX desteklenir.
@@ -243,31 +256,42 @@ export default function AiWorkspace() {
             )}
           </article>
 
-          <article className="flex flex-col justify-between rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-lg shadow-black/40">
+          <article className="flex flex-col justify-between rounded-3xl border border-slate-800 bg-slate-950/70 p-6 shadow-lg shadow-black/40">
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-50">
-                  AI sohbeti
-                </h3>
-                <span className="text-xs uppercase tracking-[0.4em] text-slate-500">
-                  {status ?? "bekliyor"}
+              <div className="flex flex-row items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-slate-50">BotExcel.AI</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
+                    {status ?? "Bekleniyor"}
+                  </p>
+                </div>
+                <span className="text-[11px] text-slate-500">
+                  ChatGPT tarzı arayüz
                 </span>
               </div>
-              <div className="space-y-3 text-sm">
-                {messages.map((msg, index) => (
-                  <div
-                    key={`${msg.role}-${index}`}
-                    className={`rounded-2xl p-3 ${
-                      msg.role === "assistant"
-                        ? "bg-slate-900 text-slate-100"
-                        : msg.role === "user"
-                        ? "bg-emerald-500/20 text-emerald-200"
-                        : "bg-slate-800/60 text-slate-300"
-                    }`}
-                  >
-                    {msg.text}
-                  </div>
-                ))}
+              <div className="flex flex-col gap-3 overflow-hidden">
+                <div className="scrollbar-hidden max-h-[420px] space-y-3 overflow-y-auto pr-1">
+                  {messages.map((msg, index) => (
+                    <div
+                      key={`${msg.role}-${index}`}
+                      className={`relative flex ${
+                        msg.role === "user" ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                          msg.role === "assistant"
+                            ? "bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 shadow-[0_0_25px_rgba(0,0,0,0.4)]"
+                            : msg.role === "user"
+                            ? "bg-emerald-500/20 text-emerald-200"
+                            : "bg-slate-800/60 text-slate-300"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -276,9 +300,9 @@ export default function AiWorkspace() {
                 {questions.map((question) => (
                   <div key={question.id} className="space-y-2">
                     <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                      AI sorusu
+                      Yapay zekâ sorusu
                     </p>
-                    <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
+                    <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/80 p-3">
                       <p className="text-sm text-slate-200">{question.prompt}</p>
                       <div className="flex flex-wrap gap-2">
                         {question.options?.map((option) => (
@@ -296,7 +320,7 @@ export default function AiWorkspace() {
                         {!question.options && (
                           <button
                             onClick={() =>
-                              handleQuestionAnswer(question.id, "OK")
+                              handleQuestionAnswer(question.id, "Tamam")
                             }
                             className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
                             disabled={isBusy}
@@ -312,14 +336,14 @@ export default function AiWorkspace() {
             )}
 
             {downloadUrl && (
-              <div className="mt-4">
+              <div className="mt-4 space-y-2">
                 <a
                   href={downloadUrl}
                   className="inline-flex w-full items-center justify-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400"
                 >
                   Excel’i indir
                 </a>
-                <p className="mt-2 text-[11px] text-slate-400">
+                <p className="text-[11px] text-slate-400">
                   Şablon kaydetmek için ekstra ayar sekmesini kullan.
                 </p>
               </div>

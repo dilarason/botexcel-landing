@@ -1,10 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { loadSession } from "../../../../../lib/aiSession";
 
 export async function GET(
-  _request: Request,
+  _request: NextRequest,
   {
     params,
   }: {

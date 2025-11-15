@@ -1,15 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { AppRouteHandlerFnContext } from "next/dist/server/route-modules/app-route/module";
 import { loadSession } from "../../../../../lib/aiSession";
 
 export async function GET(
   _request: NextRequest,
-  context: {
-    params: { sessionId: string };
-  }
+  context: AppRouteHandlerFnContext
 ) {
-  const sessionId = context.params.sessionId;
+  const params = await context.params;
+  const sessionId = params?.sessionId;
+  if (!sessionId) {
+    return NextResponse.json(
+      { ok: false, message: "session_id eksik." },
+      { status: 400 }
+    );
+  }
   const session = await loadSession(sessionId);
   if (!session || !session.output_path) {
     return NextResponse.json(

@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
-const BASE_URL = (process.env.NEXT_PUBLIC_BACKEND ?? "").replace(/\/$/, "");
-const REGISTER_API = BASE_URL ? `${BASE_URL}/api/register` : "/api/register";
+const REGISTER_API = "/api/register";
 
 type Status = {
   type: "success" | "error";

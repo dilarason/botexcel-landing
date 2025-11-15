@@ -61,9 +61,9 @@ export default function LoginPage() {
 
       setStatus({
         type: "success",
-        message: "Giriş başarılı, anasayfaya yönlendiriliyorsunuz...",
+        message: "Giriş başarılı, BotExcel.AI çalışma alanına yönlendiriliyorsunuz...",
       });
-      setTimeout(() => router.replace("/"), 700);
+      setTimeout(() => router.replace("/dashboard"), 700);
     } catch (error) {
       console.error(error);
       setStatus({

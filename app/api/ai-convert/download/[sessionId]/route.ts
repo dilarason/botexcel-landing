@@ -3,13 +3,10 @@ import fs from "fs";
 import path from "path";
 import { loadSession } from "../../../../../lib/aiSession";
 
-type RouteContext = {
-  params?: Promise<Record<string, string | string[] | undefined>>;
-};
-
 export async function GET(
   _request: NextRequest,
-  context: RouteContext
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: any
 ) {
   const params = await (context.params ?? {});
   const sessionId = params?.sessionId;

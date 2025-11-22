@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE = (process.env.BOTEXCEL_API_BASE || "").trim() || "http://127.0.0.1:5000";
+const API_BASE = (process.env.BOTEXCEL_API_BASE || "").trim() || "https://api.botexcel.pro";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({}));

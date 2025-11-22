@@ -924,7 +924,6 @@ const BotExcelScrollDemo: React.FC = () => {
   const o2 = stageBand(progress, 0.2, 0.3, 0.4);
   const o3 = stageBand(progress, 0.4, 0.52, 0.64);
   const o4 = stageBand(progress, 0.64, 0.78, 0.92);
-  const headlineLateOpacity = clamp((progress - 0.9) / 0.08, 0, 1);
 
   return (
     <div className="w-full h-screen flex flex-col bg-black text-white font-sans">
@@ -984,23 +983,6 @@ const BotExcelScrollDemo: React.FC = () => {
                   >
                     Excel hazır.
                   </div>
-                  <div
-                    className="mt-6 flex flex-col items-center gap-2 text-center"
-                    style={{
-                      opacity: headlineLateOpacity,
-                      transition: "opacity 200ms linear",
-                    }}
-                  >
-                    <h2 className="text-2xl md:text-3xl font-semibold text-slate-100">
-                      Belgeni yükle, 3 ücretsiz dönüşüm al
-                    </h2>
-                    <p className="text-sm md:text-base text-slate-200/85 max-w-2xl">
-                      Kaydırmaya devam et: botExcel sahnesi tamamlandığında CTA açılır, tek aksiyonla kendi belgeni dene.
-                    </p>
-                    <div className="mt-2">
-                      <AuthAwareCTA />
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1008,6 +990,18 @@ const BotExcelScrollDemo: React.FC = () => {
 
           {/* Animasyon bittikten sonra gelen site içerikleri */}
           <div className="relative bg-slate-950 text-left">
+            <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-6 text-center text-slate-50">
+              <h2 className="text-2xl md:text-3xl font-semibold mb-2">
+                Belgeni yükle, 3 ücretsiz dönüşüm al
+              </h2>
+              <p className="text-sm md:text-base text-slate-300 max-w-2xl mx-auto">
+                Animasyon bitti, şimdi tek aksiyonla kendi belgeni dene. BotExcel karmaşık dosyaları dakikalar içinde Excel&apos;e çevirir.
+              </p>
+              <div className="mt-4 flex justify-center">
+                <AuthAwareCTA />
+              </div>
+            </section>
+
             {/* Özellikler – kullanıcı hikayelerinden önce */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-12 pb-10 sm:pt-16 sm:pb-14 text-slate-50">
               <header className="mb-6 text-center">

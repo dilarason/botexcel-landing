@@ -73,10 +73,9 @@ export const PricingSection: React.FC = () => {
           "Talebin alındı, en kısa sürede seninle iletişime geçeceğiz.",
       );
       setForm(initialForm);
-    } catch (err: any) {
-      setSubmitError(
-        err?.message || "Form gönderilirken beklenmeyen bir hata oluştu.",
-      );
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Form gönderilirken beklenmeyen bir hata oluştu.";
+      setSubmitError(message);
     } finally {
       setSubmitting(false);
     }

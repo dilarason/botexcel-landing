@@ -41,8 +41,9 @@ export function UploadHeader() {
       const resp = await fetch("/api/whoami", { cache: "no-store" });
       const data = (await resp.json()) as WhoAmIResponse;
       setWho(data);
-    } catch (e: any) {
-      setError(e?.message || "Kullanıcı bilgisi alınamadı.");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Kullanıcı bilgisi alınamadı.";
+      setError(message);
     } finally {
       setLoading(false);
     }

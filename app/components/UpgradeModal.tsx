@@ -78,8 +78,9 @@ export function UpgradeModal({
         router.refresh();
         onClose();
       }, 800);
-    } catch (e: any) {
-      setError(e?.message || "Beklenmeyen bir hata oluştu.");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Beklenmeyen bir hata oluştu.";
+      setError(message);
     } finally {
       setLoading(false);
     }

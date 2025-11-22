@@ -54,8 +54,9 @@ export function KurumsalForm() {
         setVolume("");
         setMessage("");
       }
-    } catch (e: any) {
-      setError(e?.message || "Beklenmeyen bir hata oluştu.");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Beklenmeyen bir hata oluştu.";
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -72,7 +73,7 @@ export function KurumsalForm() {
         </h1>
         <p className="max-w-2xl text-sm text-neutral-300 md:text-base">
           Yüksek hacimli belge işleme, KVKK / uyumluluk, özel entegrasyonlar
-          veya ekip kullanımı için BotExcel'i kurumsal olarak kullanmak
+          veya ekip kullanımı için BotExcel&apos;i kurumsal olarak kullanmak
           istiyorsan formu doldur; birkaç saat içinde sana dönüş yapalım.
         </p>
       </header>

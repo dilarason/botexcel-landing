@@ -14,11 +14,12 @@ export async function POST(req: NextRequest) {
     const data = await resp.json().catch(() => ({}));
 
     return NextResponse.json(data, { status: resp.status });
-  } catch (err: any) {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Talep iletilirken beklenmeyen bir hata oluştu.";
     return NextResponse.json(
       {
         error: true,
-        message: err?.message || "Talep iletilirken beklenmeyen bir hata oluştu.",
+        message,
       },
       { status: 500 },
     );

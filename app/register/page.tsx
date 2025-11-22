@@ -8,11 +8,6 @@ const PLANS = [
   { value: "business", label: "Business • ekipler için" },
 ];
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL ??
-  process.env.NEXT_PUBLIC_API_BASE ??
-  "http://localhost:5000";
-
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,7 +23,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const resp = await fetch(`${API_BASE}/api/register`, {
+      const resp = await fetch(`/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

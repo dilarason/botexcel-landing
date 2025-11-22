@@ -1,46 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL =
-  process.env.BACKEND_URL ||
-  process.env.NEXT_PUBLIC_BACKEND ||
-  "https://www.botexcel.pro";
+const API_BASE = (process.env.BOTEXCEL_API_BASE || "").trim() || "http://127.0.0.1:5000";
 
 export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
+  const body = await req.json().catch(() => ({}));
+  const email = (body?.email || "").toString().trim().toLowerCase();
+  const password = (body?.password || "").toString();
 
-    const backendResp = await fetch(`${BACKEND_URL}/api/login`, {
+  if (!email || !password) {
+    return NextResponse.json({ ok: false, error: "E-posta ve şifre zorunlu." }, { status: 400 });
+  }
+
+  const url = `${API_BASE.replace(/\/$/, "")}/api/login`;
+
+  try {
+    const upstream = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+      redirect: "manual",
     });
 
-    const data = await backendResp.json().catch(() => ({}));
+    const payload = await upstream.json().catch(() => ({ ok: false, error: "Geçersiz yanıt alındı." }));
+    const res = NextResponse.json(payload, { status: upstream.status });
 
-    // Forward Set-Cookie headers if present
-    const setCookieHeader = backendResp.headers.get("set-cookie");
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-
-    if (setCookieHeader) {
-      headers["Set-Cookie"] = setCookieHeader;
+    const setCookie = upstream.headers.get("set-cookie");
+    if (setCookie) {
+      res.headers.set("set-cookie", setCookie);
     }
 
-    return NextResponse.json(data, {
-      status: backendResp.status,
-      headers,
-    });
-  } catch (error) {
-    console.error("Login proxy error:", error);
-    return NextResponse.json(
-      {
-        ok: false,
-        error: "Backend bağlantı hatası. Lütfen tekrar deneyin."
-      },
-      { status: 500 }
-    );
+    return res;
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ ok: false, error: `Upstream error: ${message}` }, { status: 502 });
   }
 }

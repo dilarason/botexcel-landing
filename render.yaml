@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: botexcel-landing
+    runtime: node
+    env: node
+    region: frankfurt
+    plan: free
+    branch: main
+    buildCommand: npm install; npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
+      - key: BOTEXCEL_API_BASE
+        sync: false
+      - key: NEXT_PUBLIC_BACKEND
+        value: https://www.botexcel.pro
+    domains:
+      - botexcel.pro
+      - www.botexcel.pro
+    autoDeploy: true
+    healthCheckPath: /

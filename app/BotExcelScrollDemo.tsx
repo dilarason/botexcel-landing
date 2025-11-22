@@ -924,7 +924,7 @@ const BotExcelScrollDemo: React.FC = () => {
   const o2 = stageBand(progress, 0.2, 0.3, 0.4);
   const o3 = stageBand(progress, 0.4, 0.52, 0.64);
   const o4 = stageBand(progress, 0.64, 0.78, 0.92);
-  const headlineLateOpacity = clamp((progress - 0.7) / 0.25, 0, 1);
+  const headlineLateOpacity = clamp((progress - 0.9) / 0.08, 0, 1);
 
   return (
     <div className="w-full h-screen flex flex-col bg-black text-white font-sans">

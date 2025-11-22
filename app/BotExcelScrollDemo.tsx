@@ -924,6 +924,7 @@ const BotExcelScrollDemo: React.FC = () => {
   const o2 = stageBand(progress, 0.2, 0.3, 0.4);
   const o3 = stageBand(progress, 0.4, 0.52, 0.64);
   const o4 = stageBand(progress, 0.64, 0.78, 0.92);
+  const ctaLateOpacity = clamp((progress - 0.7) / 0.25, 0, 1);
 
   return (
     <div className="w-full h-screen flex flex-col bg-black text-white font-sans">
@@ -960,11 +961,8 @@ const BotExcelScrollDemo: React.FC = () => {
                     Belgeni yükle, 3 ücretsiz dönüşüm al
                   </h1>
                   <p className="text-sm md:text-base text-slate-200/85">
-                    Kaostan net tabloya: fatura, sözleşme, fotoğraf, CSV… BotExcel dakikalar içinde Excel’e çevirir. Tek aksiyon: Kendi belgenle dene.
+                    Veri karmaşasından tablo netliğine: fatura, sözleşme, fotoğraf, CSV… BotExcel dakikalar içinde Excel’e çevirir.
                   </p>
-                  <div className="mt-6 flex justify-center">
-                    <AuthAwareCTA />
-                  </div>
                 </div>
 
                 <div className="absolute bottom-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
@@ -985,6 +983,12 @@ const BotExcelScrollDemo: React.FC = () => {
                     style={{ opacity: o4 }}
                   >
                     Excel hazır.
+                  </div>
+                  <div
+                    className="mt-4 flex justify-center"
+                    style={{ opacity: ctaLateOpacity, transition: "opacity 200ms linear" }}
+                  >
+                    <AuthAwareCTA />
                   </div>
                 </div>
               </div>

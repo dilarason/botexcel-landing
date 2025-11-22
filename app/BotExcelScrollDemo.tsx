@@ -924,7 +924,7 @@ const BotExcelScrollDemo: React.FC = () => {
   const o2 = stageBand(progress, 0.2, 0.3, 0.4);
   const o3 = stageBand(progress, 0.4, 0.52, 0.64);
   const o4 = stageBand(progress, 0.64, 0.78, 0.92);
-  const ctaLateOpacity = clamp((progress - 0.7) / 0.25, 0, 1);
+  const headlineLateOpacity = clamp((progress - 0.7) / 0.25, 0, 1);
 
   return (
     <div className="w-full h-screen flex flex-col bg-black text-white font-sans">
@@ -985,10 +985,21 @@ const BotExcelScrollDemo: React.FC = () => {
                     Excel hazır.
                   </div>
                   <div
-                    className="mt-4 flex justify-center"
-                    style={{ opacity: ctaLateOpacity, transition: "opacity 200ms linear" }}
+                    className="mt-6 flex flex-col items-center gap-2 text-center"
+                    style={{
+                      opacity: headlineLateOpacity,
+                      transition: "opacity 200ms linear",
+                    }}
                   >
-                    <AuthAwareCTA />
+                    <h2 className="text-2xl md:text-3xl font-semibold text-slate-100">
+                      Belgeni yükle, 3 ücretsiz dönüşüm al
+                    </h2>
+                    <p className="text-sm md:text-base text-slate-200/85 max-w-2xl">
+                      Kaydırmaya devam et: botExcel sahnesi tamamlandığında CTA açılır, tek aksiyonla kendi belgeni dene.
+                    </p>
+                    <div className="mt-2">
+                      <AuthAwareCTA />
+                    </div>
                   </div>
                 </div>
               </div>

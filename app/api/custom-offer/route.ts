@@ -1,0 +1,26 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const BACKEND = process.env.BOTEXCEL_API_BASE || "http://localhost:5000";
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const resp = await fetch(`${BACKEND}/api/custom-offer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await resp.json().catch(() => ({}));
+
+    return NextResponse.json(data, { status: resp.status });
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        error: true,
+        message: err?.message || "Talep iletilirken beklenmeyen bir hata oluştu.",
+      },
+      { status: 500 },
+    );
+  }
+}

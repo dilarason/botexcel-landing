@@ -1,114 +1,378 @@
+"use client";
+
+import React, { useState } from "react";
 import Link from "next/link";
 
-import { landingPlans, mockUser } from "../lib/plans";
-
-type PricingSectionProps = {
-  showSession?: boolean;
+type SpecialOfferFormState = {
+  name: string;
+  email: string;
+  company: string;
+  volume: string;
+  message: string;
 };
 
-export default function PricingSection({ showSession = false }: PricingSectionProps) {
-  return (
-    <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-      <header className="mb-6 text-center">
-        <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300 mb-2">
-          Fiyatlandırma
-        </p>
-        <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-          Ekibiniz büyüdükçe ölçeklenen planlar.
-        </h2>
-        <p className="text-sm text-slate-300 max-w-2xl mx-auto">
-          Küçük bir KOBİ’den kurumsal finans ekibine kadar, ihtiyaçlarınıza uygun bir BotExcel planı tasarladık.
-        </p>
-      </header>
+const initialForm: SpecialOfferFormState = {
+  name: "",
+  email: "",
+  company: "",
+  volume: "",
+  message: "",
+};
 
-      {showSession && (
-        <div className="mb-5 rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-xs text-slate-200 sm:flex sm:items-center sm:justify-between">
-          <div>
-            <p className="uppercase tracking-[0.3em] text-emerald-300">Giriş yapan kullanıcı</p>
-            <p className="text-base font-semibold text-slate-50">{mockUser.name}</p>
-            <p className="text-slate-400">{mockUser.email}</p>
+export const PricingSection: React.FC = () => {
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [form, setForm] = useState<SpecialOfferFormState>(initialForm);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitMsg, setSubmitMsg] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    setSubmitMsg(null);
+    setSubmitError(null);
+
+    try {
+      const payload = {
+        name: form.name,
+        email: form.email,
+        company: form.company || undefined,
+        monthly_document_volume: form.volume
+          ? Number.isFinite(Number(form.volume))
+            ? Number(form.volume)
+            : form.volume
+          : undefined,
+        message: form.message || undefined,
+      };
+
+      const resp = await fetch("/api/quote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await resp.json().catch(() => ({}));
+
+      if (!resp.ok || data.error) {
+        throw new Error(
+          data.message || data.error || "Talep gönderilirken bir hata oluştu.",
+        );
+      }
+
+      setSubmitMsg(
+        data.message ||
+          "Talebin alındı, en kısa sürede seninle iletişime geçeceğiz.",
+      );
+      setForm(initialForm);
+    } catch (err: any) {
+      setSubmitError(
+        err?.message || "Form gönderilirken beklenmeyen bir hata oluştu.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const openOffer = () => {
+    setOfferOpen(true);
+    setSubmitMsg(null);
+    setSubmitError(null);
+  };
+
+  const closeOffer = () => {
+    setOfferOpen(false);
+  };
+
+  return (
+    <section
+      id="pricing"
+      className="border-t border-white/5 bg-neutral-950/90 px-4 py-16 sm:px-6 lg:px-8"
+    >
+      <div className="mx-auto flex max-w-5xl flex-col gap-10">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-neutral-50 sm:text-3xl">
+            Planını seç, veri karmaşasını geride bırak.
+          </h2>
+          <p className="mt-2 text-sm text-neutral-400 sm:text-base">
+            İlk 3 dönüşüm ücretsiz. Daha fazlası için Starter, Pro veya Business
+            planla kotaları büyütebilir, gerekirse ekip boyutuna özel teklif
+            oluşturabiliriz.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* Free */}
+          <div className="flex flex-col rounded-2xl border border-emerald-500/30 bg-neutral-950/80 p-4 shadow-lg shadow-emerald-500/20">
+            <h3 className="text-sm font-semibold text-neutral-50">Free</h3>
+            <p className="mt-1 text-2xl font-bold text-neutral-50">
+              0₺
+              <span className="ml-1 text-xs font-normal text-neutral-400">
+                /ay
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-400">
+              Ayda 3 belgeye kadar dene. Tek kişilik hızlı testler için ideal.
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
+              <li>• Ayda 3 belge dönüşümü</li>
+              <li>• PDF / görsel / Excel desteği</li>
+              <li>• Temel dashboard</li>
+            </ul>
+            <div className="mt-4">
+              <Link
+                href="/register"
+                className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-neutral-950 hover:bg-emerald-400"
+              >
+                Ücretsiz başla
+              </Link>
+            </div>
           </div>
-          <div className="mt-3 sm:mt-0 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-emerald-200">
-            Aktif plan: {mockUser.currentPlan}
+
+          {/* Starter */}
+          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
+            <h3 className="text-sm font-semibold text-neutral-50">Starter</h3>
+            <p className="mt-1 text-2xl font-bold text-neutral-50">
+              149₺
+              <span className="ml-1 text-xs font-normal text-neutral-400">
+                /ay
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-400">
+              Düzenli ama düşük hacimli kullanım için; küçük işletmeler ve
+              freelancer&apos;lar.
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
+              <li>• Ayda 20 belgeye kadar</li>
+              <li>• Standart dönüşüm hızı</li>
+              <li>• Gelişmiş dashboard şablonları</li>
+            </ul>
+            <div className="mt-4">
+              <Link
+                href="/upload"
+                className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-400/60 px-3 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/10"
+              >
+                Starter ile devam et
+              </Link>
+            </div>
+          </div>
+
+          {/* Pro */}
+          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
+            <h3 className="text-sm font-semibold text-neutral-50">Pro</h3>
+            <p className="mt-1 text-2xl font-bold text-neutral-50">
+              249₺
+              <span className="ml-1 text-xs font-normal text-neutral-400">
+                /ay
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-400">
+              Freelancer&apos;lar ve küçük ekipler için. Fatura, rapor ve stok
+              takibini otomatikleştir.
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
+              <li>• Ayda 60 belgeye kadar</li>
+              <li>• Hızlı öncelikli dönüşüm kuyruğu</li>
+              <li>• Gelişmiş Excel dashboard şablonları</li>
+            </ul>
+            <div className="mt-4">
+              <Link
+                href="/upload"
+                className="inline-flex w-full items-center justify-center rounded-xl bg-neutral-100 px-3 py-2 text-sm font-semibold text-neutral-950 hover:bg-white"
+              >
+                Pro ile devam et
+              </Link>
+            </div>
+          </div>
+
+          {/* Business */}
+          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
+            <h3 className="text-sm font-semibold text-neutral-50">Business</h3>
+            <p className="mt-1 text-2xl font-bold text-neutral-50">
+              Takım bazlı
+              <span className="ml-1 text-xs font-normal text-neutral-400">
+                teklif
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-400">
+              Muhasebe, operasyon veya satış ekipleri için çok kullanıcılı
+              kullanım ve geniş kota.
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
+              <li>• 5+ kullanıcı desteği</li>
+              <li>• Ayda 200 belgeye kadar</li>
+              <li>• Öncelikli destek & onboarding</li>
+            </ul>
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={openOffer}
+                className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-400/60 px-3 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/10"
+              >
+                Özel teklif al
+              </button>
+            </div>
+          </div>
+
+          {/* Enterprise */}
+          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
+            <h3 className="text-sm font-semibold text-neutral-50">
+              Enterprise
+            </h3>
+            <p className="mt-1 text-2xl font-bold text-neutral-50">
+              Sınırsız
+              <span className="ml-1 text-xs font-normal text-neutral-400">
+                kurumsal
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-neutral-400">
+              Çok departmanlı ekipler, özel entegrasyonlar ve SLA isteyenler
+              için.
+            </p>
+            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
+              <li>• Sınırsız belge işleme</li>
+              <li>• Özel entegrasyon & API</li>
+              <li>• Kurumsal SLA ve destek</li>
+            </ul>
+            <div className="mt-4">
+              <button
+                type="button"
+                onClick={openOffer}
+                className="inline-flex w-full items-center justify-center rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-neutral-100 hover:bg-neutral-900"
+              >
+                Özel teklif al
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ÖZEL TEKLİF FORMU MODALI */}
+      {offerOpen && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-950/95 p-5 shadow-2xl backdrop-blur">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-semibold text-neutral-50">
+                  Özel teklif iste
+                </h3>
+                <p className="mt-1 text-sm text-neutral-400">
+                  İş hacmini, ekip boyutunu ve temel kullanım senaryonu
+                  yaz; sana uygun Business/Enterprise teklifini hazırlayalım.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeOffer}
+                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-xs font-medium text-neutral-300">
+                    Ad Soyad
+                  </label>
+                  <input
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-neutral-300">
+                    E-posta
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300">
+                  Şirket / Marka adı
+                </label>
+                <input
+                  name="company"
+                  value={form.company}
+                  onChange={handleChange}
+                  className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300">
+                  Aylık yaklaşık belge sayısı
+                </label>
+                <input
+                  name="volume"
+                  value={form.volume}
+                  onChange={handleChange}
+                  placeholder="Örn: 500 fatura / 200 irsaliye"
+                  className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-neutral-300">
+                  Kısaca kullanım senaryon
+                </label>
+                <textarea
+                  name="message"
+                  value={form.message}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Örn: 3 kişilik muhasebe ekibi; haftalık PDF faturaları ve Excel raporlarını BotExcel ile otomatikleştirmek istiyoruz."
+                  className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
+                />
+              </div>
+
+              {submitError && (
+                <p className="text-sm text-rose-300">{submitError}</p>
+              )}
+              {submitMsg && (
+                <p className="text-sm text-emerald-300">{submitMsg}</p>
+              )}
+
+              <div className="mt-3 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={closeOffer}
+                  className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-lg bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-neutral-950 hover:bg-emerald-400 disabled:opacity-60"
+                >
+                  {submitting ? "Gönderiliyor..." : "Teklif iste"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-xs">
-        {landingPlans.map((plan) => (
-          <article
-            key={plan.name}
-            className={`rounded-2xl border p-4 flex flex-col gap-2 ${
-              plan.highlight ? "border-emerald-400 bg-emerald-950/40" : "border-slate-800 bg-slate-900/60"
-            }`}
-          >
-            <div>
-              <h3 className="text-sm font-semibold text-slate-50 flex items-center justify-between">
-                <span>{plan.name}</span>
-              </h3>
-              <div className="text-lg font-semibold text-slate-50">{plan.price}</div>
-              <p className="text-[11px] text-slate-400">{plan.limit}</p>
-            </div>
-            <p className="text-[11px] text-slate-300">{plan.tagline}</p>
-            <ul className="text-[11px] text-slate-300 space-y-1 mb-2">
-              {plan.bullets.map((bullet) => (
-                <li key={bullet}>• {bullet}</li>
-              ))}
-            </ul>
-            {plan.contact ? (
-              <a
-                href={plan.href}
-                className="mt-auto inline-flex justify-center px-3 py-1.5 rounded-full border border-emerald-400 text-emerald-100 hover:bg-emerald-400 hover:text-emerald-900 transition"
-              >
-                Hemen Başla
-              </a>
-            ) : (
-              <Link
-                href="/register"
-                className={`mt-auto inline-flex justify-center px-3 py-1.5 rounded-full font-medium transition ${
-                  plan.highlight
-                    ? "bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
-                    : "border border-slate-600 text-slate-100 hover:bg-slate-800"
-                }`}
-              >
-                Hemen Başla
-              </Link>
-            )}
-          </article>
-        ))}
-      </div>
-      <p className="mt-4 text-center text-xs text-slate-400">
-        Business planını ekip ihtiyaçlarınıza göre şekillendirmek için {" "}
-        <a href="mailto:sales@botexcel.com" className="text-emerald-300 hover:text-emerald-200">
-          sales@botexcel.com
-        </a>{" "}
-        adresindeki ekiple iletişime geçebilirsiniz.
-      </p>
-
-      <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-5 sm:px-6 sm:py-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300">
-              Kurumsal mı düşünüyorsun?
-            </p>
-            <h3 className="text-lg font-semibold text-slate-50">
-              KVKK, audit trail, SLA, uptime ve özel destek
-            </h3>
-            <ul className="mt-2 space-y-1 text-[11px] text-slate-200">
-              <li>• Dosyalar Türkiye/EU bölgesinde kalır, log’lar denetlenebilir.</li>
-              <li>• Hücre bazlı audit trail ve izlenebilirlik.</li>
-              <li>• SLA + uptime taahhütleri ve özel destek hattı.</li>
-              <li>• Aylık 10.000+ belge için özel fiyatlandırma.</li>
-            </ul>
-          </div>
-          <a
-            href="mailto:sales@botexcel.com?subject=Kurumsal%20Plan%20Talebi"
-            className="mt-2 sm:mt-0 inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-400"
-          >
-            Kurumsal teklif al
-          </a>
-        </div>
-      </div>
     </section>
   );
-}
+};

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, FormEvent } from "react";
-import { PlanSelector } from "../components/PlanSelector";
+import { UploadHeader } from "../components/UploadHeader";
 
 type ConvertResult = {
   id?: string;
@@ -11,22 +11,8 @@ type ConvertResult = {
   rows?: unknown;
   ok?: boolean;
   error?: string;
+  error_code?: string;
 } & Record<string, unknown>;
-
-type WhoAmIResponse = {
-  ok: boolean;
-  authenticated: boolean;
-  email?: string;
-  plan?: string;
-  usage?: {
-    month?: string;
-    count?: number;
-    limit?: number;
-  };
-  usage_count?: number;
-  usage_month?: string;
-  limit?: number;
-};
 
 type RecentItem = {
   time?: string;
@@ -38,14 +24,13 @@ type RecentItem = {
   source_file?: string;
 } & Record<string, unknown>;
 
+type AuthState = "checking" | "guest" | "user";
+
 const BACKEND_BASE =
   process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
 
-type AuthState = "checking" | "guest" | "user";
-
 export default function UploadPage() {
   const [authState, setAuthState] = useState<AuthState>("checking");
-
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<string>("klasik");
   const [loading, setLoading] = useState(false);
@@ -56,16 +41,7 @@ export default function UploadPage() {
   const [recentError, setRecentError] = useState<string | null>(null);
   const [recentItems, setRecentItems] = useState<RecentItem[]>([]);
 
-  const [plan, setPlan] = useState<string | undefined>(undefined);
-  const [usageMonth, setUsageMonth] = useState<string | undefined>(undefined);
-  const [usageCount, setUsageCount] = useState<number | undefined>(undefined);
-  const [usageLimit, setUsageLimit] = useState<number | undefined>(undefined);
-
-  const [upgradeLoading, setUpgradeLoading] = useState(false);
-  const [upgradeError, setUpgradeError] = useState<string | null>(null);
-  const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
-
-  // 1) Auth guard: /whoami kontrolü + plan/usage çek
+  // 1) Auth guard: /whoami kontrolü
   useEffect(() => {
     let cancelled = false;
 
@@ -74,7 +50,7 @@ export default function UploadPage() {
         const res = await fetch(`${BACKEND_BASE}/whoami`, {
           credentials: "include",
         });
-        const data: WhoAmIResponse = await res.json().catch(() => ({
+        const data = await res.json().catch(() => ({
           ok: false,
           authenticated: false,
         }));
@@ -83,23 +59,6 @@ export default function UploadPage() {
 
         if (data.ok && data.authenticated) {
           setAuthState("user");
-          setPlan(data.plan);
-          const count =
-            typeof data.usage?.count === "number"
-              ? data.usage?.count
-              : typeof data.usage_count === "number"
-                ? data.usage_count
-                : undefined;
-          const limit =
-            typeof data.usage?.limit === "number"
-              ? data.usage?.limit
-              : typeof data.limit === "number"
-                ? data.limit
-                : undefined;
-          const month = data.usage?.month || data.usage_month;
-          setUsageMonth(month || undefined);
-          setUsageCount(count);
-          setUsageLimit(limit);
         } else {
           setAuthState("guest");
           if (typeof window !== "undefined") {
@@ -116,7 +75,7 @@ export default function UploadPage() {
       }
     }
 
-    checkAuth();
+    void checkAuth();
 
     return () => {
       cancelled = true;
@@ -155,69 +114,12 @@ export default function UploadPage() {
       }
     }
 
-    loadRecent();
+    void loadRecent();
 
     return () => {
       cancelled = true;
     };
   }, [authState]);
-
-  async function handleUpgrade(planValue: "pro" | "business") {
-    setUpgradeError(null);
-    setUpgradeSuccess(null);
-    setUpgradeLoading(true);
-
-    try {
-      const resp = await fetch(`/api/plan`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ plan: planValue }),
-      });
-
-      const data = await resp.json().catch(() => ({}));
-
-      if (!resp.ok || data?.error) {
-        setUpgradeError(
-          data?.message || data?.error || "Plan güncellenirken bir hata oluştu."
-        );
-        return;
-      }
-
-      setUpgradeSuccess(
-        data?.message || "Planın başarıyla güncellendi. Yeni hakların yüklendi."
-      );
-
-      const profile = data?.profile;
-      if (profile) {
-        setPlan(profile.plan);
-        setUsageMonth(profile.usage_month || undefined);
-        setUsageCount(profile.usage_count);
-        setUsageLimit(typeof profile.limit === "number" ? profile.limit : undefined);
-      } else {
-        // Fallback: whoami tekrar çek
-        try {
-          const res = await fetch(`${BACKEND_BASE}/whoami`, {
-            credentials: "include",
-          });
-          const who = await res.json().catch(() => null);
-          if (who?.authenticated) {
-            setPlan(who.plan);
-            setUsageMonth(who.usage_month || undefined);
-            setUsageCount(who.usage_count);
-            setUsageLimit(typeof who.limit === "number" ? who.limit : undefined);
-          }
-        } catch {
-          /* ignore */
-        }
-      }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : undefined;
-      setUpgradeError(message || "Beklenmeyen bir hata oluştu.");
-    } finally {
-      setUpgradeLoading(false);
-    }
-  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -247,7 +149,7 @@ export default function UploadPage() {
       if (!res.ok || data?.error) {
         if (res.status === 403 && data?.error_code === "QUOTA_LIMIT") {
           setError(
-            "Aylık limitine ulaştın. Daha fazla belge için Pro/Business plana geçebilirsin."
+            "Aylık limitine ulaştın. Daha fazla belge için planını yükseltebilirsin."
           );
           return;
         }
@@ -290,38 +192,16 @@ export default function UploadPage() {
       <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
         <p className="text-sm text-slate-400">
           Yönlendiriliyorsun... Eğer yönlenmiyorsa{" "}
-            <a href="/login" className="text-emerald-300 underline">
-              buradan giriş yapabilirsin
-            </a>
-            .
+          <a href="/login" className="text-emerald-300 underline">
+            buradan giriş yapabilirsin
+          </a>
+          .
         </p>
       </div>
     );
   }
 
-  // Plan + usage badge metni
-  const planLabel = plan || "free";
-  const derivedLimit =
-    usageLimit ??
-    (planLabel === "free" ? 3 : planLabel === "pro" ? 200 : undefined);
-  const usageBadge =
-    typeof usageCount === "number" && typeof derivedLimit === "number"
-      ? `Bu ay ${usageCount}/${derivedLimit} dönüşüm`
-      : typeof usageCount === "number"
-        ? `Bu ay ${usageCount} dönüşüm`
-        : undefined;
-  const limitReached =
-    typeof derivedLimit === "number" &&
-    typeof usageCount === "number" &&
-    usageCount >= derivedLimit;
-  const usageProgress =
-    typeof derivedLimit === "number" && derivedLimit > 0 && typeof usageCount === "number"
-      ? Math.min(100, Math.round((usageCount / derivedLimit) * 100))
-      : null;
-
-  // İndirme linkini belirle:
-  // Tercihen /api/download/{id} (Next proxy),
-  // fallback olarak backend'ten gelen raw download_url
+  // İndirme linki
   const downloadHref =
     (result?.id && `/api/download/${encodeURIComponent(result.id)}`) ||
     result?.download_url ||
@@ -330,99 +210,7 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col items-center px-4 py-8">
       <div className="w-full max-w-5xl space-y-8">
-        {/* Başlık */}
-        <header className="space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-400/40 px-3 py-1 text-xs text-emerald-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-300" />
-            Canlı Dönüşüm
-          </div>
-          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-            <div className="space-y-2">
-              <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                PDF’ini yükle, akıllı Excel çıktısını indir
-              </h1>
-              <p className="text-sm text-slate-400 max-w-prose">
-                BotExcel, karmaşık dokümanlarını analiz eder, alanları tespit
-                eder ve temiz bir Excel tablosuna dönüştürür. Tüm dönüşümler
-                hesabına işlenir.
-              </p>
-            </div>
-
-            {/* Plan / usage rozeti */}
-            <div className="inline-flex flex-col items-end gap-1 text-right text-xs">
-              <div className="inline-flex items-center gap-2 rounded-full bg-slate-900/80 border border-slate-700 px-3 py-1">
-                <span className="text-slate-400">Planın</span>
-                <span className="rounded-full bg-emerald-500/10 border border-emerald-400/40 px-2 py-0.5 text-emerald-200 font-medium capitalize">
-                  {planLabel}
-                </span>
-              </div>
-              {usageBadge && (
-                <span className="text-[11px] text-slate-500">
-                  {usageMonth ? `${usageMonth} · ` : ""}
-                  {usageBadge}
-                </span>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Kota barı */}
-        <section className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 space-y-3">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-semibold text-slate-100">
-              Bu ayki kullanımın:{" "}
-              <span className="text-emerald-300">
-                {typeof usageCount === "number" ? usageCount : "-"}
-                {derivedLimit ? ` / ${derivedLimit}` : ""} belge
-              </span>
-            </p>
-            {usageProgress !== null ? (
-              <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    limitReached ? "bg-red-400" : "bg-emerald-400"
-                  }`}
-                  style={{ width: `${usageProgress}%` }}
-                />
-              </div>
-            ) : (
-              <p className="text-xs text-slate-400">Planın için aylık limit yok (limitsiz).</p>
-            )}
-            {planLabel === "free" && (
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleUpgrade("pro")}
-                  disabled={upgradeLoading}
-                  className="inline-flex items-center gap-1 rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-emerald-950 hover:bg-emerald-400 disabled:opacity-60"
-                >
-                  {upgradeLoading ? "Güncelleniyor..." : "Limiti artır (Pro’ya geç)"}
-                </button>
-                {limitReached && (
-                  <span className="text-[11px] text-red-300">
-                    Limit dolu, Pro’ya geçersen hemen yeni haklar açılır.
-                  </span>
-                )}
-              </div>
-            )}
-            {upgradeError && <span className="text-[11px] text-red-300">{upgradeError}</span>}
-            {upgradeSuccess && (
-              <span className="text-[11px] text-emerald-300">{upgradeSuccess}</span>
-            )}
-          </div>
-        </section>
-
-        <PlanSelector
-          currentPlan={(planLabel ?? "free") as "free" | "pro" | "business" | "enterprise"}
-          limit={derivedLimit ?? null}
-          usageCount={usageCount ?? null}
-          onPlanChanged={(p) => {
-            setPlan(p);
-            setUsageCount(0);
-            setUpgradeSuccess("Planın güncellendi.");
-            setUpgradeError(null);
-          }}
-        />
+        <UploadHeader />
 
         <main className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
           {/* Form kartı */}

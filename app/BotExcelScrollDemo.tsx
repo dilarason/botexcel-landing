@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import PricingSection from "./components/PricingSection";
+import { PricingSection } from "./components/PricingSection";
 import { OutputQualitySection } from "./components/OutputQualitySection";
 import BlogSection from "./components/BlogSection";
 import ResourcesSection from "./components/ResourcesSection";
@@ -956,12 +956,9 @@ const BotExcelScrollDemo: React.FC = () => {
                     transition: "opacity 200ms linear",
                   }}
                 >
-                  <h1 className="text-3xl md:text-5xl font-semibold tracking-tight mb-4">
-                    Belgeni yükle, 3 ücretsiz dönüşüm al
+                  <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
+                    Veri karmaşasından tablo netliğine.
                   </h1>
-                  <p className="text-sm md:text-base text-slate-200/85">
-                    Veri karmaşasından tablo netliğine: fatura, sözleşme, fotoğraf, CSV… BotExcel dakikalar içinde Excel’e çevirir.
-                  </p>
                 </div>
 
                 <div className="absolute bottom-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
@@ -1236,7 +1233,7 @@ const BotExcelScrollDemo: React.FC = () => {
               </div>
             </section>
 
-            <PricingSection showSession />
+            <PricingSection />
 
             {/* Öne çıkan yetkinlikler */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
@@ -1368,7 +1365,7 @@ const BotExcelScrollDemo: React.FC = () => {
               </div>
             </section>
 
-            <PricingSection showSession />
+            <PricingSection />
 
             {/* Güven & KVKK / denetim bölümü */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">

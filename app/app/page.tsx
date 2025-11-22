@@ -1,7 +1,7 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
 "use client";
 
 import React, { useEffect } from "react";
+import Link from "next/link";
 
 import DemoUploader from "../components/DemoUploader";
 import { useWhoAmI } from "../hooks/useWhoAmI";
@@ -42,12 +42,12 @@ export default function AppDashboardPage() {
               Belgelerini yükle, BotExcel geri kalanını halletsin.
             </p>
           </div>
-          <a
+          <Link
             href="/"
             className="text-xs text-slate-400 underline hover:text-slate-200"
           >
             Ana sayfaya dön
-          </a>
+          </Link>
         </header>
 
         <section className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/set-state-in-effect, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -26,6 +25,7 @@ export function useRecentJobs(limit: number = 10, enabled: boolean = true): Rece
     let cancelled = false;
 
     if (!enabled) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({ status: "idle" });
       return () => {
         cancelled = true;
@@ -61,7 +61,7 @@ export function useRecentJobs(limit: number = 10, enabled: boolean = true): Rece
             : [];
 
         setState({ status: "loaded", items });
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setState({ status: "error", error: "recent.json isteği başarısız." });
         }

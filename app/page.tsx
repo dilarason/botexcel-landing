@@ -1,7 +1,5 @@
-"use client";
+import LandingPage from "./components/LandingPage";
 
-import BotExcelScrollDemo from "./BotExcelScrollDemo";
-
-export default function HomePage() {
-  return <BotExcelScrollDemo />;
+export default function Page() {
+  return <LandingPage />;
 }

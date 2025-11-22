@@ -1,12 +1,17 @@
 "use client";
 
 import React from "react";
+import { motion } from "framer-motion";
 
 export function OutputQualitySection() {
   return (
-    <section
+    <motion.section
       id="output-quality"
       className="w-full bg-slate-950 px-4 py-16 text-slate-50 md:px-8 lg:px-16"
+      initial={{ opacity: 0, filter: "blur(16px)" }}
+      whileInView={{ opacity: 1, filter: "blur(0px)" }}
+      viewport={{ once: true, margin: "-10%" }}
+      transition={{ duration: 1.6, ease: "easeOut", delay: 0.4 }}
     >
       <div className="mx-auto max-w-5xl space-y-8">
         <div className="space-y-3">
@@ -71,6 +76,6 @@ export function OutputQualitySection() {
           </a>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useEffect, useState } from "react";
@@ -39,7 +38,7 @@ export function useWhoAmI(): WhoAmIState {
         } else {
           setState({ status: "anonymous" });
         }
-      } catch (error) {
+      } catch {
         if (!cancelled) {
           setState({ status: "error", error: "WhoAmI isteği başarısız." });
         }

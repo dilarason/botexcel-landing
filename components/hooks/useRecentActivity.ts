@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 
 export type RecentItem = {
@@ -84,11 +83,11 @@ export function useRecentActivity(limit: number = 10): UseRecentActivityState {
             items,
           });
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (cancelled) return;
         setState({
           loading: false,
-          error: err?.message || "Bilinmeyen bir hata oluştu.",
+          error: err instanceof Error ? err.message : "Bilinmeyen bir hata oluştu.",
           items: [],
         });
       }

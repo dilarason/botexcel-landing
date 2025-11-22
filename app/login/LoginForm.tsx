@@ -36,14 +36,19 @@ export function LoginForm() {
 
       setState("success");
 
-      if (typeof window !== "undefined" && (window as any).plausible) {
-        (window as any).plausible("login_succeeded", {
-          props: { hash: btoa(email).slice(0, 8) },
-        });
+      if (typeof window !== "undefined") {
+        const win = window as typeof window & {
+          plausible?: (event: string, options?: { props?: Record<string, string> }) => void;
+        };
+        if (typeof win.plausible === "function") {
+          win.plausible("login_succeeded", {
+            props: { hash: btoa(email).slice(0, 8) },
+          });
+        }
       }
 
       setTimeout(() => router.push("/upload"), 400);
-    } catch (err) {
+    } catch {
       setState("error");
       setError("Sunucuya ulaşılamadı. Birazdan tekrar dene.");
     }

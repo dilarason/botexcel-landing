@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/refs, react/no-unescaped-entities */
 "use client";
 
 import React, { useRef, useState } from "react";
@@ -12,9 +11,10 @@ type DemoUploaderProps = {
   variant?: "anonymous" | "authenticated";
 };
 
-const track = (eventName: string, props?: Record<string, any>) => {
+type PlausibleFn = (eventName: string, options?: { props?: Record<string, unknown> }) => void;
+const track = (eventName: string, props?: Record<string, unknown>) => {
   if (typeof window === "undefined") return;
-  const w = window as any;
+  const w = window as typeof window & { plausible?: PlausibleFn };
   const plausible = w?.plausible;
   if (typeof plausible !== "function") return;
   const source = getPersistedSource();
@@ -214,7 +214,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
           <div className="text-xs text-slate-600 space-y-1">
             <div className="flex items-center gap-2 text-[11px]">
               <span className="font-semibold text-slate-400">Belge:</span>
-              <span>{resultInfo.originalName || fileRef.current?.value || "Dosya"}</span>
+              <span>{resultInfo.originalName || "Dosya"}</span>
             </div>
             <div className="flex items-center gap-2 text-[11px]">
               <span className="font-semibold text-slate-400">Excel:</span>
@@ -252,7 +252,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
             Demo hakkın doldu.
           </p>
           <p className="text-xs text-amber-800">
-            BotExcel'i sınırsız kullanmak için ücretsiz hesap açman gerekiyor.
+            BotExcel&apos;i sınırsız kullanmak için ücretsiz hesap açman gerekiyor.
             Demo sadece tadımlık; faturaların, ekstrelerin ve sözleşmelerin için
             kalıcı alan açalım.
           </p>

@@ -60,18 +60,18 @@ export default function PricingSection({ showSession = false }: PricingSectionPr
                 href={plan.href}
                 className="mt-auto inline-flex justify-center px-3 py-1.5 rounded-full border border-emerald-400 text-emerald-100 hover:bg-emerald-400 hover:text-emerald-900 transition"
               >
-                {plan.cta}
+                Hemen Başla
               </a>
             ) : (
               <Link
-                href={plan.href}
+                href="/register"
                 className={`mt-auto inline-flex justify-center px-3 py-1.5 rounded-full font-medium transition ${
                   plan.highlight
                     ? "bg-emerald-500 text-emerald-950 hover:bg-emerald-400"
                     : "border border-slate-600 text-slate-100 hover:bg-slate-800"
                 }`}
               >
-                {plan.cta}
+                Hemen Başla
               </Link>
             )}
           </article>
@@ -84,6 +84,31 @@ export default function PricingSection({ showSession = false }: PricingSectionPr
         </a>{" "}
         adresindeki ekiple iletişime geçebilirsiniz.
       </p>
+
+      <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/5 px-4 py-5 sm:px-6 sm:py-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300">
+              Kurumsal mı düşünüyorsun?
+            </p>
+            <h3 className="text-lg font-semibold text-slate-50">
+              KVKK, audit trail, SLA, uptime ve özel destek
+            </h3>
+            <ul className="mt-2 space-y-1 text-[11px] text-slate-200">
+              <li>• Dosyalar Türkiye/EU bölgesinde kalır, log’lar denetlenebilir.</li>
+              <li>• Hücre bazlı audit trail ve izlenebilirlik.</li>
+              <li>• SLA + uptime taahhütleri ve özel destek hattı.</li>
+              <li>• Aylık 10.000+ belge için özel fiyatlandırma.</li>
+            </ul>
+          </div>
+          <a
+            href="mailto:sales@botexcel.com?subject=Kurumsal%20Plan%20Talebi"
+            className="mt-2 sm:mt-0 inline-flex items-center justify-center rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 hover:bg-emerald-400"
+          >
+            Kurumsal teklif al
+          </a>
+        </div>
+      </div>
     </section>
   );
 }

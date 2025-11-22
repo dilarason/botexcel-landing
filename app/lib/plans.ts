@@ -1,5 +1,4 @@
 export type LandingPlan = {
-  slug: string;
   name: string;
   price: string;
   limit: string;
@@ -31,50 +30,51 @@ export const mockUser = {
 
 export const landingPlans: LandingPlan[] = [
   {
-    slug: "free",
     name: "Free",
     price: "0 ₺ / ay",
     limit: "Ayda 3 dosya",
-    tagline: "Başlamak isteyen ekipler için risksiz başlangıç.",
-    bullets: ["3 dosya/ay", "Temel OCR", "Community desteği"],
+    tagline: "KDV, temel fatura ve stok denemeleri için risksiz başlangıç.",
+    bullets: ["3 dosya/ay", "Temel OCR + AI", "Community desteği"],
     href: "/register",
     cta: "Ücretsiz Dene",
   },
   {
-    slug: "plus",
-    name: "Plus",
-    price: "299 ₺ / ay",
-    limit: "Ayda 20 dosya",
-    tagline: "AI etiketleme + audit trail + öncelikli destek.",
-    bullets: [
-      "Ayda 20 dosya",
-      "Gelişmiş OCR + AI etiketleme",
-      "Öncelikli destek ve audit trail",
-    ],
-    highlight: true,
-    href: "/register?plan=plus",
-    cta: "Plus'a Geç",
-  },
-  {
-    slug: "pro",
     name: "Pro",
     price: "799 ₺ / ay",
     limit: "Ayda 200 dosya",
-    tagline: "Finans ve operasyon ekipleri için hazır şablon + API.",
-    bullets: ["Ayda 200 dosya", "Özel şablon + API erişimi", "Takım bazlı roller"],
+    tagline: "Finans ve operasyon ekipleri için KDV, e-arşiv, stok şablonları + API.",
+    bullets: [
+      "200 dosya/ay",
+      "Özel şablon + API erişimi",
+      "Öncelikli destek ve audit trail",
+    ],
+    highlight: true,
     href: "/register?plan=pro",
     cta: "Pro'yu Seç",
   },
   {
-    slug: "business",
     name: "Business",
     price: "Özel fiyat",
-    limit: "Talebe göre dosya limiti",
-    tagline: "Ekibiniz için özel paketleri birlikte tasarlayalım.",
+    limit: "Limitsiz (ekip bazlı)",
+    tagline: "Ekipler için sınırsız kullanım, SLA ve özel entegrasyon.",
     bullets: [
+      "Sınırsız dönüşüm",
       "Özel SLA ve raporlama",
       "Dedicated müşteri temsilcisi",
-      "Yerinde veya özel entegrasyon desteği",
+    ],
+    contact: true,
+    href: "mailto:sales@botexcel.com",
+    cta: "Ekiple Görüş",
+  },
+  {
+    name: "Enterprise",
+    price: "Özel teklif",
+    limit: "Sınırsız + özel SLA",
+    tagline: "Denetim gereksinimi olan kurumsal ekipler için.",
+    bullets: [
+      "Sınırsız kullanım & denetim gereksinimleri",
+      "Yerinde/özel entegrasyon desteği",
+      "Gelişmiş güvenlik kontrolleri",
     ],
     contact: true,
     href: "mailto:sales@botexcel.com",
@@ -88,46 +88,43 @@ export const purchasePlans: PurchasePlan[] = [
     price: "0 ₺ / ay",
     limit: "Ayda 3 dosya",
     description:
-      "Küçük ekipler için risksiz başlangıç: OCR, temel AI ve BotExcel arayüzünü keşfetme imkânı.",
-    perks: ["3 dosya/ay", "Temel OCR", "Community desteği"],
+      "KDV, temel fatura ve stok denemeleri için risksiz başlangıç: temel OCR + AI.",
+    perks: ["3 dosya/ay", "Temel OCR + AI", "Community desteği"],
     href: "/register",
     cta: "Ücretsiz Dene",
-  },
-  {
-    name: "Plus",
-    price: "299 ₺ / ay",
-    limit: "Ayda 20 dosya",
-    description:
-      "AI etiketleme, audit trail ve öncelikli destek ile dinamik ekipler için ideal.",
-    perks: [
-      "20 dosya/ay dönüştürme",
-      "AI etiketleme + gelişmiş OCR",
-      "Öncelikli destek ve audit trail",
-    ],
-    highlight: true,
-    href: "/register?plan=plus",
-    cta: "Plus'a Geç",
   },
   {
     name: "Pro",
     price: "799 ₺ / ay",
     limit: "Ayda 200 dosya",
     description:
-      "Finans, operasyon ve entegrasyon ekipleri için özel şablonlar, API erişimi ve takım bazlı yetkiler.",
-    perks: ["200 dosya/ay", "Özel şablon + API erişimi", "Takım bazlı rol yönetimi"],
+      "Finans ve operasyon ekipleri için KDV, e-arşiv, stok şablonları ve API erişimi.",
+    perks: ["200 dosya/ay", "Özel şablon + API erişimi", "Öncelikli destek"],
+    highlight: true,
     href: "/register?plan=pro",
     cta: "Pro'yu Seç",
   },
   {
     name: "Business",
     price: "İletişime geçin",
-    limit: "Talebinize göre",
+    limit: "Limitsiz",
     description:
-      "İhtiyaçlarınıza göre bir paket oluşturmak için ekibimizle iletişime geçin; dosya limiti, SLA ve raporlama sürecini birlikte tasarlayalım.",
+      "Ekipler için sınırsız kullanım, özel SLA, raporlama ve entegrasyon desteği.",
+    perks: ["Sınırsız dönüşüm", "Özel SLA ve raporlama", "Dedicated müşteri temsilcisi"],
+    contact: true,
+    href: "mailto:sales@botexcel.com",
+    cta: "Ekiple Görüş",
+  },
+  {
+    name: "Enterprise",
+    price: "Özel teklif",
+    limit: "Sınırsız + denetim",
+    description:
+      "Regülasyon ve denetim gerektiren kurumsal ekipler için güvenlik kontrollü, sınırsız kullanım.",
     perks: [
-      "Özel SLA ve raporlama",
-      "Dedicated müşteri temsilcisi",
-      "Yerinde veya özel entegrasyon desteği",
+      "Sınırsız kullanım",
+      "Gelişmiş güvenlik ve denetim",
+      "Yerinde/özel entegrasyon desteği",
     ],
     contact: true,
     href: "mailto:sales@botexcel.com",

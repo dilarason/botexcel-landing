@@ -1,163 +1,212 @@
 "use client";
 
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-type AiMessage = {
-  role: "system" | "assistant" | "user";
-  text: string;
+type ChatSessionSummary = {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
 };
 
-type AiQuestion = {
-  id: string;
-  prompt: string;
-  options?: string[];
+type ChatMessage = {
+  id: number;
+  role: "user" | "assistant" | "system";
+  content: string;
+  created_at: string;
 };
 
-type Preview = {
-  rows: Array<{ Key: string; Value: string }>;
-  detected: {
-    total_candidates: string[];
-    date_candidates: string[];
-    currency_guess: string;
-  };
+const formatDate = (value: string) => {
+  const date = new Date(value);
+  return isNaN(date.getTime())
+    ? value
+    : date.toLocaleString("tr-TR", { hour12: false });
+};
+
+const getToken = () =>
+  typeof window !== "undefined" ? localStorage.getItem("botexcel_token") : null;
+
+const buildHeaders = (json = true) => {
+  const headers: Record<string, string> = {};
+  const token = getToken();
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  if (json) {
+    headers["Content-Type"] = "application/json";
+  }
+  return headers;
 };
 
 export default function AiWorkspace() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [preview, setPreview] = useState<Preview | null>(null);
-  const [questions, setQuestions] = useState<AiQuestion[]>([]);
-  const [messages, setMessages] = useState<AiMessage[]>([]);
-  const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
+  const [sessions, setSessions] = useState<ChatSessionSummary[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState("");
+  const [status, setStatus] = useState("Bekleniyor");
   const [isBusy, setIsBusy] = useState(false);
+  const [latestDownloadUrl, setLatestDownloadUrl] = useState<string | null>(
+    null
+  );
 
-  const appendMessage = (message: AiMessage) => {
-    setMessages((prev) => [...prev, message]);
+  const selectSession = useCallback(async (sessionId: number) => {
+    setActiveId(sessionId);
+    setMessages([]);
+    setStatus("Geçmiş yükleniyor...");
+    try {
+      const resp = await fetch(`/api/chat/history/${sessionId}`, {
+        headers: buildHeaders(),
+      });
+      const data = await resp.json();
+      if (!data.error) {
+        setMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error("history load error", error);
+      setStatus("Hata: Geçmiş yüklenemedi.");
+    }
+  }, []);
+
+  const loadSessions = useCallback(
+    async (focusId?: number) => {
+      try {
+        const resp = await fetch("/api/chat/sessions", {
+          headers: buildHeaders(),
+        });
+        const data = await resp.json();
+        if (!data.error) {
+          setSessions(data.sessions || []);
+          if (focusId) {
+            setActiveId(focusId);
+          } else if (!activeId && data.sessions && data.sessions.length) {
+            selectSession(data.sessions[0].id);
+          }
+        }
+      } catch (error) {
+        console.error("session load error", error);
+      }
+    },
+    [activeId, selectSession]
+  );
+
+  const sendMessage = async (text: string, role: "user" | "assistant" | "system" = "user") => {
+    if (!text.trim()) return;
+    setStatus("BotExcel.AI yazıyor...");
+    setIsBusy(true);
+    const optimistic: ChatMessage = {
+      id: Date.now(),
+      role,
+      content: text,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimistic]);
+
+    try {
+      const resp = await fetch("/api/chat", {
+        method: "POST",
+        headers: buildHeaders(),
+        body: JSON.stringify({
+          message: text,
+          session_id: activeId,
+          role,
+        }),
+      });
+      const data = await resp.json();
+      setIsBusy(false);
+      if (data.error) {
+        setStatus(data.message || "Bot cevap veremedi.");
+        return;
+      }
+      if (!activeId || activeId !== data.session_id) {
+        setActiveId(data.session_id);
+      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 1,
+          role: "assistant",
+          content: data.answer,
+          created_at: new Date().toISOString(),
+        },
+      ]);
+      if (data.title) {
+        setSessions((prev) =>
+          prev.map((session) =>
+            session.id === data.session_id
+              ? { ...session, title: data.title, updated_at: new Date().toISOString() }
+              : session
+          )
+        );
+      }
+      await loadSessions(data.session_id);
+      await selectSession(data.session_id);
+      setStatus("Hazır");
+    } catch (error) {
+      setIsBusy(false);
+      console.error("chat send error", error);
+      setStatus("Sunucuya bağlanılamadı.");
+    }
+  };
+
+  const handleSendClick = () => {
+    if (!input.trim() || isBusy) return;
+    const text = input;
+    setInput("");
+    sendMessage(text);
   };
 
   const handleFileInput = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
     const file = files[0];
-    fileInputRef.current!.value = "";
-    appendMessage({
-      role: "system",
-      text: `“${file.name}” dosyasını BotExcel.AI’ye gönderiyorum...`,
-    });
-
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+    setLatestDownloadUrl(null);
+    setIsBusy(true);
+    setStatus("Dosya işleniyor...");
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("mode", "ai");
-
-    setIsBusy(true);
     try {
-      const response = await fetch("/api/ai-convert/start", {
+      const tokenHeader = getToken();
+      const convertHeaders: Record<string, string> = {};
+      if (tokenHeader) {
+        convertHeaders.Authorization = `Bearer ${tokenHeader}`;
+      }
+      const resp = await fetch("/api/convert", {
         method: "POST",
+        headers: convertHeaders,
         body: formData,
       });
-      const data = await response.json();
-      setIsBusy(false);
-
-      if (!data.ok) {
-        appendMessage({
-          role: "assistant",
-          text:
-            data.message ||
-            "Dönüşüm başlatılamadı, bilgileri kontrol edip tekrar deneyin.",
-        });
-        return;
-      }
-
-      setSessionId(data.session_id);
-      setPreview(data.preview ?? null);
-      setStatus(data.status ?? null);
-      setDownloadUrl(null);
-      appendMessage({
-        role: "assistant",
-        text: data.questions?.length
-          ? "Analiz ettim. Sana birkaç soru soracağım."
-          : "Dosyan hazırsa hemen Excel’i hazırlıyorum.",
-      });
-      setQuestions(data.questions ?? []);
-      if (data.status === "ready" && data.download_url) {
-        setDownloadUrl(data.download_url);
-        appendMessage({
-          role: "assistant",
-          text: "Excel dosyan hazır. İndir butonuna tıkla.",
-        });
-      }
-    } catch (error) {
-      setIsBusy(false);
-      console.error("AI start error:", error);
-      appendMessage({
-        role: "assistant",
-        text: "Dosya gönderilirken sorun oluştu. Lütfen tekrar dene.",
-      });
-    }
-  };
-
-  const handleQuestionAnswer = async (questionId: string, answer: string) => {
-    if (!sessionId) return;
-    appendMessage({ role: "user", text: `${answer}` });
-    const payload = {
-      session_id: sessionId,
-      answers: { [questionId]: answer },
-    };
-
-    setIsBusy(true);
-    try {
-      const response = await fetch("/api/ai-convert/answer", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      setIsBusy(false);
-
-      if (!data.ok) {
-        appendMessage({
-          role: "assistant",
-          text: data.message || "Sorunun cevabı işlenemedi.",
-        });
-        return;
-      }
-
-      setStatus(data.status ?? null);
-      if (data.questions?.length) {
-        setQuestions(data.questions);
-        appendMessage({
-          role: "assistant",
-          text: "Ekstra bir soru var, bir göz atıyorum.",
-        });
+      const data = await resp.json();
+      if (!data.error && data.download_url) {
+        setLatestDownloadUrl(data.download_url);
+        await sendMessage(
+          `Dosya ${file.name} başarıyla işlendi. İndir: ${data.download_url}`,
+          "system"
+        );
+        setStatus("Dosya sohbetine eklendi.");
       } else {
-        setQuestions([]);
-      }
-
-      if (data.status === "ready" && data.download_url) {
-        setDownloadUrl(data.download_url);
-        appendMessage({
-          role: "assistant",
-          text: "Excel hazır, indirebilirsin.",
-        });
+        setStatus(data.message || "Dosya işlenemedi.");
       }
     } catch (error) {
+      console.error("convert error", error);
+      setStatus("Dosya yüklenirken hata oluştu.");
+    } finally {
       setIsBusy(false);
-      console.error("AI answer error:", error);
-      appendMessage({
-        role: "assistant",
-        text: "Sunucu yanıtı alınamadı, lütfen tekrar deneyin.",
-      });
     }
   };
+
+  useEffect(() => {
+    loadSessions();
+  }, [loadSessions]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50">
-      <main className="mx-auto max-w-6xl space-y-8 px-4 py-12">
-        <header className="flex flex-col items-center gap-4 rounded-3xl border border-slate-800 bg-slate-900/70 px-6 py-5 text-center shadow-xl shadow-black/40 md:flex-row md:justify-between md:text-left">
+      <main className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-12">
+        <header className="flex flex-col gap-4 rounded-3xl border border-slate-800 bg-slate-900/70 p-6 text-center shadow-xl shadow-black/40 md:flex-row md:justify-between md:text-left">
           <div className="flex items-center gap-3">
             <div className="relative h-10 w-10 rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-1">
               <Image
@@ -178,23 +227,30 @@ export default function AiWorkspace() {
             </div>
           </div>
           <p className="text-sm text-slate-300 max-w-2xl">
-            Dosyanızı yükleyin, BotExcel.AI aklındaki soruları sorarak
-            belgelerinizi doğru Excel tablosuna dönüştürsün. Sohbet arayüzünde
-            ilerlerken Excel hazır olduğunda indir butonu çıkar.
+            Hem dosya dönüşümünü hem de genel sohbet geçmişini aynı panelde yönetin.
+            BotExcel.AI ile sohbet ederken her mesaj kaydedilir ve geçmiş sohbetlere
+            kolayca dönebilirsiniz.
           </p>
         </header>
 
-        <section className="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-          <article className="space-y-6 rounded-3xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg shadow-black/30">
-            <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-slate-50">Dosya gönder</h2>
-              <p className="text-sm text-slate-400">
-                PDF, fotoğraf, CSV, DOCX ya da XLSX dosyanızı yükleyin. Mobilde
-                fotoğraf çekip de gönderebilirsiniz.
-              </p>
-            </div>
-            <div className="flex flex-col gap-3">
-              <label className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/40 px-4 py-6 text-center text-sm text-slate-300 transition hover:border-emerald-400">
+        <section className="grid gap-6 lg:grid-cols-[0.9fr,1.1fr]">
+          <aside className="space-y-6 rounded-3xl border border-slate-800 bg-slate-900/70 p-4 shadow-lg shadow-black/40">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-slate-100">Dosya + sohbet</h2>
+                <button
+                  onClick={() => {
+                    setActiveId(null);
+                    setMessages([]);
+                    setLatestDownloadUrl(null);
+                    setStatus("Yeni sohbet");
+                  }}
+                  className="rounded-full border border-emerald-500/60 px-3 py-1 text-[11px] font-semibold text-emerald-300 transition hover:border-emerald-400"
+                >
+                  Yeni sohbet
+                </button>
+              </div>
+              <label className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/50 px-4 py-6 text-center text-sm text-slate-300 transition hover:border-emerald-400">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -202,152 +258,120 @@ export default function AiWorkspace() {
                   onChange={handleFileInput}
                 />
                 <span className="block text-xs uppercase tracking-[0.4em] text-slate-500">
-                  BotExcel’e yükle
+                  Dosya seç
                 </span>
                 <strong className="text-sm font-semibold text-slate-50">
-                  Dosyanı sürükleyin veya gözatın.
+                  Drag & drop veya gözat.
                 </strong>
                 <p className="mt-2 text-[11px] text-slate-500">
-                  Maksimum 20 MB, PDF/IMG/CSV/DOCX/XLSX desteklenir.
+                  PDF, IMG, CSV, DOCX, XLSX desteklenir (max 20 MB).
                 </p>
               </label>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isBusy}
-                className="inline-flex items-center justify-center rounded-full bg-emerald-500 px-5 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
-              >
-                {isBusy ? "İşleniyor..." : "Yeni dosya yükle"}
-              </button>
             </div>
 
-            {preview && (
-              <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-950/60 p-4 text-[12px] text-slate-200">
-                <div className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                  Önizleme
-                </div>
-                <div className="flex flex-wrap gap-4 text-[11px] text-slate-400">
-                  <span>Para birimi: {preview.detected.currency_guess}</span>
-                  <span>
-                    Tarih tahmini: {preview.detected.date_candidates.join(", ")}
-                  </span>
-                  <span>
-                    Toplam adayı:{" "}
-                    {preview.detected.total_candidates.length > 0
-                      ? preview.detected.total_candidates.join(", ")
-                      : "Bilinmiyor"}
-                  </span>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full text-[11px]">
-                    <tbody>
-                      {preview.rows.map((row) => (
-                        <tr key={row.Key + row.Value}>
-                          <td className="pr-3 text-slate-400">{row.Key}</td>
-                          <td className="font-mono text-emerald-300">
-                            {row.Value}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </article>
-
-          <article className="flex flex-col justify-between rounded-3xl border border-slate-800 bg-slate-950/70 p-6 shadow-lg shadow-black/40">
-            <div className="space-y-4">
-              <div className="flex flex-row items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-slate-50">BotExcel.AI</p>
-                  <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                    {status ?? "Bekleniyor"}
+            <div className="space-y-3 overflow-y-auto text-[11px]">
+              {sessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => selectSession(session.id)}
+                  className={`block w-full rounded-2xl px-3 py-2 text-left transition ${
+                    activeId === session.id
+                      ? "border border-emerald-400 bg-emerald-500/10"
+                      : "border border-slate-800 bg-slate-950/60 hover:border-slate-600"
+                  }`}
+                >
+                  <p className="truncate font-semibold text-slate-50">
+                    {session.title}
                   </p>
-                </div>
-                <span className="text-[11px] text-slate-500">
-                  ChatGPT tarzı arayüz
-                </span>
+                  <p className="text-[10px] text-slate-400">
+                    Güncellendi: {formatDate(session.updated_at)}
+                  </p>
+                </button>
+              ))}
+              {!sessions.length && (
+                <p className="text-[11px] text-slate-500">Henüz sohbet yok.</p>
+              )}
+            </div>
+          </aside>
+
+          <article className="flex min-h-[400px] flex-col rounded-3xl border border-slate-800 bg-slate-950/70 p-5 shadow-lg shadow-black/40">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.4em] text-emerald-300">
+                  {activeId ? "Aktif sohbet" : "Boş sohbet"}
+                </p>
+                <p className="text-sm font-semibold text-slate-50">
+                  {status}
+                </p>
               </div>
-              <div className="flex flex-col gap-3 overflow-hidden">
-                <div className="scrollbar-hidden max-h-[420px] space-y-3 overflow-y-auto pr-1">
-                  {messages.map((msg, index) => (
-                    <div
-                      key={`${msg.role}-${index}`}
-                      className={`relative flex ${
-                        msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                          msg.role === "assistant"
-                            ? "bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 shadow-[0_0_25px_rgba(0,0,0,0.4)]"
-                            : msg.role === "user"
-                            ? "bg-emerald-500/20 text-emerald-200"
-                            : "bg-slate-800/60 text-slate-300"
-                        }`}
-                      >
-                        {msg.text}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <span className="text-[11px] text-slate-500">
+                {messages.length} mesaj
+              </span>
             </div>
 
-            {questions.length > 0 && (
-              <div className="space-y-3 pt-4">
-                {questions.map((question) => (
-                  <div key={question.id} className="space-y-2">
-                    <p className="text-xs uppercase tracking-[0.3em] text-slate-500">
-                      Yapay zekâ sorusu
-                    </p>
-                    <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-950/80 p-3">
-                      <p className="text-sm text-slate-200">{question.prompt}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {question.options?.map((option) => (
-                          <button
-                            key={option}
-                            onClick={() =>
-                              handleQuestionAnswer(question.id, option)
-                            }
-                            className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
-                            disabled={isBusy}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                        {!question.options && (
-                          <button
-                            onClick={() =>
-                              handleQuestionAnswer(question.id, "Tamam")
-                            }
-                            className="rounded-full border border-slate-700 px-3 py-1 text-xs text-slate-100 transition hover:border-emerald-400 hover:text-emerald-200"
-                            disabled={isBusy}
-                          >
-                            Tamam
-                          </button>
-                        )}
-                      </div>
+            <div className="flex-1 space-y-3 overflow-y-auto p-3 text-sm">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className="relative flex"
+                  style={{ justifyContent: msg.role === "user" ? "flex-end" : "flex-start" }}
+                >
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      msg.role === "user"
+                        ? "bg-emerald-500/20 text-emerald-200"
+                        : msg.role === "assistant"
+                        ? "bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 shadow-[0_0_25px_rgba(0,0,0,0.35)]"
+                        : "bg-slate-800/60 text-slate-300"
+                    }`}
+                  >
+                    {msg.content}
+                    <div className="mt-1 text-[9px] text-slate-500">
+                      {formatDate(msg.created_at)}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+              {isBusy && (
+                <div className="text-xs text-slate-400">BotExcel.AI yazıyor…</div>
+              )}
+            </div>
 
-            {downloadUrl && (
-              <div className="mt-4 space-y-2">
+            {latestDownloadUrl && (
+              <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-[12px] text-emerald-100">
+                <p>Son dosyanız hazır:</p>
                 <a
-                  href={downloadUrl}
-                  className="inline-flex w-full items-center justify-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400"
+                  href={latestDownloadUrl}
+                  className="text-sm font-semibold text-emerald-200 hover:text-emerald-100"
                 >
                   Excel’i indir
                 </a>
-                <p className="text-[11px] text-slate-400">
-                  Şablon kaydetmek için ekstra ayar sekmesini kullan.
-                </p>
               </div>
             )}
+
+            <div className="mt-4 border-t border-slate-800 pt-3">
+              <div className="flex gap-2">
+                <input
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      handleSendClick();
+                    }
+                  }}
+                  className="flex-1 rounded-2xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-50 focus:border-emerald-500 focus:outline-none"
+                  placeholder="BotExcel.AI'ye mesaj yaz..."
+                />
+                <button
+                  disabled={isBusy}
+                  onClick={handleSendClick}
+                  className="rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400 disabled:opacity-60"
+                >
+                  Gönder
+                </button>
+              </div>
+            </div>
           </article>
         </section>
       </main>

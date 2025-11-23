@@ -1,377 +1,311 @@
 "use client";
 
-import React, { useState } from "react";
 import Link from "next/link";
 
-type SpecialOfferFormState = {
-  name: string;
-  email: string;
-  company: string;
-  volume: string;
-  message: string;
-};
+// ---- Mini SVG ikonlar ----
 
-const initialForm: SpecialOfferFormState = {
-  name: "",
-  email: "",
-  company: "",
-  volume: "",
-  message: "",
-};
+function IconFree() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+    >
+      <path d="M12 3.5l2.3 4.7 5.2.8-3.8 3.8.9 5.3L12 15.8 7.4 18l.9-5.3L4.5 9l5.2-.8L12 3.5z" />
+    </svg>
+  );
+}
 
-export const PricingSection: React.FC = () => {
-  const [offerOpen, setOfferOpen] = useState(false);
-  const [form, setForm] = useState<SpecialOfferFormState>(initialForm);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitMsg, setSubmitMsg] = useState<string | null>(null);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+function IconStarter() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="drop-shadow-[0_0_8px_rgba(52,211,153,0.35)]"
+    >
+      <path d="M12 4a8 8 0 100 16 8 8 0 000-16z" />
+      <path d="M12 12l3-1" />
+      <path d="M12 12v4" />
+    </svg>
+  );
+}
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+function IconPro() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]"
+    >
+      <circle cx="12" cy="12" r="7.5" />
+      <path d="M12 6v6" />
+      <path d="M9 3h6" strokeWidth="1" />
+    </svg>
+  );
+}
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmitMsg(null);
-    setSubmitError(null);
+function IconBusiness() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="drop-shadow-[0_0_8px_rgba(52,211,153,0.4)]"
+    >
+      <circle cx="9" cy="10" r="3" />
+      <circle cx="15" cy="10" r="3" />
+      <path d="M4 18c0-3 2-5 5-5" />
+      <path d="M20 18c0-3-2-5-5-5" />
+    </svg>
+  );
+}
 
-    try {
-      const payload = {
-        name: form.name,
-        email: form.email,
-        company: form.company || undefined,
-        monthly_document_volume: form.volume
-          ? Number.isFinite(Number(form.volume))
-            ? Number(form.volume)
-            : form.volume
-          : undefined,
-        message: form.message || undefined,
-      };
+function IconEnterprise() {
+  return (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="drop-shadow-[0_0_10px_rgba(250,250,250,0.4)]"
+    >
+      <rect x="4" y="9" width="4" height="11" />
+      <rect x="10" y="4" width="4" height="16" />
+      <rect x="16" y="11" width="4" height="9" />
+      <path d="M4 20h16" />
+    </svg>
+  );
+}
 
-      const resp = await fetch("/api/quote", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+// ---- Plan verileri ----
 
-      const data = await resp.json().catch(() => ({}));
+const plans = [
+  {
+    id: "free",
+    name: "Free",
+    badge: "Deneme",
+    quota: "3 dosya / ay",
+    price: "0 TL",
+    period: "/ay",
+    description: "Ürünü denemek ve küçük işler için ideal.",
+    highlights: [
+      "Ayda 3 belgeye kadar",
+      "Temel AI alan çıkarımı",
+      "Basit Excel çıktısı",
+    ],
+    href: "/register?plan=free",
+    ctaLabel: "Ücretsiz Başla",
+    accentClasses:
+      "border-emerald-500/80 bg-gradient-to-b from-emerald-950/60 to-slate-950",
+    icon: IconFree,
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    badge: "Önerilen",
+    quota: "20 dosya / ay",
+    price: "299 TL",
+    period: "/ay",
+    description: "Küçük işletmeler ve serbest çalışanlar için.",
+    highlights: [
+      "Ayda 20 belgeye kadar",
+      "Gelişmiş AI okuma",
+      "Hazır dashboard şablonları",
+    ],
+    href: "/register?plan=starter",
+    ctaLabel: "Starter ile Devam Et",
+    accentClasses:
+      "border-emerald-400/90 ring-1 ring-emerald-300/40 bg-slate-900/70",
+    icon: IconStarter,
+  },
+  {
+    id: "pro",
+    name: "Pro",
+    badge: "Takımlar",
+    quota: "60 dosya / ay",
+    price: "599 TL",
+    period: "/ay",
+    description: "Finans, operasyon ve raporlama ekipleri için.",
+    highlights: [
+      "Ayda 60 belgeye kadar",
+      "Hızlı dönüşüm kuyruğu",
+      "Gelişmiş Excel özetleri",
+    ],
+    href: "/register?plan=pro",
+    ctaLabel: "Pro ile Devam Et",
+    accentClasses: "border-emerald-500/80 bg-slate-900/70",
+    icon: IconPro,
+  },
+  {
+    id: "business",
+    name: "Business",
+    badge: "Takım bazlı",
+    quota: "200 dosya / ay",
+    price: "1.700 TL",
+    period: "/ay",
+    description: "Büyüyen ekipler ve düzenli iş akışları için.",
+    highlights: [
+      "Ayda 200 belgeye kadar",
+      "Çoklu kullanıcı desteği",
+      "Özel dashboard & entegrasyonlar",
+    ],
+    href: "/register?plan=business",
+    ctaLabel: "Business ile Devam Et",
+    accentClasses: "border-emerald-300/80 bg-slate-900/70",
+    icon: IconBusiness,
+  },
+  {
+    id: "enterprise",
+    name: "Enterprise",
+    badge: "Kurumsal",
+    quota: "Sınırsız / çok yüksek kullanım",
+    price: "Teklif",
+    period: "",
+    description: "KVKK, entegrasyon ve SLA gerektiren kurumsal kullanım.",
+    highlights: [
+      "Sınırsız / çok yüksek belge hacmi",
+      "Özel entegrasyon & API",
+      "Kurumsal SLA ve güvenlik",
+    ],
+    href: "/kurumsal-teklif",
+    ctaLabel: "Özel Teklif Al",
+    accentClasses: "border-emerald-200/70 bg-slate-900/70",
+    icon: IconEnterprise,
+  },
+];
 
-      if (!resp.ok || data.error) {
-        throw new Error(
-          data.message || data.error || "Talep gönderilirken bir hata oluştu.",
-        );
-      }
-
-      setSubmitMsg(
-        data.message ||
-          "Talebin alındı, en kısa sürede seninle iletişime geçeceğiz.",
-      );
-      setForm(initialForm);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Form gönderilirken beklenmeyen bir hata oluştu.";
-      setSubmitError(message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const openOffer = () => {
-    setOfferOpen(true);
-    setSubmitMsg(null);
-    setSubmitError(null);
-  };
-
-  const closeOffer = () => {
-    setOfferOpen(false);
-  };
-
+export function PricingSection() {
   return (
     <section
       id="pricing"
-      className="border-t border-white/5 bg-neutral-950/90 px-4 py-16 sm:px-6 lg:px-8"
+      className="border-t border-slate-800 bg-[radial-gradient(circle_at_top,_#020617,_#020617_60%)] py-16 md:py-20 text-slate-50"
     >
-      <div className="mx-auto flex max-w-5xl flex-col gap-10">
-        <div className="max-w-2xl">
-          <h2 className="text-2xl font-semibold tracking-tight text-neutral-50 sm:text-3xl">
+      <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4">
+        {/* Başlık alanı */}
+        <div className="max-w-3xl space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/80">
+            FİYATLANDIRMA
+          </p>
+          <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
             Planını seç, veri karmaşasını geride bırak.
           </h2>
-          <p className="mt-2 text-sm text-neutral-400 sm:text-base">
-            İlk 3 dönüşüm ücretsiz. Daha fazlası için Starter, Pro veya Business
-            planla kotaları büyütebilir, gerekirse ekip boyutuna özel teklif
-            oluşturabiliriz.
+          <p className="text-sm md:text-base text-slate-300">
+            Free planla ayda 3 belgeyi ücretsiz dönüştür. Daha fazlası için Starter, Pro, Business
+            veya Enterprise ile belge hacmini ve ekip kapasiteni büyütebilirsin.
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* Free */}
-          <div className="flex flex-col rounded-2xl border border-emerald-500/30 bg-neutral-950/80 p-4 shadow-lg shadow-emerald-500/20">
-            <h3 className="text-sm font-semibold text-neutral-50">Free</h3>
-            <p className="mt-1 text-2xl font-bold text-neutral-50">
-              0₺
-              <span className="ml-1 text-xs font-normal text-neutral-400">
-                /ay
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              Ayda 3 belgeye kadar dene. Tek kişilik hızlı testler için ideal.
-            </p>
-            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
-              <li>• Ayda 3 belge dönüşümü</li>
-              <li>• PDF / görsel / Excel desteği</li>
-              <li>• Temel dashboard</li>
-            </ul>
-            <div className="mt-4">
-              <Link
-                href="/register"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-neutral-950 hover:bg-emerald-400"
+        {/* Fiyat kartları */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {plans.map((plan) => {
+            const Icon = plan.icon;
+            return (
+              <article
+                key={plan.id}
+                className={[
+                  "flex h-full flex-col justify-between rounded-2xl border bg-slate-900/60 p-5 shadow-lg shadow-emerald-500/10",
+                  plan.accentClasses,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
-                Ücretsiz başla
-              </Link>
-            </div>
-          </div>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-emerald-200">
+                      <Icon />
+                    </div>
+                    {plan.badge && (
+                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
+                        {plan.badge}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-50">
+                      {plan.name}
+                    </h3>
+                    <p className="text-xs text-emerald-200/80">{plan.quota}</p>
+                  </div>
 
-          {/* Starter */}
-          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
-            <h3 className="text-sm font-semibold text-neutral-50">Starter</h3>
-            <p className="mt-1 text-2xl font-bold text-neutral-50">
-              149₺
-              <span className="ml-1 text-xs font-normal text-neutral-400">
-                /ay
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              Düzenli ama düşük hacimli kullanım için; küçük işletmeler ve
-              freelancer&apos;lar.
-            </p>
-            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
-              <li>• Ayda 20 belgeye kadar</li>
-              <li>• Standart dönüşüm hızı</li>
-              <li>• Gelişmiş dashboard şablonları</li>
-            </ul>
-            <div className="mt-4">
-              <Link
-                href="/upload"
-                className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-400/60 px-3 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/10"
-              >
-                Starter ile devam et
-              </Link>
-            </div>
-          </div>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="text-2xl font-semibold text-slate-50">
+                      {plan.price}
+                    </span>
+                    {plan.period && (
+                      <span className="text-xs text-slate-400">
+                        {plan.period}
+                      </span>
+                    )}
+                  </div>
 
-          {/* Pro */}
-          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
-            <h3 className="text-sm font-semibold text-neutral-50">Pro</h3>
-            <p className="mt-1 text-2xl font-bold text-neutral-50">
-              249₺
-              <span className="ml-1 text-xs font-normal text-neutral-400">
-                /ay
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              Freelancer&apos;lar ve küçük ekipler için. Fatura, rapor ve stok
-              takibini otomatikleştir.
-            </p>
-            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
-              <li>• Ayda 60 belgeye kadar</li>
-              <li>• Hızlı öncelikli dönüşüm kuyruğu</li>
-              <li>• Gelişmiş Excel dashboard şablonları</li>
-            </ul>
-            <div className="mt-4">
-              <Link
-                href="/upload"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-neutral-100 px-3 py-2 text-sm font-semibold text-neutral-950 hover:bg-white"
-              >
-                Pro ile devam et
-              </Link>
-            </div>
-          </div>
+                  <p className="text-xs text-slate-300">{plan.description}</p>
 
-          {/* Business */}
-          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
-            <h3 className="text-sm font-semibold text-neutral-50">Business</h3>
-            <p className="mt-1 text-2xl font-bold text-neutral-50">
-              Takım bazlı
-              <span className="ml-1 text-xs font-normal text-neutral-400">
-                teklif
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              Muhasebe, operasyon veya satış ekipleri için çok kullanıcılı
-              kullanım ve geniş kota.
-            </p>
-            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
-              <li>• 5+ kullanıcı desteği</li>
-              <li>• Ayda 200 belgeye kadar</li>
-              <li>• Öncelikli destek & onboarding</li>
-            </ul>
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={openOffer}
-                className="inline-flex w-full items-center justify-center rounded-xl border border-emerald-400/60 px-3 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/10"
-              >
-                Özel teklif al
-              </button>
-            </div>
-          </div>
+                  <ul className="mt-3 space-y-1.5 text-xs text-slate-200">
+                    {plan.highlights.map((h) => (
+                      <li key={h} className="flex items-start gap-1.5">
+                        <span className="mt-[3px] h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
 
-          {/* Enterprise */}
-          <div className="flex flex-col rounded-2xl border border-white/10 bg-neutral-950/80 p-4 shadow-lg shadow-black/40">
-            <h3 className="text-sm font-semibold text-neutral-50">
-              Enterprise
-            </h3>
-            <p className="mt-1 text-2xl font-bold text-neutral-50">
-              Sınırsız
-              <span className="ml-1 text-xs font-normal text-neutral-400">
-                kurumsal
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-neutral-400">
-              Çok departmanlı ekipler, özel entegrasyonlar ve SLA isteyenler
-              için.
-            </p>
-            <ul className="mt-3 space-y-1 text-xs text-neutral-300">
-              <li>• Sınırsız belge işleme</li>
-              <li>• Özel entegrasyon & API</li>
-              <li>• Kurumsal SLA ve destek</li>
-            </ul>
-            <div className="mt-4">
-              <button
-                type="button"
-                onClick={openOffer}
-                className="inline-flex w-full items-center justify-center rounded-xl border border-white/20 px-3 py-2 text-sm font-semibold text-neutral-100 hover:bg-neutral-900"
-              >
-                Özel teklif al
-              </button>
-            </div>
-          </div>
+                <div className="mt-4">
+                  <Link
+                    href={plan.href}
+                    className={[
+                      "inline-flex w-full items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition",
+                      plan.id === "free"
+                        ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+                        : "bg-slate-800 text-slate-50 hover:bg-slate-700",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                  >
+                    {plan.ctaLabel}
+                  </Link>
+                </div>
+              </article>
+            );
+          })}
         </div>
+
+        <p className="text-[11px] text-slate-400">
+          Kararsızsan{" "}
+          <span className="font-medium text-emerald-300">
+            Free planla başlayıp
+          </span>{" "}
+          ilk 3 belgeni yükleyebilirsin. Daha sonra ihtiyacına göre Starter, Pro, Business veya
+          Enterprise plana geçebilirsin.
+        </p>
       </div>
-
-      {/* ÖZEL TEKLİF FORMU MODALI */}
-      {offerOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 px-4">
-          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-950/95 p-5 shadow-2xl backdrop-blur">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h3 className="text-lg font-semibold text-neutral-50">
-                  Özel teklif iste
-                </h3>
-                <p className="mt-1 text-sm text-neutral-400">
-                  İş hacmini, ekip boyutunu ve temel kullanım senaryonu
-                  yaz; sana uygun Business/Enterprise teklifini hazırlayalım.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={closeOffer}
-                className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label className="block text-xs font-medium text-neutral-300">
-                    Ad Soyad
-                  </label>
-                  <input
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-neutral-300">
-                    E-posta
-                  </label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-300">
-                  Şirket / Marka adı
-                </label>
-                <input
-                  name="company"
-                  value={form.company}
-                  onChange={handleChange}
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-300">
-                  Aylık yaklaşık belge sayısı
-                </label>
-                <input
-                  name="volume"
-                  value={form.volume}
-                  onChange={handleChange}
-                  placeholder="Örn: 500 fatura / 200 irsaliye"
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-medium text-neutral-300">
-                  Kısaca kullanım senaryon
-                </label>
-                <textarea
-                  name="message"
-                  value={form.message}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Örn: 3 kişilik muhasebe ekibi; haftalık PDF faturaları ve Excel raporlarını BotExcel ile otomatikleştirmek istiyoruz."
-                  className="mt-1 w-full rounded-lg border border-white/10 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-500/40 focus:border-emerald-400 focus:ring-1"
-                />
-              </div>
-
-              {submitError && (
-                <p className="text-sm text-rose-300">{submitError}</p>
-              )}
-              {submitMsg && (
-                <p className="text-sm text-emerald-300">{submitMsg}</p>
-              )}
-
-              <div className="mt-3 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={closeOffer}
-                  className="rounded-lg border border-white/10 px-3 py-1.5 text-sm text-neutral-300 hover:bg-neutral-900"
-                >
-                  İptal
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="rounded-lg bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-neutral-950 hover:bg-emerald-400 disabled:opacity-60"
-                >
-                  {submitting ? "Gönderiliyor..." : "Teklif iste"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </section>
   );
-};
+}

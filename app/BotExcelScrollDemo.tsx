@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { PricingSection } from "./components/PricingSection";
 import { OutputQualitySection } from "./components/OutputQualitySection";
 import BlogSection from "./components/BlogSection";
 import ResourcesSection from "./components/ResourcesSection";
@@ -1233,7 +1232,6 @@ const BotExcelScrollDemo: React.FC = () => {
               </div>
             </section>
 
-            <PricingSection />
 
             {/* Öne çıkan yetkinlikler */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
@@ -1365,7 +1363,6 @@ const BotExcelScrollDemo: React.FC = () => {
               </div>
             </section>
 
-            <PricingSection />
 
             {/* Güven & KVKK / denetim bölümü */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">

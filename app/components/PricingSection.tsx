@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CustomOfferForm } from "./CustomOfferForm";
 
 // ---- Mini SVG ikonlar ----
 
@@ -305,6 +306,10 @@ export function PricingSection() {
           ilk 3 belgeni yükleyebilirsin. Daha sonra ihtiyacına göre Starter, Pro, Business veya
           Enterprise plana geçebilirsin.
         </p>
+
+        <div className="flex justify-center">
+          <CustomOfferForm />
+        </div>
       </div>
     </section>
   );

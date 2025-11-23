@@ -47,7 +47,7 @@ export default function UploadPage() {
 
     async function checkAuth() {
       try {
-        const res = await fetch(`${BACKEND_BASE}/whoami`, {
+        const res = await fetch("/api/whoami", {
           credentials: "include",
         });
         const data = await res.json().catch(() => ({

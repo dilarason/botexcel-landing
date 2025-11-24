@@ -6,9 +6,8 @@ import { UpgradeModal } from "./UpgradeModal";
 
 const PLAN_LIMITS: Record<string, number | null> = {
   free: 3,
-  starter: 20,
-  pro: 60,
-  business: 200,
+  pro: 200,
+  business: 2000,
   enterprise: null,
 };
 

@@ -57,12 +57,20 @@ export function CustomOfferForm() {
         }),
       });
 
-      const data = await resp.json().catch(() => ({} as any));
+      const data = (await resp.json().catch(() => ({}))) as Record<
+        string,
+        unknown
+      >;
 
-      if (!resp.ok || data.error) {
+      const raw = data as { [key: string]: unknown };
+      const hasError = Boolean((raw as { error?: unknown }).error);
+
+      if (!resp.ok || hasError) {
         setStatus("error");
         setErrorMsg(
-          data.message ||
+          (typeof raw.message === "string"
+            ? raw.message
+            : undefined) ||
             "Talebiniz gönderilirken bir hata oluştu. Lütfen tekrar deneyin."
         );
         return;

@@ -39,25 +39,12 @@ export const landingPlans: LandingPlan[] = [
     cta: "Ücretsiz Dene",
   },
   {
-    name: "Starter",
-    price: "149 ₺ / ay",
-    limit: "Ayda 20 dosya",
-    tagline: "Küçük işletmeler ve freelancer'lar için düzenli kullanım.",
-    bullets: [
-      "20 dosya/ay",
-      "Standart dönüşüm hızı",
-      "Gelişmiş dashboard şablonları",
-    ],
-    href: "/register?plan=starter",
-    cta: "Starter'ı Seç",
-  },
-  {
     name: "Pro",
     price: "249 ₺ / ay",
-    limit: "Ayda 60 dosya",
+    limit: "Ayda 200 dosya",
     tagline: "Finans ve operasyon ekipleri için KDV, e-arşiv, stok şablonları + API.",
     bullets: [
-      "60 dosya/ay",
+      "200 dosya/ay",
       "Özel şablon + API erişimi",
       "Öncelikli destek ve audit trail",
     ],
@@ -68,10 +55,10 @@ export const landingPlans: LandingPlan[] = [
   {
     name: "Business",
     price: "799 ₺ / ay",
-    limit: "Ayda 200 dosya",
+    limit: "Ayda 2.000 dosya",
     tagline: "Ekipler için yüksek hacimli kullanım, SLA ve özel entegrasyon.",
     bullets: [
-      "200 dosya/ay",
+      "2.000 dosya/ay",
       "Özel SLA ve raporlama",
       "Dedicated müşteri temsilcisi",
     ],
@@ -106,22 +93,12 @@ export const purchasePlans: PurchasePlan[] = [
     cta: "Ücretsiz Dene",
   },
   {
-    name: "Starter",
-    price: "149 ₺ / ay",
-    limit: "Ayda 20 dosya",
-    description:
-      "Küçük işletmeler ve freelancer'lar için düzenli ama düşük hacimli kullanım.",
-    perks: ["20 dosya/ay", "Standart dönüşüm hızı", "Gelişmiş dashboard şablonları"],
-    href: "/register?plan=starter",
-    cta: "Starter'ı Seç",
-  },
-  {
     name: "Pro",
     price: "249 ₺ / ay",
-    limit: "Ayda 60 dosya",
+    limit: "Ayda 200 dosya",
     description:
       "Finans ve operasyon ekipleri için KDV, e-arşiv, stok şablonları ve API erişimi.",
-    perks: ["60 dosya/ay", "Özel şablon + API erişimi", "Öncelikli destek"],
+    perks: ["200 dosya/ay", "Özel şablon + API erişimi", "Öncelikli destek"],
     highlight: true,
     href: "/register?plan=pro",
     cta: "Pro'yu Seç",
@@ -129,10 +106,10 @@ export const purchasePlans: PurchasePlan[] = [
   {
     name: "Business",
     price: "799 ₺ / ay",
-    limit: "Ayda 200 dosya",
+    limit: "Ayda 2.000 dosya",
     description:
       "Ekipler için yüksek hacimli kullanım, özel SLA, raporlama ve entegrasyon desteği.",
-    perks: ["200 dosya/ay", "Özel SLA ve raporlama", "Dedicated müşteri temsilcisi"],
+    perks: ["2.000 dosya/ay", "Özel SLA ve raporlama", "Dedicated müşteri temsilcisi"],
     href: "/register?plan=business",
     cta: "Business'ı Seç",
   },

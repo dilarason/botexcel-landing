@@ -4,26 +4,20 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UsageBar } from "./UsageBar";
 
-type PlanKey = "starter" | "pro" | "business";
+type PlanKey = "pro" | "business";
 
 const PLAN_OPTIONS: { key: PlanKey; label: string; desc: string; limit: string }[] = [
   {
-    key: "starter",
-    label: "Starter",
-    desc: "Ayda 20 belgeye kadar dengeli kullanım.",
-    limit: "20 belge/ay",
-  },
-  {
     key: "pro",
     label: "Pro",
-    desc: "Ayda 60 belge, daha hızlı dönüşüm ve şablonlar.",
-    limit: "60 belge/ay",
+    desc: "Ayda 200 belge, daha hızlı dönüşüm ve şablonlar.",
+    limit: "200 belge/ay",
   },
   {
     key: "business",
     label: "Business",
-    desc: "Ayda 200 belge, ekipler için öncelikli destek.",
-    limit: "200 belge/ay",
+    desc: "Ayda 2000 belge, ekipler için öncelikli destek.",
+    limit: "2000 belge/ay",
   },
 ];
 

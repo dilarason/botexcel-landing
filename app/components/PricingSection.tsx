@@ -23,26 +23,6 @@ function IconFree() {
   );
 }
 
-function IconStarter() {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="drop-shadow-[0_0_8px_rgba(52,211,153,0.35)]"
-    >
-      <path d="M12 4a8 8 0 100 16 8 8 0 000-16z" />
-      <path d="M12 12l3-1" />
-      <path d="M12 12v4" />
-    </svg>
-  );
-}
-
 function IconPro() {
   return (
     <svg
@@ -128,34 +108,15 @@ const plans = [
     icon: IconFree,
   },
   {
-    id: "starter",
-    name: "Starter",
-    badge: "Önerilen",
-    quota: "20 dosya / ay",
-    price: "299 TL",
-    period: "/ay",
-    description: "Küçük işletmeler ve serbest çalışanlar için.",
-    highlights: [
-      "Ayda 20 belgeye kadar",
-      "Gelişmiş AI okuma",
-      "Hazır dashboard şablonları",
-    ],
-    href: "/register?plan=starter",
-    ctaLabel: "Starter ile Devam Et",
-    accentClasses:
-      "border-emerald-400/90 ring-1 ring-emerald-300/40 bg-slate-900/70",
-    icon: IconStarter,
-  },
-  {
     id: "pro",
     name: "Pro",
     badge: "Takımlar",
-    quota: "60 dosya / ay",
+    quota: "200 dosya / ay",
     price: "599 TL",
     period: "/ay",
     description: "Finans, operasyon ve raporlama ekipleri için.",
     highlights: [
-      "Ayda 60 belgeye kadar",
+      "Ayda 200 belgeye kadar",
       "Hızlı dönüşüm kuyruğu",
       "Gelişmiş Excel özetleri",
     ],
@@ -168,12 +129,12 @@ const plans = [
     id: "business",
     name: "Business",
     badge: "Takım bazlı",
-    quota: "200 dosya / ay",
+    quota: "2000 dosya / ay",
     price: "1.700 TL",
     period: "/ay",
     description: "Büyüyen ekipler ve düzenli iş akışları için.",
     highlights: [
-      "Ayda 200 belgeye kadar",
+      "Ayda 2000 belgeye kadar",
       "Çoklu kullanıcı desteği",
       "Özel dashboard & entegrasyonlar",
     ],

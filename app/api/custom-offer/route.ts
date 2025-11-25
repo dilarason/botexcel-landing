@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND = process.env.BOTEXCEL_API_BASE || "http://localhost:5000";
+const BACKEND =
+  (process.env.BOTEXCEL_API_BASE || process.env.NEXT_PUBLIC_BACKEND || "").trim() ||
+  "https://www.botexcel.pro";
 
 export async function POST(req: NextRequest) {
   try {

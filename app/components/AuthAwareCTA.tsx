@@ -10,7 +10,9 @@ type WhoAmIResponse = {
 };
 
 const BACKEND_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:5000";
+  process.env.NEXT_PUBLIC_BACKEND ||
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  "https://www.botexcel.pro";
 
 type AuthStatus = "loading" | "guest" | "user";
 

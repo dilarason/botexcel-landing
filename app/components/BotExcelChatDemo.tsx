@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import clsx from "clsx";
 
 type ChatRole = "user" | "assistant";
 
@@ -16,6 +15,11 @@ type KpiState = {
   units: string;
   margin: string;
 };
+
+// Basit bir sınıf birleştirici; clsx alternatifi
+function cx(...values: Array<string | false | null | undefined>): string {
+  return values.filter(Boolean).join(" ");
+}
 
 export default function BotExcelChatDemo() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -442,7 +446,7 @@ export default function BotExcelChatDemo() {
 
   return (
     <div
-      className={clsx(
+      className={cx(
         "flex h-screen w-full",
         isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
       )}
@@ -451,7 +455,7 @@ export default function BotExcelChatDemo() {
       <motion.aside
         animate={{ width: sidebarCollapsed ? 64 : 260 }}
         transition={{ type: "spring", damping: 22, stiffness: 210 }}
-        className={clsx(
+        className={cx(
           "h-full border-r flex flex-col",
           isDark
             ? "border-slate-800 bg-slate-900/70"
@@ -460,7 +464,7 @@ export default function BotExcelChatDemo() {
       >
         {/* Logo + collapse butonu */}
         <div
-          className={clsx(
+          className={cx(
             "flex items-center justify-between h-20 border-b px-3",
             isDark
               ? "border-slate-800/90"
@@ -470,7 +474,7 @@ export default function BotExcelChatDemo() {
           <motion.div
             layout
             animate={{ scale: sidebarCollapsed ? 0.9 : 1.15 }}
-            className={clsx(
+            className={cx(
               "flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg",
               isDark
                 ? "bg-emerald-500/10 border-emerald-400/60 shadow-emerald-500/20"
@@ -486,7 +490,7 @@ export default function BotExcelChatDemo() {
           <button
             type="button"
             onClick={() => setSidebarCollapsed((v) => !v)}
-            className={clsx(
+            className={cx(
               "h-8 w-8 flex items-center justify-center rounded-full border text-xs",
               isDark
                 ? "border-slate-700 bg-slate-900/80 text-slate-400 hover:bg-slate-800"
@@ -500,7 +504,7 @@ export default function BotExcelChatDemo() {
         {!sidebarCollapsed && (
           <div className="p-4 space-y-4 overflow-y-auto">
             <button
-              className={clsx(
+              className={cx(
                 "w-full py-2 rounded-lg transition text-sm font-medium flex items-center gap-2 justify-center",
                 isDark
                   ? "bg-slate-800/60 hover:bg-slate-800"
@@ -532,7 +536,7 @@ export default function BotExcelChatDemo() {
             </button>
 
             <div
-              className={clsx(
+              className={cx(
                 "mt-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-xs",
                 isDark
                   ? "bg-slate-900/70 border-slate-700/80"
@@ -540,7 +544,7 @@ export default function BotExcelChatDemo() {
               )}
             >
               <svg
-                className={clsx(
+                className={cx(
                   "h-3.5 w-3.5",
                   isDark ? "text-slate-400" : "text-slate-500"
                 )}
@@ -565,7 +569,7 @@ export default function BotExcelChatDemo() {
               <input
                 type="text"
                 placeholder="Sohbetleri ara"
-                className={clsx(
+                className={cx(
                   "bg-transparent outline-none flex-1 text-[11px]",
                   isDark
                     ? "placeholder:text-slate-500 text-slate-100"
@@ -576,7 +580,7 @@ export default function BotExcelChatDemo() {
 
             <div className="space-y-2 text-sm">
               <div
-                className={clsx(
+                className={cx(
                   "p-3 rounded-lg cursor-pointer flex items-center justify-between",
                   isDark
                     ? "bg-slate-900/60 hover:bg-slate-900/80"
@@ -585,7 +589,7 @@ export default function BotExcelChatDemo() {
               >
                 <span className="truncate">Son sohbetim</span>
                 <span
-                  className={clsx(
+                  className={cx(
                     "text-[10px]",
                     isDark ? "text-slate-400" : "text-slate-500"
                   )}
@@ -594,7 +598,7 @@ export default function BotExcelChatDemo() {
                 </span>
               </div>
               <div
-                className={clsx(
+                className={cx(
                   "p-3 rounded-lg cursor-pointer flex items-center justify-between",
                   isDark
                     ? "bg-slate-900/60 hover:bg-slate-900/80"
@@ -603,7 +607,7 @@ export default function BotExcelChatDemo() {
               >
                 <span className="truncate">Fatura analizi</span>
                 <span
-                  className={clsx(
+                  className={cx(
                     "text-[10px]",
                     isDark ? "text-slate-400" : "text-slate-500"
                   )}
@@ -612,7 +616,7 @@ export default function BotExcelChatDemo() {
                 </span>
               </div>
               <div
-                className={clsx(
+                className={cx(
                   "p-3 rounded-lg cursor-pointer flex items-center justify-between",
                   isDark
                     ? "bg-slate-900/60 hover:bg-slate-900/80"
@@ -621,7 +625,7 @@ export default function BotExcelChatDemo() {
               >
                 <span className="truncate">Excel otomasyon</span>
                 <span
-                  className={clsx(
+                  className={cx(
                     "text-[10px]",
                     isDark ? "text-slate-400" : "text-slate-500"
                   )}
@@ -638,7 +642,7 @@ export default function BotExcelChatDemo() {
       <div className="flex flex-col flex-1">
         {/* ÜST BAR */}
         <div
-          className={clsx(
+          className={cx(
             "h-16 flex items-center justify-between px-6 border-b backdrop-blur-md relative",
             isDark
               ? "border-slate-800 bg-slate-950/80"
@@ -649,7 +653,7 @@ export default function BotExcelChatDemo() {
             <div className="text-base font-medium">BotExcel</div>
             <div className="flex flex-wrap gap-1.5 text-[10px]">
               <span
-                className={clsx(
+                className={cx(
                   "px-2 py-0.5 rounded-full border",
                   isDark
                     ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
@@ -659,7 +663,7 @@ export default function BotExcelChatDemo() {
                 Ciro: {kpis.revenue}
               </span>
               <span
-                className={clsx(
+                className={cx(
                   "px-2 py-0.5 rounded-full border",
                   isDark
                     ? "border-slate-700 bg-slate-900/80 text-slate-200"
@@ -669,7 +673,7 @@ export default function BotExcelChatDemo() {
                 Adet: {kpis.units}
               </span>
               <span
-                className={clsx(
+                className={cx(
                   "px-2 py-0.5 rounded-full border",
                   isDark
                     ? "border-sky-500/40 bg-sky-500/10 text-sky-200"
@@ -683,7 +687,7 @@ export default function BotExcelChatDemo() {
 
           <div className="flex items-center gap-3 text-xs">
             <div
-              className={clsx(
+              className={cx(
                 "flex items-center gap-1 rounded-full border px-1.5 py-0.5",
                 isDark
                   ? "bg-slate-900/80 border-slate-700"
@@ -693,7 +697,7 @@ export default function BotExcelChatDemo() {
               <button
                 type="button"
                 onClick={() => setThemeMode("system")}
-                className={clsx(
+                className={cx(
                   "px-1.5 py-0.5 rounded-full text-[10px] leading-none",
                   themeMode === "system"
                     ? isDark
@@ -709,7 +713,7 @@ export default function BotExcelChatDemo() {
               <button
                 type="button"
                 onClick={() => setThemeMode("light")}
-                className={clsx(
+                className={cx(
                   "px-1.5 py-0.5 rounded-full text-[10px] leading-none",
                   themeMode === "light"
                     ? isDark
@@ -725,7 +729,7 @@ export default function BotExcelChatDemo() {
               <button
                 type="button"
                 onClick={() => setThemeMode("dark")}
-                className={clsx(
+                className={cx(
                   "px-1.5 py-0.5 rounded-full text-[10px] leading-none",
                   themeMode === "dark"
                     ? isDark
@@ -743,7 +747,7 @@ export default function BotExcelChatDemo() {
             <button
               type="button"
               onClick={() => setShowUserPanel((v) => !v)}
-              className={clsx(
+              className={cx(
                 "rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400/70 focus:ring-offset-2",
                 isDark
                   ? "focus:ring-offset-slate-950"
@@ -763,7 +767,7 @@ export default function BotExcelChatDemo() {
               ref={userPanelRef}
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className={clsx(
+              className={cx(
                 "absolute right-4 top-16 z-20 w-64 rounded-xl border shadow-xl p-4 text-xs space-y-2",
                 isDark
                   ? "border-slate-800 bg-slate-900/95"
@@ -776,7 +780,7 @@ export default function BotExcelChatDemo() {
                     Kullanıcı
                   </div>
                   <div
-                    className={clsx(
+                    className={cx(
                       "text-sm font-medium",
                       isDark ? "text-slate-100" : "text-slate-900"
                     )}
@@ -812,7 +816,7 @@ export default function BotExcelChatDemo() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={clsx(
+          className={cx(
             "flex-1 overflow-y-auto px-6 py-5 space-y-4 transition",
             isDark
               ? "bg-gradient-to-b from-slate-950 via-slate-950 to-slate-950"
@@ -825,7 +829,7 @@ export default function BotExcelChatDemo() {
         >
           {isDragging && (
             <div
-              className={clsx(
+              className={cx(
                 "mb-2 rounded-lg border px-3 py-2 text-[11px] flex items-center gap-2",
                 isDark
                   ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-200"
@@ -841,7 +845,7 @@ export default function BotExcelChatDemo() {
             return (
               <div
                 key={i}
-                className={clsx("flex w-full", {
+                className={cx("flex w-full", {
                   "justify-end": isUserMsg,
                   "justify-start": !isUserMsg,
                 })}
@@ -855,7 +859,7 @@ export default function BotExcelChatDemo() {
                     }}
                     animate={{ opacity: 1, y: 0, x: 0 }}
                     transition={{ duration: 0.18 }}
-                    className={clsx(
+                    className={cx(
                       "rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
                       isUserMsg
                         ? isDark
@@ -876,7 +880,7 @@ export default function BotExcelChatDemo() {
                           type="button"
                           onClick={handleDownloadXlsx}
                           disabled={isDownloading}
-                          className={clsx(
+                          className={cx(
                             "px-2.5 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800 disabled:opacity-60"
@@ -888,7 +892,7 @@ export default function BotExcelChatDemo() {
                         <button
                           type="button"
                           onClick={handleShowCode}
-                          className={clsx(
+                          className={cx(
                             "px-2.5 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -900,7 +904,7 @@ export default function BotExcelChatDemo() {
                         <button
                           type="button"
                           onClick={handleRerunLast}
-                          className={clsx(
+                          className={cx(
                             "px-2.5 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -912,7 +916,7 @@ export default function BotExcelChatDemo() {
                         <button
                           type="button"
                           onClick={handleShareLink}
-                          className={clsx(
+                          className={cx(
                             "px-2.5 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -924,7 +928,7 @@ export default function BotExcelChatDemo() {
                       </div>
 
                       <div
-                        className={clsx(
+                        className={cx(
                           "w-full rounded-xl border p-3 text-xs mt-1",
                           isDark
                             ? "border-slate-800 bg-slate-950/60"
@@ -935,7 +939,7 @@ export default function BotExcelChatDemo() {
                           <div className="flex items-center gap-2">
                             <div className="font-medium">Sonuç kartı (demo)</div>
                             <span
-                              className={clsx(
+                              className={cx(
                                 "text-[10px] px-1.5 py-0.5 rounded-full border",
                                 isDark
                                   ? "border-slate-700 bg-slate-900/80 text-slate-300"
@@ -949,7 +953,7 @@ export default function BotExcelChatDemo() {
                             <div className="flex items-center gap-1 text-[10px]">
                               <button
                                 type="button"
-                                className={clsx(
+                                className={cx(
                                   "px-2 py-0.5 rounded-full border",
                                   isDark
                                     ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -960,7 +964,7 @@ export default function BotExcelChatDemo() {
                               </button>
                               <button
                                 type="button"
-                                className={clsx(
+                                className={cx(
                                   "px-2 py-0.5 rounded-full border",
                                   isDark
                                     ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -971,7 +975,7 @@ export default function BotExcelChatDemo() {
                               </button>
                               <button
                                 type="button"
-                                className={clsx(
+                                className={cx(
                                   "px-2 py-0.5 rounded-full border",
                                   isDark
                                     ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -983,7 +987,7 @@ export default function BotExcelChatDemo() {
                             </div>
                             <button
                               type="button"
-                              className={clsx(
+                              className={cx(
                                 "px-2 py-1 rounded-md text-[11px] font-medium",
                                 isDark
                                   ? "bg-slate-800 text-slate-100 hover:bg-slate-700"
@@ -997,7 +1001,7 @@ export default function BotExcelChatDemo() {
 
                         <div className="flex items-center justify-end gap-1.5 mb-1 text-[10px]">
                           <span
-                            className={clsx(
+                            className={cx(
                               "mr-auto text-[10px]",
                               isDark ? "text-slate-400" : "text-slate-600"
                             )}
@@ -1012,7 +1016,7 @@ export default function BotExcelChatDemo() {
                                 "Çizgi grafiği: Bu tablodan tarih bazlı trend gösteren bir çizgi grafiği oluştur."
                               );
                             }}
-                            className={clsx(
+                            className={cx(
                               "px-2 py-0.5 rounded-full border",
                               isDark
                                 ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -1029,7 +1033,7 @@ export default function BotExcelChatDemo() {
                                 "Sütun grafiği: Kategori bazlı toplamları gösteren bir sütun grafiği oluştur."
                               );
                             }}
-                            className={clsx(
+                            className={cx(
                               "px-2 py-0.5 rounded-full border",
                               isDark
                                 ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -1046,7 +1050,7 @@ export default function BotExcelChatDemo() {
                                 "Pasta grafiği: Toplam ciroyu müşteri veya kategori paylarına göre pasta grafikte göster."
                               );
                             }}
-                            className={clsx(
+                            className={cx(
                               "px-2 py-0.5 rounded-full border",
                               isDark
                                 ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -1063,7 +1067,7 @@ export default function BotExcelChatDemo() {
                                 "Pivot kartı: Bu tabloyu ay ve kategori kırılımında özetleyen bir pivot kartı oluştur."
                               );
                             }}
-                            className={clsx(
+                            className={cx(
                               "px-2 py-0.5 rounded-full border",
                               isDark
                                 ? "border-slate-700 bg-slate-900/80 text-slate-200 hover:bg-slate-800"
@@ -1075,7 +1079,7 @@ export default function BotExcelChatDemo() {
                         </div>
 
                         <div
-                          className={clsx(
+                          className={cx(
                             "rounded-lg border px-3 py-2 text-[11px] max-h-40 overflow-auto",
                             isDark
                               ? "border-slate-700 bg-slate-950/60 text-slate-200"
@@ -1083,7 +1087,7 @@ export default function BotExcelChatDemo() {
                           )}
                         >
                           <div
-                            className={clsx(
+                            className={cx(
                               "grid grid-cols-4 text-[10px] font-medium border-b pb-1 mb-1",
                               isDark
                                 ? "border-slate-700 text-slate-300"
@@ -1099,7 +1103,7 @@ export default function BotExcelChatDemo() {
                             {demoRows.map((row) => (
                               <div
                                 key={row.id}
-                                className={clsx(
+                                className={cx(
                                   "grid grid-cols-4 py-0.5 text-[10px]",
                                   isDark
                                     ? "hover:bg-slate-900/80"
@@ -1122,7 +1126,7 @@ export default function BotExcelChatDemo() {
 
                         {chartType && (
                           <div
-                            className={clsx(
+                            className={cx(
                               "mt-2 rounded-lg border px-3 py-2 text-[11px]",
                               isDark
                                 ? "border-sky-500/40 bg-sky-950/40 text-sky-100"
@@ -1158,7 +1162,7 @@ export default function BotExcelChatDemo() {
 
                       <div className="flex flex-wrap items-center gap-2 text-[11px] mt-1">
                         <span
-                          className={clsx(
+                          className={cx(
                             "font-medium",
                             isDark ? "text-slate-300" : "text-slate-700"
                           )}
@@ -1172,7 +1176,7 @@ export default function BotExcelChatDemo() {
                               "Grafik ekle: Bu tablodan kategorilere göre toplam tutarı gösteren bir sütun grafiği oluştur."
                             )
                           }
-                          className={clsx(
+                          className={cx(
                             "px-2 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1188,7 +1192,7 @@ export default function BotExcelChatDemo() {
                   "VBA butonu: Bu sayfaya raporu güncelleyen bir &apos;Yenile&apos; butonu ekleyen VBA macro yaz."
                 )
                           }
-                          className={clsx(
+                          className={cx(
                             "px-2 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1204,7 +1208,7 @@ export default function BotExcelChatDemo() {
                               "Fiyat hatalarını bul: Bu tablodaki satırlarda olağan dışı (ortalamanın çok üstü/altı) fiyatları işaretle."
                             )
                           }
-                          className={clsx(
+                          className={cx(
                             "px-2 py-1 rounded-full border",
                             isDark
                               ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1216,7 +1220,7 @@ export default function BotExcelChatDemo() {
                       </div>
 
                       <div
-                        className={clsx(
+                        className={cx(
                           "mt-1 w-full rounded-lg border px-3 py-2 text-[11px]",
                           isDark
                             ? "border-amber-500/40 bg-amber-950/40 text-amber-100"
@@ -1237,7 +1241,7 @@ export default function BotExcelChatDemo() {
                           </div>
                           <button
                             type="button"
-                            className={clsx(
+                            className={cx(
                               "px-2 py-1 rounded-md text-[10px] font-medium",
                               isDark
                                 ? "bg-amber-500 text-slate-950 hover:bg-amber-400"
@@ -1257,7 +1261,7 @@ export default function BotExcelChatDemo() {
         </div>
 
         <div
-          className={clsx(
+          className={cx(
             "p-4 border-t backdrop-blur-md relative",
             isDark
               ? "border-slate-800 bg-slate-950/90"
@@ -1265,7 +1269,7 @@ export default function BotExcelChatDemo() {
           )}
         >
           <div
-            className={clsx(
+            className={cx(
               "mb-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px]",
               isDark
                 ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-200"
@@ -1305,7 +1309,7 @@ export default function BotExcelChatDemo() {
                   "Tablo Yap: Bu veriyi temizle, sütunları isimlendir ve Excel'de kullanıma hazır tabloya çevir."
                 )
               }
-              className={clsx(
+              className={cx(
                 "px-3 py-1 rounded-full border transition",
                 isDark
                   ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1321,7 +1325,7 @@ export default function BotExcelChatDemo() {
                   "Pivot Oluştur: Bu tablodan özet pivot tablo çıkar; satırda kategori, sütunda ay, değerde toplam tutar olsun."
                 )
               }
-              className={clsx(
+              className={cx(
                 "px-3 py-1 rounded-full border transition",
                 isDark
                   ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1337,7 +1341,7 @@ export default function BotExcelChatDemo() {
                   "Faturadan Alan Çıkar: Bu PDF faturalardan tarih, cari adı, fatura no, KDV, genel toplam alanlarını yakala."
                 )
               }
-              className={clsx(
+              className={cx(
                 "px-3 py-1 rounded-full border transition",
                 isDark
                   ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1353,7 +1357,7 @@ export default function BotExcelChatDemo() {
                   "VBA Butonu Ekle: Bu sayfaya &apos;Yenile&apos; butonu ekleyen bir VBA macro yaz ve butonu sayfaya yerleştir."
                 )
               }
-              className={clsx(
+              className={cx(
                 "px-3 py-1 rounded-full border transition",
                 isDark
                   ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1369,7 +1373,7 @@ export default function BotExcelChatDemo() {
                   "PDF&apos;e Çevir: Bu rapor sayfasını Excel içinden tek sayfalık, yazdırmaya hazır bir PDF&apos;e çevir."
                 )
               }
-              className={clsx(
+              className={cx(
                 "px-3 py-1 rounded-full border transition",
                 isDark
                   ? "border-slate-700 bg-slate-900/80 text-slate-100 hover:bg-slate-800"
@@ -1382,7 +1386,7 @@ export default function BotExcelChatDemo() {
 
           <div className="flex gap-3 items-center">
             <div
-              className={clsx(
+              className={cx(
                 "flex-1 flex items-center gap-2 rounded-xl border px-3",
                 isDark
                   ? "bg-slate-900/60 border-slate-700"
@@ -1393,7 +1397,7 @@ export default function BotExcelChatDemo() {
                 <button
                   type="button"
                   onClick={() => setShowAttachMenu((v) => !v)}
-                  className={clsx(
+                  className={cx(
                     "inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold border transition",
                     isDark
                       ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30"
@@ -1404,7 +1408,7 @@ export default function BotExcelChatDemo() {
                 </button>
                 {showAttachMenu && (
                   <div
-                    className={clsx(
+                    className={cx(
                       "absolute left-0 bottom-9 z-20 w-48 rounded-lg border shadow-lg py-1 text-xs",
                       isDark
                         ? "border-slate-700 bg-slate-900/95"
@@ -1413,7 +1417,7 @@ export default function BotExcelChatDemo() {
                   >
                     <button
                       type="button"
-                      className={clsx(
+                      className={cx(
                         "w-full flex items-center gap-2 px-3 py-2 text-xs",
                         isDark
                           ? "hover:bg-slate-800/80 text-slate-100"
@@ -1457,7 +1461,7 @@ export default function BotExcelChatDemo() {
                   }
                 }}
                 placeholder="PDF/Excel sürükle → 3 saniyede tabloya çevir • /komut • Ctrl+K"
-                className={clsx(
+                className={cx(
                   "flex-1 bg-transparent py-3 text-sm outline-none",
                   isDark
                     ? "placeholder:text-slate-500 text-slate-100"
@@ -1468,7 +1472,7 @@ export default function BotExcelChatDemo() {
             <button
               onClick={() => void sendMessage()}
               disabled={isSending}
-              className={clsx(
+              className={cx(
                 "px-4 py-3 rounded-xl text-sm font-medium active:scale-95 transition",
                 isDark
                   ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300 disabled:opacity-60"
@@ -1482,7 +1486,7 @@ export default function BotExcelChatDemo() {
 
         {toast && (
           <div
-            className={clsx(
+            className={cx(
               "pointer-events-none absolute bottom-4 right-4 rounded-lg px-4 py-2 text-sm shadow-lg",
               toast.tone === "error"
                 ? isDark

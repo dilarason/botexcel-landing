@@ -17,8 +17,31 @@ type KpiState = {
 };
 
 // Basit bir sınıf birleştirici; clsx alternatifi
-function cx(...values: Array<string | false | null | undefined>): string {
-  return values.filter(Boolean).join(" ");
+function cx(
+  ...values: Array<
+    | string
+    | false
+    | null
+    | undefined
+    | Record<string, boolean | null | undefined>
+  >
+): string {
+  const parts: string[] = [];
+
+  for (const value of values) {
+    if (!value) continue;
+
+    if (typeof value === "string") {
+      parts.push(value);
+      continue;
+    }
+
+    for (const [key, active] of Object.entries(value)) {
+      if (active) parts.push(key);
+    }
+  }
+
+  return parts.join(" ");
 }
 
 export default function BotExcelChatDemo() {

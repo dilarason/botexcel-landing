@@ -6,12 +6,10 @@ const API_BASE =
 
 export async function GET(
   request: NextRequest,
-  { params }: { params?: Promise<Record<string, string | string[] | undefined>> }
+  context: RouteContext<"/api/download/[filename]">
 ) {
-  const resolvedParams = (await params) || {};
-  const filename = resolvedParams.filename;
-  const normalizedFilename = Array.isArray(filename) ? filename[0] : filename;
-  if (!normalizedFilename) {
+  const { filename } = await context.params;
+  if (!filename) {
     return new Response(
       JSON.stringify({
         ok: false,
@@ -22,7 +20,7 @@ export async function GET(
       { status: 400, headers: { "content-type": "application/json" } }
     );
   }
-  const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(normalizedFilename)}`;
+  const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(filename)}`;
   try {
     const cookie = request.headers.get("cookie");
     const headers: HeadersInit = {};

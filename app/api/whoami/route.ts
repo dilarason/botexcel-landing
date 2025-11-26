@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_BASE =
   (process.env.BOTEXCEL_API_BASE || process.env.NEXT_PUBLIC_BACKEND || "").trim() ||
-  "https://www.botexcel.pro";
+  "https://api.botexcel.pro";
 
 export async function GET(req: NextRequest) {
   const url = `${API_BASE.replace(/\/$/, "")}/api/whoami`;

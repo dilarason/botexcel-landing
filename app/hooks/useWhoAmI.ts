@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getApiBase } from "../lib/api";
-
 type WhoAmIState =
   | { status: "idle" }
   | { status: "loading" }

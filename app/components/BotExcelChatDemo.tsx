@@ -271,7 +271,7 @@ export default function BotExcelChatDemo() {
           text: assistantText,
         },
       ]);
-    } catch (_error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {
@@ -309,7 +309,7 @@ export default function BotExcelChatDemo() {
       a.remove();
 
       URL.revokeObjectURL(url);
-    } catch (_error) {
+    } catch {
       setToast({ text: "İndirme sırasında hata oluştu.", tone: "error" });
     } finally {
       setIsDownloading(false);
@@ -376,7 +376,7 @@ export default function BotExcelChatDemo() {
           },
         ]);
       }
-    } catch (_error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         {

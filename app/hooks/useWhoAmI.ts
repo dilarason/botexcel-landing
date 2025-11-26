@@ -19,7 +19,7 @@ export function useWhoAmI(): WhoAmIState {
     const fetchWhoAmI = async () => {
       setState({ status: "loading" });
       try {
-        const res = await fetch(`${getApiBase()}/whoami`, {
+        const res = await fetch(`/api/whoami`, {
           credentials: "include",
         });
 

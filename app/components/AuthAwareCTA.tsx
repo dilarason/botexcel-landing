@@ -9,11 +9,6 @@ type WhoAmIResponse = {
   plan?: string;
 };
 
-const BACKEND_BASE =
-  process.env.NEXT_PUBLIC_BACKEND ||
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "https://www.botexcel.pro";
-
 type AuthStatus = "loading" | "guest" | "user";
 
 export function AuthAwareCTA() {
@@ -25,7 +20,7 @@ export function AuthAwareCTA() {
 
     async function checkAuth() {
       try {
-        const res = await fetch(`${BACKEND_BASE}/whoami`, {
+        const res = await fetch("/api/whoami", {
           credentials: "include",
         });
         const data: WhoAmIResponse = await res.json().catch(() => ({

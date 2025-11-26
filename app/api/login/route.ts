@@ -10,7 +10,15 @@ export async function POST(req: NextRequest) {
   const password = (body?.password || "").toString();
 
   if (!email || !password) {
-    return NextResponse.json({ ok: false, error: "E-posta ve şifre zorunlu." }, { status: 400 });
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "validation_error",
+        message: "E-posta ve şifre zorunlu.",
+        details: { fields: ["email", "password"] },
+      },
+      { status: 400 }
+    );
   }
 
   const url = `${API_BASE.replace(/\/$/, "")}/api/login`;
@@ -23,8 +31,17 @@ export async function POST(req: NextRequest) {
       redirect: "manual",
     });
 
-    const payload = await upstream.json().catch(() => ({ ok: false, error: "Geçersiz yanıt alındı." }));
-    const res = NextResponse.json(payload, { status: upstream.status });
+    const payload = await upstream.json().catch(() => ({}));
+    const ok = payload?.ok === true;
+    const normalized = ok
+      ? { ok: true, data: payload.data ?? payload }
+      : {
+          ok: false,
+          code: payload?.code || "server_error",
+          message: payload?.message || "Giriş başarısız.",
+          details: payload?.details || {},
+        };
+    const res = NextResponse.json(normalized, { status: upstream.status });
 
     const setCookie = upstream.headers.get("set-cookie");
     if (setCookie) {
@@ -34,6 +51,9 @@ export async function POST(req: NextRequest) {
     return res;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json({ ok: false, error: `Upstream error: ${message}` }, { status: 502 });
+    return NextResponse.json(
+      { ok: false, code: "server_error", message: `Upstream error: ${message}`, details: {} },
+      { status: 502 }
+    );
   }
 }

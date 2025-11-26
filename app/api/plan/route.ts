@@ -9,15 +9,21 @@ export async function POST(req: NextRequest) {
   const plan = (body?.plan || "").toString().trim().toLowerCase();
 
   if (!plan) {
-    return NextResponse.json({ ok: false, error: "Plan belirtilmedi." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, code: "validation_error", message: "Plan belirtilmedi.", details: { fields: ["plan"] } },
+      { status: 400 }
+    );
   }
 
   const allowedPlans = ["free", "starter", "pro", "business", "enterprise"];
   if (!allowedPlans.includes(plan)) {
-    return NextResponse.json({ ok: false, error: "Geçersiz plan." }, { status: 400 });
+    return NextResponse.json(
+      { ok: false, code: "validation_error", message: "Geçersiz plan.", details: { value: plan } },
+      { status: 400 }
+    );
   }
 
-  const url = `${API_BASE.replace(/\/$/, "")}/plan`;
+  const url = `${API_BASE.replace(/\/$/, "")}/api/plan`;
 
   try {
     const cookieHeader = req.headers.get("cookie");
@@ -36,12 +42,18 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({ plan }),
     });
 
-    const payload = await upstream.json().catch(() => ({
-      ok: false,
-      error: "Geçersiz yanıt alındı.",
-    }));
+    const payload = await upstream.json().catch(() => ({}));
+    const ok = payload?.ok === true;
+    const normalized = ok
+      ? { ok: true, data: payload.data ?? payload }
+      : {
+          ok: false,
+          code: payload?.code || "server_error",
+          message: payload?.message || payload?.error || "Plan güncellenemedi.",
+          details: payload?.details || {},
+        };
 
-    const res = NextResponse.json(payload, { status: upstream.status });
+    const res = NextResponse.json(normalized, { status: upstream.status });
 
     const setCookie = upstream.headers.get("set-cookie");
     if (setCookie) {
@@ -52,7 +64,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { ok: false, error: `Upstream error: ${message}` },
+      { ok: false, code: "server_error", message: `Upstream error: ${message}`, details: {} },
       { status: 502 }
     );
   }

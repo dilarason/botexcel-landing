@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { mapErrorCodeToMessage } from "../lib/errorMessages";
 
 const PLANS = [
   { value: "free", label: "Ücretsiz • ayda 3 belge" },
@@ -32,16 +33,12 @@ export default function RegisterPage() {
 
       const data = await resp.json().catch(() => ({}));
 
-      if (!resp.ok || data.ok === false || data.error) {
-        setError(
-          data.error ||
-            data.message ||
-            "Kayıt sırasında bir hata oluştu. Lütfen tekrar dene."
-        );
+      if (!data?.ok) {
+        setError(mapErrorCodeToMessage(data?.code, data?.message));
         return;
       }
 
-      const chosenPlan = data.plan || plan;
+      const chosenPlan = data.data?.plan || data.plan || plan;
       setSuccess(
         data.message ||
           `Kayıt tamamlandı. Planın: ${chosenPlan}. Yönlendiriliyorsun...`

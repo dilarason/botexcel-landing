@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { fetchWithTimeout } from "../lib/http";
+import { mapErrorCodeToMessage } from "../lib/errorMessages";
 
 type RequestState = "idle" | "loading" | "error" | "success";
 
@@ -28,9 +29,9 @@ export function LoginForm() {
 
       const data = await res.json().catch(() => ({}));
 
-      if (!res.ok || !data.ok) {
+      if (!data?.ok) {
         setState("error");
-        setError(data.error || "Giriş başarısız. Email veya şifre hatalı.");
+        setError(mapErrorCodeToMessage(data?.code, data?.message));
         return;
       }
 

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { UsageBar } from "./UsageBar";
+import { mapErrorCodeToMessage } from "../lib/errorMessages";
 
 type PlanKey = "pro" | "business";
 
@@ -61,10 +62,8 @@ export function UpgradeModal({
         body: JSON.stringify({ plan: selected }),
       });
       const data = await resp.json().catch(() => ({}));
-      if (!resp.ok || data.error) {
-        throw new Error(
-          data?.message || data?.error || "Plan yükseltme sırasında hata oluştu.",
-        );
+      if (!data?.ok) {
+        throw new Error(mapErrorCodeToMessage(data?.code, data?.message));
       }
       setSuccess(data?.message || "Planın güncellendi.");
       onUpgraded?.();

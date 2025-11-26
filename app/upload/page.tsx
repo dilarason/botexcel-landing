@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, FormEvent } from "react";
 import { UploadHeader } from "../components/UploadHeader";
+import { mapErrorCodeToMessage } from "../lib/errorMessages";
+import { useWhoAmI } from "../hooks/useWhoAmI";
 
 type ConvertResult = {
   id?: string;
@@ -24,15 +26,15 @@ type RecentItem = {
   source_file?: string;
 } & Record<string, unknown>;
 
-type AuthState = "checking" | "guest" | "user";
-
 const BACKEND_BASE =
   process.env.NEXT_PUBLIC_BACKEND ||
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   "https://www.botexcel.pro";
 
 export default function UploadPage() {
-  const [authState, setAuthState] = useState<AuthState>("checking");
+  const [refreshToken, setRefreshToken] = useState(0);
+  const [upgradeRequested, setUpgradeRequested] = useState(false);
+  const who = useWhoAmI(refreshToken);
   const [file, setFile] = useState<File | null>(null);
   const [format, setFormat] = useState<string>("klasik");
   const [loading, setLoading] = useState(false);
@@ -45,48 +47,14 @@ export default function UploadPage() {
 
   // 1) Auth guard: /whoami kontrolü
   useEffect(() => {
-    let cancelled = false;
-
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/whoami", {
-          credentials: "include",
-        });
-        const data = await res.json().catch(() => ({
-          ok: false,
-          authenticated: false,
-        }));
-
-        if (cancelled) return;
-
-        if (data.ok && data.authenticated) {
-          setAuthState("user");
-        } else {
-          setAuthState("guest");
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
-          }
-        }
-      } catch {
-        if (!cancelled) {
-          setAuthState("guest");
-          if (typeof window !== "undefined") {
-            window.location.href = "/login";
-          }
-        }
-      }
+    if (who.status === "anonymous" && typeof window !== "undefined") {
+      window.location.href = "/login";
     }
-
-    void checkAuth();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  }, [who.status]);
 
   // 2) Auth onaylandıysa /recent.json çek
   useEffect(() => {
-    if (authState !== "user") return;
+    if (who.status !== "authenticated") return;
 
     let cancelled = false;
 
@@ -121,7 +89,7 @@ export default function UploadPage() {
     return () => {
       cancelled = true;
     };
-  }, [authState]);
+  }, [who.status]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -146,25 +114,35 @@ export default function UploadPage() {
         credentials: "include",
       });
 
-      const data: ConvertResult = await res.json().catch(() => ({}));
+      const payload: ConvertResult & {
+        ok?: boolean;
+        code?: string;
+        message?: string;
+        details?: { limit?: number | null; usage?: number | null; [key: string]: unknown };
+      } = await res.json().catch(() => ({}));
 
-      if (!res.ok || data?.error) {
-        if (res.status === 403 && data?.error_code === "QUOTA_LIMIT") {
-          setError(
-            "Aylık limitine ulaştın. Daha fazla belge için planını yükseltebilirsin."
-          );
+      if (!payload?.ok) {
+        const code = payload.code || "server_error";
+        const message = mapErrorCodeToMessage(code, payload.message);
+
+        if (code === "plan_limit") {
+          const limit = payload?.details?.limit;
+          const usage = payload?.details?.usage;
+          const suffix =
+            typeof usage === "number" && typeof limit === "number"
+              ? ` (${usage}/${limit} belge)`
+              : "";
+          setError(`${message}${suffix}`);
+          setUpgradeRequested(true);
           return;
         }
-        const msg =
-          data.error ||
-          (res.status === 413
-            ? "Dosya boyutu çok büyük."
-            : "Dönüşüm sırasında bir hata oluştu.");
-        setError(msg);
+
+        setError(message);
         return;
       }
 
-      setResult(data);
+      setResult(payload.data ?? payload);
+      setRefreshToken((n) => n + 1);
     } catch {
       setError("Sunucuya ulaşılamadı. Lütfen daha sonra tekrar deneyin.");
     } finally {
@@ -173,7 +151,7 @@ export default function UploadPage() {
   }
 
   // Auth kontrolü devam ederken skeleton
-  if (authState === "checking") {
+  if (who.status === "idle" || who.status === "loading") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
         <div className="space-y-2 text-center">
@@ -189,7 +167,7 @@ export default function UploadPage() {
   }
 
   // guest ise login'e yönlendirildi; fallback:
-  if (authState === "guest") {
+  if (who.status === "anonymous") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
         <p className="text-sm text-slate-400">
@@ -203,6 +181,14 @@ export default function UploadPage() {
     );
   }
 
+  if (who.status === "error") {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
+        <p className="text-sm text-red-300">Kullanıcı bilgisi alınamadı. Lütfen tekrar deneyin.</p>
+      </div>
+    );
+  }
+
   // İndirme linki
   const downloadHref =
     (result?.id && `/api/download/${encodeURIComponent(result.id)}`) ||
@@ -212,7 +198,12 @@ export default function UploadPage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 flex flex-col items-center px-4 py-8">
       <div className="w-full max-w-5xl space-y-8">
-        <UploadHeader />
+        <UploadHeader
+          refreshToken={refreshToken}
+          upgradeRequested={upgradeRequested}
+          onUpgradeHandled={() => setUpgradeRequested(false)}
+          onPlanUpgraded={() => setRefreshToken((n) => n + 1)}
+        />
 
         <main className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] items-start">
           {/* Form kartı */}

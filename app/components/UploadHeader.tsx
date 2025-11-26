@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { UsageBar } from "./UsageBar";
 import { UpgradeModal } from "./UpgradeModal";
+import { useWhoAmI } from "../hooks/useWhoAmI";
 
 const PLAN_LIMITS: Record<string, number | null> = {
   free: 3,
@@ -16,46 +17,34 @@ function inferLimit(plan: string | undefined | null): number | null {
   return PLAN_LIMITS.hasOwnProperty(key) ? PLAN_LIMITS[key] : PLAN_LIMITS.free;
 }
 
-type WhoAmIResponse = {
-  authenticated: boolean;
-  email?: string;
-  plan?: string;
-  usage?: {
-    count?: number;
-    month?: string;
-    limit?: number | null;
-  };
+type UploadHeaderProps = {
+  refreshToken?: number;
+  upgradeRequested?: boolean;
+  onUpgradeHandled?: () => void;
+  onPlanUpgraded?: () => void;
 };
 
-export function UploadHeader() {
-  const [who, setWho] = useState<WhoAmIResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function UploadHeader({
+  refreshToken = 0,
+  upgradeRequested = false,
+  onUpgradeHandled,
+  onPlanUpgraded,
+}: UploadHeaderProps) {
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [localRefresh, setLocalRefresh] = useState(0);
+  const who = useWhoAmI(refreshToken + localRefresh);
+  const isOpen = upgradeRequested || upgradeOpen;
 
-  const reload = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const resp = await fetch("/api/whoami", { cache: "no-store" });
-      const data = (await resp.json()) as WhoAmIResponse;
-      setWho(data);
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Kullanıcı bilgisi alınamadı.";
-      setError(message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    void reload();
-  }, []);
-
-  const plan = (who?.plan || "free").toLowerCase();
+  const loading = who.status === "idle" || who.status === "loading";
+  const hasError = who.status === "error";
+  const authenticated = who.status === "authenticated";
+  const plan = (authenticated ? who.plan : "free")?.toLowerCase();
   const limit =
-    typeof who?.usage?.limit === "number" ? who?.usage?.limit : inferLimit(plan);
-  const used = who?.usage?.count ?? undefined;
+    authenticated && typeof who.usage?.limit !== "undefined"
+      ? who.usage?.limit ?? null
+      : inferLimit(plan);
+  const used = authenticated ? who.usage?.count : undefined;
+  const email = authenticated ? who.email : undefined;
 
   return (
     <header className="space-y-4 rounded-2xl border border-neutral-800 bg-neutral-950/60 p-4">
@@ -89,19 +78,27 @@ export function UploadHeader() {
       {loading && (
         <p className="text-xs text-neutral-400">Kullanım bilgilerin yükleniyor...</p>
       )}
-      {!loading && error && (
-        <p className="text-xs text-red-300">{error}</p>
+      {!loading && hasError && (
+        <p className="text-xs text-red-300">Kullanıcı bilgisi alınamadı.</p>
       )}
-      {!loading && !error && <UsageBar used={used} limit={limit} plan={plan} />}
+      {!loading && !hasError && <UsageBar used={used} limit={limit} plan={plan} />}
 
       <UpgradeModal
-        open={upgradeOpen}
-        onClose={() => setUpgradeOpen(false)}
-        email={who?.email}
+        open={isOpen}
+        onClose={() => {
+          setUpgradeOpen(false);
+          onUpgradeHandled?.();
+        }}
+        email={email}
         plan={plan}
         usageCount={used}
         limit={limit}
-        onUpgraded={reload}
+        onUpgraded={() => {
+          onPlanUpgraded?.();
+          setUpgradeOpen(false);
+          onUpgradeHandled?.();
+          setLocalRefresh((n) => n + 1);
+        }}
       />
     </header>
   );

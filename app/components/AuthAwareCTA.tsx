@@ -4,9 +4,11 @@ import React, { useEffect, useState } from "react";
 
 type WhoAmIResponse = {
   ok: boolean;
-  authenticated: boolean;
-  email?: string;
-  plan?: string;
+  data?: {
+    authenticated: boolean;
+    email?: string;
+    plan?: string;
+  };
 };
 
 type AuthStatus = "loading" | "guest" | "user";
@@ -25,14 +27,14 @@ export function AuthAwareCTA() {
         });
         const data: WhoAmIResponse = await res.json().catch(() => ({
           ok: false,
-          authenticated: false,
+          data: { authenticated: false },
         }));
 
         if (cancelled) return;
 
-        if (data.ok && data.authenticated) {
+        if (data.ok && data.data?.authenticated) {
           setStatus("user");
-          setPlan(data.plan);
+          setPlan(data.data.plan);
         } else {
           setStatus("guest");
         }

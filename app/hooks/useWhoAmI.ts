@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 type WhoAmIState =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "anonymous" }
-  | { status: "authenticated"; email: string }
+  | { status: "authenticated"; email: string; plan?: string; usage?: { count?: number; limit?: number | null } }
   | { status: "error"; error: string };
 
-export function useWhoAmI(): WhoAmIState {
+export function useWhoAmI(refreshToken = 0): WhoAmIState {
   const [state, setState] = useState<WhoAmIState>({ status: "idle" });
 
   useEffect(() => {
@@ -19,6 +20,7 @@ export function useWhoAmI(): WhoAmIState {
       try {
         const res = await fetch(`/api/whoami`, {
           credentials: "include",
+          cache: "no-store",
         });
 
         if (!res.ok) {
@@ -28,11 +30,23 @@ export function useWhoAmI(): WhoAmIState {
           return;
         }
 
-        const data = await res.json().catch(() => ({}));
+        const payload = await res.json().catch(() => ({}));
         if (cancelled) return;
 
-        if (data && data.ok && data.email) {
-          setState({ status: "authenticated", email: data.email });
+        if (payload?.ok && payload?.data?.authenticated) {
+          setState({
+            status: "authenticated",
+            email: payload.data.email,
+            plan: payload.data.plan,
+            usage: {
+              count: payload.data.usage_count ?? payload.data.usage?.count,
+              limit:
+                payload.data.limit ??
+                payload.data.usage?.limit ??
+                payload.data.plan_limit ??
+                null,
+            },
+          });
         } else {
           setState({ status: "anonymous" });
         }
@@ -48,7 +62,7 @@ export function useWhoAmI(): WhoAmIState {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [refreshToken]);
 
   return state;
 }

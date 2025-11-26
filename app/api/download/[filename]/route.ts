@@ -1,14 +1,12 @@
-import { NextRequest } from "next/server";
-
 const API_BASE =
   (process.env.BOTEXCEL_API_BASE || process.env.NEXT_PUBLIC_BACKEND || "").trim() ||
   "https://www.botexcel.pro";
 
-export async function GET(req: NextRequest, { params }: { params: { filename: string } }) {
+export async function GET(request: Request, { params }: { params: { filename: string } }) {
   const { filename } = params;
   const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(filename)}`;
   try {
-    const cookie = req.headers.get("cookie");
+    const cookie = request.headers.get("cookie");
     const headers: HeadersInit = {};
     if (cookie) headers["Cookie"] = cookie;
 

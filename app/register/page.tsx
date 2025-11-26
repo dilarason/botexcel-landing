@@ -81,11 +81,13 @@ export default function RegisterPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1" htmlFor="register-email">
               E-posta adresi
             </label>
             <input
               type="email"
+              id="register-email"
+              name="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -95,9 +97,13 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Şifre</label>
+            <label className="block text-sm font-medium mb-1" htmlFor="register-password">
+              Şifre
+            </label>
             <input
               type="password"
+              id="register-password"
+              name="password"
               required
               minLength={8}
               value={password}
@@ -111,10 +117,12 @@ export default function RegisterPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label className="block text-sm font-medium mb-1" htmlFor="register-plan">
               Planını seç
             </label>
             <select
+              id="register-plan"
+              name="plan"
               value={plan}
               onChange={(e) => setPlan(e.target.value)}
               className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm outline-none focus:border-emerald-400"

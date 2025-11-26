@@ -59,9 +59,13 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-200">E-posta adresi</label>
+        <label className="text-xs font-medium text-slate-200" htmlFor="login-email">
+          E-posta adresi
+        </label>
         <input
           type="email"
+          id="login-email"
+          name="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -71,9 +75,13 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-1">
-        <label className="text-xs font-medium text-slate-200">Şifre</label>
+        <label className="text-xs font-medium text-slate-200" htmlFor="login-password">
+          Şifre
+        </label>
         <input
           type="password"
+          id="login-password"
+          name="password"
           required
           minLength={8}
           value={password}

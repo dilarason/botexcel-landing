@@ -12,9 +12,11 @@ services:
       - key: NODE_VERSION
         value: 22.16.0
       - key: BOTEXCEL_API_BASE
-        sync: false
+        value: https://api.botexcel.pro
       - key: NEXT_PUBLIC_BACKEND
-        value: https://www.botexcel.pro
+        value: https://api.botexcel.pro
+      - key: NODE_OPTIONS
+        value: --max-old-space-size=1024
     domains:
       - botexcel.pro
       - www.botexcel.pro

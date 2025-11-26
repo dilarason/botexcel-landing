@@ -40,6 +40,13 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ConvertResult | null>(null);
+  type ConvertResponse = {
+    data?: ConvertResult;
+    ok?: boolean;
+    code?: string;
+    message?: string;
+    details?: { limit?: number | null; usage?: number | null; [key: string]: unknown };
+  } & ConvertResult;
 
   const [recentLoading, setRecentLoading] = useState(false);
   const [recentError, setRecentError] = useState<string | null>(null);
@@ -114,12 +121,7 @@ export default function UploadPage() {
         credentials: "include",
       });
 
-      const payload: ConvertResult & {
-        ok?: boolean;
-        code?: string;
-        message?: string;
-        details?: { limit?: number | null; usage?: number | null; [key: string]: unknown };
-      } = await res.json().catch(() => ({}));
+      const payload = (await res.json().catch(() => ({}))) as ConvertResponse;
 
       if (!payload?.ok) {
         const code = payload.code || "server_error";
@@ -141,7 +143,8 @@ export default function UploadPage() {
         return;
       }
 
-      setResult(payload.data ?? payload);
+      const normalizedResult = payload.data ?? payload;
+      setResult(normalizedResult);
       setRefreshToken((n) => n + 1);
     } catch {
       setError("Sunucuya ulaşılamadı. Lütfen daha sonra tekrar deneyin.");

@@ -1,10 +1,27 @@
+import { NextRequest } from "next/server";
+
 const API_BASE =
   (process.env.BOTEXCEL_API_BASE || process.env.NEXT_PUBLIC_BACKEND || "").trim() ||
   "https://www.botexcel.pro";
 
-export async function GET(request: Request, { params }: { params: { filename: string } }) {
-  const { filename } = params;
-  const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(filename)}`;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ filename?: string | string[] }> }
+) {
+  const { filename } = await params;
+  const normalizedFilename = Array.isArray(filename) ? filename[0] : filename;
+  if (!normalizedFilename) {
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        code: "validation_error",
+        message: "Dosya adı eksik.",
+        details: {},
+      }),
+      { status: 400, headers: { "content-type": "application/json" } }
+    );
+  }
+  const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(normalizedFilename)}`;
   try {
     const cookie = request.headers.get("cookie");
     const headers: HeadersInit = {};

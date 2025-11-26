@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 
@@ -504,10 +505,13 @@ export default function BotExcelChatDemo() {
                 : "bg-emerald-500/5 border-emerald-400/70 shadow-emerald-400/25"
             )}
           >
-            <img
+            <Image
               src="/your-logo.svg"
-              alt="Logo"
+              alt="BotExcel logosu"
+              width={32}
+              height={32}
               className="h-8 w-8 object-contain"
+              priority
             />
           </motion.div>
           <button
@@ -777,9 +781,11 @@ export default function BotExcelChatDemo() {
                   : "focus:ring-offset-slate-50"
               )}
             >
-              <img
+              <Image
                 src="/default-avatar.png"
-                alt="User"
+                alt="Varsayılan kullanıcı avatarı"
+                width={28}
+                height={28}
                 className="h-7 w-7 rounded-full object-cover ring-1 ring-slate-600"
               />
             </button>

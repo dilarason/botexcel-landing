@@ -4,11 +4,9 @@ const API_BASE =
   (process.env.BOTEXCEL_API_BASE || process.env.NEXT_PUBLIC_BACKEND || "").trim() ||
   "https://www.botexcel.pro";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { filename: string } }
-) {
-  const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(params.filename)}`;
+export async function GET(req: NextRequest, context: { params: { filename: string } }) {
+  const { filename } = context.params;
+  const url = `${API_BASE.replace(/\/$/, "")}/api/download/${encodeURIComponent(filename)}`;
   try {
     const cookie = req.headers.get("cookie");
     const headers: HeadersInit = {};

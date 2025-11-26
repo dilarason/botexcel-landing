@@ -28,3 +28,10 @@
 - `useWhoAmI` supports refresh tokens and exposes plan/usage; `UploadHeader` consumes it with refresh + upgrade triggers and upgrade modal now maps backend errors.
 - Upload page handles plan_limit (opens upgrade modal) and other backend codes while refreshing usage after successful conversions.
 - Lint: `npm run lint` passes with existing `<img>` warnings in `BotExcelChatDemo` (unchanged). Build: `npm run build` succeeds.
+
+## Frontend Final Polishing & Production Readiness
+- Lint cleanup: replaced remaining `<img>` tags in `BotExcelChatDemo.tsx` with `next/image`, eliminating no-img-element warnings; `npm run lint` now clean.
+- Build verified: `npm run build` succeeds.
+- Minor a11y/ARIA preserved from prior work; modal/button semantics unchanged; headings kept consistent on core pages.
+- Performance micro-fix: optimized demo assets via `next/image` with explicit sizing.
+- No API/UX logic changes; auth/upload/plan flows unchanged.

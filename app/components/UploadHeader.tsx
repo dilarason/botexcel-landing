@@ -38,7 +38,7 @@ export function UploadHeader({
   const loading = who.status === "idle" || who.status === "loading";
   const hasError = who.status === "error";
   const authenticated = who.status === "authenticated";
-  const plan = (authenticated ? who.plan : "free")?.toLowerCase();
+  const plan = authenticated ? (who.plan || "free") : "free";
   const limit =
     authenticated && typeof who.usage?.limit !== "undefined"
       ? who.usage?.limit ?? null

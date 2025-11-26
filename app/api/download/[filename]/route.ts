@@ -6,9 +6,9 @@ const API_BASE =
 
 export async function GET(
   request: NextRequest,
-  context: RouteContext<"/api/download/[filename]">
+  { params }: { params: Promise<{ filename: string }> }
 ) {
-  const { filename } = await context.params;
+  const { filename } = await params;
   if (!filename) {
     return new Response(
       JSON.stringify({

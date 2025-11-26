@@ -121,9 +121,24 @@ export default function UploadPage() {
         credentials: "include",
       });
 
-      const payload = (await res.json().catch(() => ({}))) as ConvertResponse;
+      if (!res.ok) {
+        let errorText = "";
+        try {
+          errorText = await res.text();
+        } catch {
+          // ignore
+        }
 
-      if (!payload?.ok) {
+        setError(
+          errorText || "Dönüşüm sırasında bir hata oluştu. Lütfen tekrar deneyin."
+        );
+        return;
+      }
+
+      const raw = (await res.json().catch(() => ({}))) as ConvertResponse | ConvertResult;
+      const payload = raw as ConvertResponse;
+
+      if (payload.ok === false) {
         const code = payload.code || "server_error";
         const message = mapErrorCodeToMessage(code, payload.message);
 
@@ -143,7 +158,7 @@ export default function UploadPage() {
         return;
       }
 
-      const normalizedResult = payload.data ?? payload;
+      const normalizedResult = payload.data ?? (raw as ConvertResult);
       setResult(normalizedResult);
       setRefreshToken((n) => n + 1);
     } catch {

@@ -6,9 +6,10 @@ const API_BASE =
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ filename?: string | string[] }> }
+  { params }: { params?: Promise<Record<string, string | string[] | undefined>> }
 ) {
-  const { filename } = await params;
+  const resolvedParams = (await params) || {};
+  const filename = resolvedParams.filename;
   const normalizedFilename = Array.isArray(filename) ? filename[0] : filename;
   if (!normalizedFilename) {
     return new Response(

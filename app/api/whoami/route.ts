@@ -1,40 +1,54 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getApiBase } from "../_lib/apiBase";
 
-const API_BASE =
-  (process.env.BOTEXCEL_API_BASE || process.env.NEXT_PUBLIC_BACKEND || "").trim() ||
-  "https://api.botexcel.pro";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const url = `${API_BASE.replace(/\/$/, "")}/api/whoami`;
+  const API_BASE = getApiBase();
+  if (!API_BASE) {
+    return NextResponse.json(
+      {
+        ok: false,
+        code: "server_error",
+        message: "Sunucu yapılandırması eksik (BOTEXCEL_API_BASE).",
+        details: {},
+      },
+      { status: 500 }
+    );
+  }
+
+  const url = `${API_BASE}/api/whoami`;
+  const cookieHeader = req.headers.get("cookie") || "";
 
   try {
-    const cookieHeader = req.headers.get("cookie");
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-    };
-
-    if (cookieHeader) {
-      headers["Cookie"] = cookieHeader;
-    }
-
     const upstream = await fetch(url, {
       method: "GET",
-      headers,
-      credentials: "include",
+      headers: cookieHeader ? { cookie: cookieHeader } : {},
+      redirect: "manual",
     });
 
-    const payload = await upstream.json().catch(() => ({}));
-    const ok = payload?.ok === true;
-    const normalized = ok
-      ? { ok: true, data: payload.data ?? payload }
-      : {
-          ok: false,
-          code: payload?.code || "server_error",
-          message: payload?.message || "Profil alınamadı.",
-          details: payload?.details || {},
-        };
+    const text = await upstream.text();
+    let parsed: any;
+    try {
+      parsed = JSON.parse(text);
+    } catch {
+      parsed = text;
+    }
 
-    const res = NextResponse.json(normalized, { status: upstream.status });
+    const contentType =
+      upstream.headers.get("content-type") ||
+      (typeof parsed === "string"
+        ? "text/plain; charset=utf-8"
+        : "application/json; charset=utf-8");
+
+    const res =
+      typeof parsed === "string"
+        ? new NextResponse(parsed, {
+            status: upstream.status,
+            headers: { "content-type": contentType },
+          })
+        : NextResponse.json(parsed ?? {}, { status: upstream.status });
 
     const setCookie = upstream.headers.get("set-cookie");
     if (setCookie) {
@@ -45,7 +59,12 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return NextResponse.json(
-      { ok: false, code: "server_error", message: `Upstream error: ${message}`, details: {} },
+      {
+        ok: false,
+        code: "server_error",
+        message: "Profil alınamadı.",
+        details: { error: message },
+      },
       { status: 502 }
     );
   }

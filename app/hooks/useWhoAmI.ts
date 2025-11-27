@@ -33,17 +33,23 @@ export function useWhoAmI(refreshToken = 0): WhoAmIState {
         const payload = await res.json().catch(() => ({}));
         if (cancelled) return;
 
-        if (payload?.ok && payload?.data?.authenticated) {
+        if (payload?.ok && (payload?.data?.authenticated || payload?.data?.user)) {
+          const user = payload.data.user ?? payload.data;
           setState({
             status: "authenticated",
-            email: payload.data.email,
-            plan: payload.data.plan,
+            email: user.email,
+            plan: user.plan,
             usage: {
-              count: payload.data.usage_count ?? payload.data.usage?.count,
+              count:
+                user.usage_count ??
+                user.usage?.count ??
+                user.usage_count ??
+                payload.data?.usage?.count,
               limit:
-                payload.data.limit ??
-                payload.data.usage?.limit ??
-                payload.data.plan_limit ??
+                user.limit ??
+                user.usage?.limit ??
+                user.plan_limit ??
+                payload.data?.usage?.limit ??
                 null,
             },
           });

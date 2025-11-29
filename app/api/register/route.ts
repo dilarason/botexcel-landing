@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
 
   const API_BASE = getApiBase();
   const url = `${API_BASE}/api/register`;
+  const host = req.headers.get("host") || "";
 
   try {
     const upstream = await fetch(url, {
@@ -111,7 +112,13 @@ export async function POST(req: NextRequest) {
     const res = NextResponse.json(normalized, { status: upstream.status });
     const setCookie = upstream.headers.get("set-cookie");
     if (setCookie) {
-      res.headers.set("set-cookie", setCookie);
+      // Rewrite cookie domain so session is available on the current host (e.g., www.botexcel.pro)
+      const bareHost = host.replace(/^www\./i, "");
+      const cookieDomain = bareHost ? `. ${bareHost}`.replace(/\s+/g, "") : bareHost;
+      const rewritten = cookieDomain
+        ? setCookie.replace(/Domain=[^;]+/gi, `Domain=${cookieDomain}`)
+        : setCookie;
+      res.headers.set("set-cookie", rewritten);
     }
     return res;
   } catch (err) {

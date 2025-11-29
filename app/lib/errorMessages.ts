@@ -23,7 +23,10 @@ export function mapErrorCodeToMessage(code?: BackendErrorCode, fallback?: string
     case "file_too_large":
       return "Dosya boyutu çok büyük. Daha küçük bir dosya yükleyin.";
     case "validation_error":
-      return "Yüklenen belge işlenemedi. İçeriği kontrol edip tekrar deneyin.";
+      return (
+        fallback ||
+        "Form doğrulaması hatalı. Lütfen e-posta, şifre ve diğer alanları kontrol edin."
+      );
     case "rate_limited":
       return "Çok fazla istek gönderildi. Lütfen biraz bekleyip tekrar deneyin.";
     case "auth_required":

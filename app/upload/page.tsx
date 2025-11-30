@@ -26,11 +26,6 @@ type RecentItem = {
   source_file?: string;
 } & Record<string, unknown>;
 
-const BACKEND_BASE =
-  process.env.NEXT_PUBLIC_BACKEND ||
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  "https://www.botexcel.pro";
-
 export default function UploadPage() {
   const [refreshToken, setRefreshToken] = useState(0);
   const [upgradeRequested, setUpgradeRequested] = useState(false);
@@ -70,7 +65,7 @@ export default function UploadPage() {
         setRecentLoading(true);
         setRecentError(null);
 
-        const res = await fetch(`${BACKEND_BASE}/recent.json`, {
+        const res = await fetch(`/api/recent?limit=20&user=me`, {
           credentials: "include",
         });
 

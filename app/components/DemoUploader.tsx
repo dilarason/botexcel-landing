@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { getApiBase } from "../lib/api";
 import { getPersistedSource } from "../lib/source";
@@ -56,6 +57,7 @@ function buildSimpleFingerprint(): string {
 
 export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProps) {
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
   const [state, setState] = useState<DemoState>("idle");
   const [planInfo, setPlanInfo] = useState<{ plan: string; limit: number } | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
@@ -162,6 +164,10 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
   }
 
   function handleClickSelect() {
+    if (variant === "anonymous") {
+      router.push("/upload");
+      return;
+    }
     fileRef.current?.click();
   }
 

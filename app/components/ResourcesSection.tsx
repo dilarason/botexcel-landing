@@ -12,7 +12,7 @@ export default function ResourcesSection() {
       subtitle: "Excel’de barkodlu stok takibi nasıl yapılır?",
       description:
         "Şablon, barkod okuyucu kurulumu ve BotExcel entegrasyonunu anlatan adım adım rehber.",
-      href: "/docs/stok-takibi-rehberi",
+      href: "/guides/barcode-stock-tracking",
     },
     {
       icon: <Code2 className="h-5 w-5 text-sky-400" />,
@@ -28,7 +28,7 @@ export default function ResourcesSection() {
       subtitle: "Veri Güvenliği & Audit Katmanı",
       description:
         "Yerel yapay zekâ mimarisi, erişim kontrolleri, log yönetimi ve KVKK uyumluluğu için teknik döküman.",
-      href: "/docs/kvkk",
+      href: "/docs/security",
     },
   ];
 

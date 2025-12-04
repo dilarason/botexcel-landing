@@ -1,10 +1,38 @@
 import type { Metadata } from "next";
 import { PricingSection } from "../components/PricingSection";
+import { FAQSection } from "../components/sections/FAQSection";
 
 export const metadata: Metadata = {
-  title: "Fiyatlandırma | BotExcel",
+  metadataBase: new URL("https://botexcel.pro"),
+  title: "BotExcel Fiyatlandırma | Planlar ve Özellikler",
   description:
-    "BotExcel ile PDF ve görsellerini akıllı Excel tablolara dönüştür. Ücretsiz başla, ihtiyacına göre Starter, Pro veya Business planı seç.",
+    "BotExcel ile PDF ve görsellerini akıllı Excel tablolara dönüştür. Ücretsiz başla, ihtiyacına göre Free, Pro, Business veya Enterprise planını seç.",
+  alternates: {
+    canonical: "https://botexcel.pro/pricing",
+  },
+  openGraph: {
+    title: "BotExcel Fiyatlandırma | Planlar ve Özellikler",
+    description:
+      "BotExcel planlarını karşılaştır: Free, Pro, Business ve Enterprise seçenekleriyle belge dönüşümünü ölçeklendir.",
+    url: "https://botexcel.pro/pricing",
+    siteName: "BotExcel",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "BotExcel fiyatlandırma",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BotExcel Fiyatlandırma | Planlar ve Özellikler",
+    description:
+      "BotExcel planlarını incele ve belge dönüşüm hacmini ihtiyacına göre büyüt.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function PricingPage() {
@@ -27,51 +55,7 @@ export default function PricingPage() {
 
       <PricingSection />
 
-      <section className="border-t border-slate-800 bg-slate-950 py-12 md:py-16">
-        <div className="mx-auto flex max-w-5xl flex-col gap-6 px-4 text-sm text-slate-300">
-          <h2 className="text-base font-semibold text-slate-50">
-            Sık sorulan fiyatlandırma soruları
-          </h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-              <p className="text-xs font-semibold text-slate-200">
-                Free planda gerçekten kart bilgisi gerekiyor mu?
-              </p>
-              <p className="mt-1 text-xs text-slate-400">
-                Hayır. Free plan için kart bilgisi istemiyoruz. Sadece e-posta ile kayıt olup ayda 3
-                belgeyi ücretsiz dönüştürebilirsin.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-              <p className="text-xs font-semibold text-slate-200">
-                Planımı daha sonra değiştirebilir miyim?
-              </p>
-              <p className="mt-1 text-xs text-slate-400">
-                Evet. Ay içinde istediğin zaman Starter’dan Pro’ya geçebilir, Business veya kurumsal
-                plan için satış ekibiyle iletişime geçebilirsin.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-              <p className="text-xs font-semibold text-slate-200">
-                Kurumsal teklif süreci nasıl işliyor?
-              </p>
-              <p className="mt-1 text-xs text-slate-400">
-                Kurumsal teklif formunu doldurduğunda; ekip boyutun, belge hacmin ve entegrasyon
-                ihtiyacına göre sana özel bir teklif hazırlıyoruz.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-              <p className="text-xs font-semibold text-slate-200">
-                Fiyatlara KDV ve kur farkı dahil mi?
-              </p>
-              <p className="mt-1 text-xs text-slate-400">
-                Gösterilen fiyatlara KDV dahil değildir. Faturalama Türk Lirası üzerinden yapılır; kur
-                değişiklikleri sadece uluslararası ödemeleri etkiler.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FAQSection title="Sık sorulan fiyatlandırma soruları" />
     </main>
   );
 }

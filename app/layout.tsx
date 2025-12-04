@@ -1,12 +1,13 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 import { defaultSEO } from "./seo";
+import { AuthProvider } from "./components/providers/AuthProvider";
 
 export const metadata = defaultSEO;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="tr">
+    <html lang="tr" dir="ltr">
       <head>
         <script
           defer
@@ -36,7 +37,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

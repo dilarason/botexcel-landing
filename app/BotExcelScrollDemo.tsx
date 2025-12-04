@@ -1,16 +1,23 @@
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
 import { OutputQualitySection } from "./components/OutputQualitySection";
 import BlogSection from "./components/BlogSection";
 import ResourcesSection from "./components/ResourcesSection";
-import DemoUploaderWidget from "./components/DemoUploader";
 import { AuthAwareCTA } from "./components/AuthAwareCTA";
 import ClaritySection from "./components/scrolly/ClaritySection";
+import { PricingSection } from "./components/PricingSection";
+import { UploadCtaSection } from "./components/sections/UploadCtaSection";
+import { HowItWorksSection } from "./components/sections/HowItWorksSection";
+import { UseCasesSection } from "./components/sections/UseCasesSection";
+import { UploadDemoSection } from "./components/sections/UploadDemoSection";
+import { TrustSection } from "./components/sections/TrustSection";
+import { FAQSection } from "./components/sections/FAQSection";
+import { useAuth } from "./components/providers/AuthProvider";
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -752,6 +759,24 @@ const BotExcelScrollDemo: React.FC = () => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [progress, setProgress] = useState(0);
+  const navItems = [
+    { label: "Ürün", id: "hero" },
+    { label: "Nasıl Çalışır", id: "how-it-works" },
+    { label: "Kullanım Alanları", id: "use-cases" },
+    { label: "Fiyatlandırma", id: "pricing" },
+    { label: "Güven & KVKK", id: "trust" },
+  ];
+
+  const handleNavClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+      event.preventDefault();
+      const element = document.getElementById(targetId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    },
+    []
+  );
 
   // Scroll oranını sadece animasyon bölümüne göre hesapla
   useEffect(() => {
@@ -919,6 +944,8 @@ const BotExcelScrollDemo: React.FC = () => {
     const t = (progress - 0.05) / (0.25 - 0.05);
     return clamp(1 - t, 0, 1);
   })();
+  const { isAuthenticated, isLoading } = useAuth();
+  const navPrimaryHref = isAuthenticated ? "/upload" : "/register";
 
   const o2 = stageBand(progress, 0.2, 0.3, 0.4);
   const o3 = stageBand(progress, 0.4, 0.52, 0.64);
@@ -928,9 +955,46 @@ const BotExcelScrollDemo: React.FC = () => {
     <div className="w-full h-screen flex flex-col bg-black text-white font-sans">
       {/* Üst sabit bar + logo */}
       <header className="z-30 flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-4 py-2 text-sm">
-        <BotExcelLogo />
-        <div className="hidden items-center gap-4 sm:flex">
-          <AuthAwareCTA />
+        <div className="flex items-center gap-3">
+          <BotExcelLogo />
+        </div>
+        <nav className="hidden md:flex items-center gap-3 text-xs text-slate-200">
+          {navItems.map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              onClick={(event) => handleNavClick(event, item.id)}
+              className="rounded-full px-3 py-1 transition hover:bg-slate-800/80 hover:text-emerald-200"
+            >
+              {item.label}
+            </a>
+          ))}
+          <Link
+            href="/pricing"
+            className="rounded-full px-3 py-1 transition hover:bg-slate-800/80 hover:text-emerald-200"
+          >
+            Fiyatlandırma (Detaylı)
+          </Link>
+        </nav>
+        <div className="flex items-center gap-3">
+          <Link
+            href={navPrimaryHref}
+            data-analytics="nav_primary_cta"
+            aria-disabled={isLoading}
+            className="inline-flex items-center justify-center rounded-full border border-emerald-400/70 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/10 disabled:opacity-70"
+          >
+            {isAuthenticated ? "Panelim" : "Hemen Başla"}
+          </Link>
+          <a
+            href="#upload"
+            onClick={(event) => handleNavClick(event, "upload")}
+            className="hidden sm:inline-flex items-center justify-center rounded-full border border-emerald-400/70 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition hover:bg-emerald-500/10"
+          >
+            Belgeni Yükle
+          </a>
+          <div className="hidden items-center gap-4 sm:flex">
+            <AuthAwareCTA />
+          </div>
         </div>
       </header>
 
@@ -940,7 +1004,12 @@ const BotExcelScrollDemo: React.FC = () => {
       >
         <div className="relative">
           {/* Animasyon bölümü: 300vh + sticky canvas */}
-          <div className="relative" style={{ height: "300vh" }}>
+          <section
+            id="hero"
+            aria-label="BotExcel kahraman sahne ve kaydırmalı anlatı"
+            className="relative"
+            style={{ height: "300vh" }}
+          >
             <div className="sticky top-0 h-screen w-full z-20">
               <canvas
                 ref={canvasRef}
@@ -982,135 +1051,27 @@ const BotExcelScrollDemo: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Animasyon bittikten sonra gelen site içerikleri */}
           <div className="relative bg-slate-950 text-left">
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-6 text-center text-slate-50">
-              <h2 className="text-2xl md:text-3xl font-semibold mb-2">
-                Belgeni yükle, 3 ücretsiz dönüşüm al
-              </h2>
-              <p className="text-sm md:text-base text-slate-300 max-w-2xl mx-auto">
-                Animasyon bitti, şimdi tek aksiyonla kendi belgeni dene. BotExcel karmaşık dosyaları dakikalar içinde Excel&apos;e çevirir.
-              </p>
-              <div className="mt-4 flex justify-center">
-                <AuthAwareCTA />
-              </div>
-            </section>
-
-            {/* Özellikler – kullanıcı hikayelerinden önce */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-12 pb-10 sm:pt-16 sm:pb-14 text-slate-50">
-              <header className="mb-6 text-center">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300 mb-2">
-                  Özellikler
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Veri karmaşasından tablo netliğine giden tüm adımlar tek
-                  yerde.
-                </h2>
-                <p className="text-sm text-slate-300 max-w-3xl mx-auto">
-                  BotExcel belgeleri yalnızca Excel&apos;e dönüştürmekle
-                  kalmaz; yapay zekâ ile anlar, doğrular, açıklar ve güvenle
-                  saklanabilir hale getirir.
-                </p>
-              </header>
-              <div className="grid gap-4 md:grid-cols-2">
-                {features.map((feat) => (
-                  <article
-                    key={feat.title}
-                    className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-4"
-                  >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {feat.title}
-                    </h3>
-                    <p className="text-xs text-slate-300">{feat.desc}</p>
-                  </article>
-                ))}
-              </div>
-              <p className="text-center text-xs text-slate-400 mt-6 max-w-2xl mx-auto">
-                Manuel veri girişi, dosya birleştirme ve tablo temizleme derdine
-                son. BotExcel, belgelerinizi dakikalar içinde anlamlı,
-                doğrulanmış ve paylaşılabilir Excel tablolara dönüştürür.
-                <br />
-                AI + PDF + Görsel + Audit + Excel
-              </p>
-            </section>
-
-            {/* Kullanıcı hikayeleri */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-400 mb-2">
-                  Kullanıcı hikayeleri
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  "İşte ihtiyacım olan buydu" dedirten çözümler.
-                </h2>
-                <p className="text-sm text-slate-300 max-w-2xl">
-                  BotExcel yalnızca dönüştürmekle kalmaz; doğrulama, audit
-                  trail ve zengin Excel çıktılarıyla finans, operasyon ve KOBİ
-                  ekiplerinin günlük işini hızlandırır.
-                </p>
-              </header>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {userStories.map((story) => (
-                  <article
-                    key={story.title}
-                    className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-2"
-                  >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {story.title}
-                    </h3>
-                    <p className="text-xs text-slate-300 mb-1">
-                      {story.description}
-                    </p>
-                    <ul className="text-[11px] text-slate-300 space-y-1">
-                      {story.bullets.map((b) => (
-                        <li key={b} className="flex items-start gap-2">
-                          <span className="mt-[3px] h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </article>
-                ))}
-              </div>
-            </section>
+            <UploadCtaSection />
+            <HowItWorksSection features={features} />
+            <UseCasesSection stories={userStories} />
 
             <ClaritySection />
 
             <OutputQualitySection />
 
-            {/* Demo & etkileşimli upload alanı */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
-              <header className="mb-6 text-center sm:text-left">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300 mb-2">
-                  Canlı demo
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Kendi belgenizle deneyin.
-                </h2>
-                <p className="text-sm text-slate-300 max-w-2xl mx-auto sm:mx-0">
-                  Ürüne karar vermeden önce ne göreceğinizi bilmek istersiniz.
-                  BotExcel, ilk temasınızı olabildiğince zahmetsiz hale getirir:
-                  Belgenizi seçin ya da hazır demo örneklerinden birini kullanın,
-                  birkaç saniye içinde örnek Excel çıktısını görün. İlk demo gerçek
-                  belgeniz üzerinden işlenir, limit dolduğunda plan yükseltme çağrısı görürsünüz.
-                </p>
-              </header>
+            <UploadDemoSection />
 
-              <DemoUploaderWidget />
-            </section>
-
-            {/* Öne çıkan yetkinlikler */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-400 mb-2">
                   Öne çıkan yetkinlikler
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Sadece dönüştürmek değil; doğrulamak, güzelleştirmek,
-                  anlamlandırmak.
+                  Sadece dönüştürmek değil; doğrulamak, güzelleştirmek, anlamlandırmak.
                 </h2>
               </header>
               <div className="grid md:grid-cols-2 gap-4">
@@ -1119,36 +1080,28 @@ const BotExcelScrollDemo: React.FC = () => {
                     key={cap.title}
                     className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-1.5"
                   >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {cap.title}
-                    </h3>
+                    <h3 className="text-sm font-semibold text-slate-50">{cap.title}</h3>
                     <p className="text-xs text-slate-300">{cap.text}</p>
                   </article>
                 ))}
               </div>
             </section>
 
-            {/* Sosyal kanıt */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <div className="rounded-3xl border border-emerald-500/60 bg-gradient-to-br from-emerald-900/60 via-slate-900/80 to-slate-950 p-5 sm:p-6 flex flex-col gap-3">
                 <div className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300">
                   Sosyal kanıt
                 </div>
                 <h2 className="text-base sm:text-lg font-semibold text-emerald-50">
-                  Tİ İthalat & İhracat ve yüzlerce kurum BotExcel’e güveniyor.
+                  Tİ İthalat &amp; İhracat ve yüzlerce kurum BotExcel’e güveniyor.
                 </h2>
                 <p className="text-sm text-emerald-50/90">
-                  “PDF dekontlarını ve banka ekstrelerini BotExcel ile 8
-                  dakikada rapora dönüştürüyoruz. Audit trail sayesinde denetim
-                  raporları hiç olmadığı kadar hızlı hazırlandı.”
+                  “PDF dekontlarını ve banka ekstrelerini BotExcel ile 8 dakikada rapora dönüştürüyoruz. Audit trail sayesinde denetim raporları hiç olmadığı kadar hızlı hazırlandı.”
                 </p>
-                <div className="text-xs text-emerald-100/90 font-medium">
-                  Tİ İthalat & İhracat
-                </div>
+                <div className="text-xs text-emerald-100/90 font-medium">Tİ İthalat &amp; İhracat</div>
               </div>
             </section>
 
-            {/* Ekibin hikayesi / misyon */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-300 mb-2">
@@ -1161,53 +1114,33 @@ const BotExcelScrollDemo: React.FC = () => {
               <div className="grid md:grid-cols-2 gap-4 items-start">
                 <div className="text-sm text-slate-300 space-y-3">
                   <p>
-                    BotExcel, “veri işi”nin sadece satırlardan ibaret
-                    olmadığını bilen bir ekip tarafından geliştirildi. Bir
-                    tarafında yıllarca bağımsız denetim ve finans raporlamada
-                    çalışmış uzmanlar, diğer tarafında üretici yapay zekâ
-                    modelleri üzerine çalışan mühendisler var.
+                    BotExcel, “veri işi”nin sadece satırlardan ibaret olmadığını bilen bir ekip tarafından geliştirildi. Bir tarafında yıllarca bağımsız denetim ve finans raporlamada çalışmış uzmanlar, diğer tarafında üretici yapay zekâ modelleri üzerine çalışan mühendisler var.
                   </p>
                   <p>
-                    Amacımız, ekiplerinizi manuel Excel işlerinden kurtarıp,
-                    zamanlarını asıl değer ürettikleri kararlara ayırmalarını
-                    sağlamak.
+                    Amacımız, ekiplerinizi manuel Excel işlerinden kurtarıp, zamanlarını asıl değer ürettikleri kararlara ayırmalarını sağlamak.
                   </p>
                   <ul className="text-xs text-slate-400 space-y-1.5">
-                    <li>
-                      • İlk satırlarımızı, bir denetim ekibinin 3 günlük işini
-                      40 dakikaya indirmek için yazdık.
-                    </li>
-                    <li>
-                      • BotExcel’in çekirdeğinde, Gemma tabanlı AI ve denetime
-                      hazır loglama mantığı birlikte çalışır.
-                    </li>
+                    <li>• İlk satırlarımızı, bir denetim ekibinin 3 günlük işini 40 dakikaya indirmek için yazdık.</li>
+                    <li>• BotExcel’in çekirdeğinde, Gemma tabanlı AI ve denetime hazır loglama mantığı birlikte çalışır.</li>
                   </ul>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-300 flex flex-col gap-3">
                   <div>
-                    <div className="font-semibold text-slate-100 mb-1">
-                      Kimlerle çalışıyoruz?
-                    </div>
+                    <div className="font-semibold text-slate-100 mb-1">Kimlerle çalışıyoruz?</div>
                     <p>
-                      Finans ekipleri, operasyon liderleri, denetim uzmanları
-                      ve geliştiricilerle aynı masada oturup gerçek kullanım
-                      senaryolarına göre ürün geliştiriyoruz.
+                      Finans ekipleri, operasyon liderleri, denetim uzmanları ve geliştiricilerle aynı masada oturup gerçek kullanım senaryolarına göre ürün geliştiriyoruz.
                     </p>
                   </div>
                   <div>
-                    <div className="font-semibold text-slate-100 mb-1">
-                      Sosyal güven
-                    </div>
+                    <div className="font-semibold text-slate-100 mb-1">Sosyal güven</div>
                     <p>
-                      Ekibi daha yakından tanımak için BotExcel kurucularını ve
-                      ürün ekibini LinkedIn üzerinden takip edebilirsiniz.
+                      Ekibi daha yakından tanımak için BotExcel kurucularını ve ürün ekibini LinkedIn üzerinden takip edebilirsiniz.
                     </p>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* Hazır Excel şablonları */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-amber-300 mb-2">
@@ -1223,215 +1156,16 @@ const BotExcelScrollDemo: React.FC = () => {
                     key={tpl.title}
                     className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-1.5"
                   >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {tpl.title}
-                    </h3>
+                    <h3 className="text-sm font-semibold text-slate-50">{tpl.title}</h3>
                     <p className="text-xs text-slate-300">{tpl.text}</p>
                   </article>
                 ))}
               </div>
             </section>
 
+            <PricingSection />
 
-            {/* Öne çıkan yetkinlikler */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-400 mb-2">
-                  Öne çıkan yetkinlikler
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Sadece dönüştürmek değil; doğrulamak, güzelleştirmek,
-                  anlamlandırmak.
-                </h2>
-              </header>
-              <div className="grid md:grid-cols-2 gap-4">
-                {capabilities.map((cap) => (
-                  <article
-                    key={cap.title}
-                    className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-1.5"
-                  >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {cap.title}
-                    </h3>
-                    <p className="text-xs text-slate-300">{cap.text}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            {/* Sosyal kanıt */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <div className="rounded-3xl border border-emerald-500/60 bg-gradient-to-br from-emerald-900/60 via-slate-900/80 to-slate-950 p-5 sm:p-6 flex flex-col gap-3">
-                <div className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300">
-                  Sosyal kanıt
-                </div>
-                <h2 className="text-base sm:text-lg font-semibold text-emerald-50">
-                  Tİ İthalat & İhracat ve yüzlerce kurum BotExcel’e güveniyor.
-                </h2>
-                <p className="text-sm text-emerald-50/90">
-                  “PDF dekontlarını ve banka ekstrelerini BotExcel ile 8
-                  dakikada rapora dönüştürüyoruz. Audit trail sayesinde denetim
-                  raporları hiç olmadığı kadar hızlı hazırlandı.”
-                </p>
-                <div className="text-xs text-emerald-100/90 font-medium">
-                  Tİ İthalat & İhracat
-                </div>
-              </div>
-            </section>
-
-            {/* Ekibin hikayesi / misyon */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-300 mb-2">
-                  Ekibin hikayesi
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Veriye insani bir bakış getirmek için yola çıktık.
-                </h2>
-              </header>
-              <div className="grid md:grid-cols-2 gap-4 items-start">
-                <div className="text-sm text-slate-300 space-y-3">
-                  <p>
-                    BotExcel, “veri işi”nin sadece satırlardan ibaret
-                    olmadığını bilen bir ekip tarafından geliştirildi. Bir
-                    tarafında yıllarca bağımsız denetim ve finans raporlamada
-                    çalışmış uzmanlar, diğer tarafında üretici yapay zekâ
-                    modelleri üzerine çalışan mühendisler var.
-                  </p>
-                  <p>
-                    Amacımız, ekiplerinizi manuel Excel işlerinden kurtarıp,
-                    zamanlarını asıl değer ürettikleri kararlara ayırmalarını
-                    sağlamak.
-                  </p>
-                  <ul className="text-xs text-slate-400 space-y-1.5">
-                    <li>
-                      • İlk satırlarımızı, bir denetim ekibinin 3 günlük işini
-                      40 dakikaya indirmek için yazdık.
-                    </li>
-                    <li>
-                      • BotExcel’in çekirdeğinde, Gemma tabanlı AI ve denetime
-                      hazır loglama mantığı birlikte çalışır.
-                    </li>
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-300 flex flex-col gap-3">
-                  <div>
-                    <div className="font-semibold text-slate-100 mb-1">
-                      Kimlerle çalışıyoruz?
-                    </div>
-                    <p>
-                      Finans ekipleri, operasyon liderleri, denetim uzmanları
-                      ve geliştiricilerle aynı masada oturup gerçek kullanım
-                      senaryolarına göre ürün geliştiriyoruz.
-                    </p>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-100 mb-1">
-                      Sosyal güven
-                    </div>
-                    <p>
-                      Ekibi daha yakından tanımak için BotExcel kurucularını ve
-                      ürün ekibini LinkedIn üzerinden takip edebilirsiniz.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Hazır Excel şablonları */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-amber-300 mb-2">
-                  Hazır Excel şablonları
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  En çok kullanılan raporlar tek tıkla indirilmeye hazır.
-                </h2>
-              </header>
-              <div className="grid md:grid-cols-2 gap-4">
-                {templates.map((tpl) => (
-                  <article
-                    key={tpl.title}
-                    className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-1.5"
-                  >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {tpl.title}
-                    </h3>
-                    <p className="text-xs text-slate-300">{tpl.text}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-
-            {/* Güven & KVKK / denetim bölümü */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-300 mb-2">
-                  Güven & KVKK
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Veriniz size aittir. Biz sadece düzenleriz.
-                </h2>
-                <p className="text-sm text-slate-300 max-w-2xl">
-                  BotExcel, finansal ve operasyonel verilerin ne kadar kritik
-                  olduğunun farkında. Bu yüzden ürünü "önce güvenlik"
-                  prensibiyle tasarladık. Verileriniz yalnızca işlenmek üzere
-                  kullanılır, mülkiyeti daima sizde kalır.
-                </p>
-              </header>
-
-              <div className="grid md:grid-cols-[3fr,2fr] gap-4 items-start">
-                <div className="space-y-3 text-sm text-slate-300">
-                  <p>
-                    Tüm belgeleriniz aktarım sırasında ve kullanım halinde güçlü
-                    algoritmalarla şifrelenir. KVKK ve GDPR standartlarıyla
-                    uyumlu veri işleme süreçleri sayesinde, hem yasal
-                    sorumluluklarınızı yerine getirir hem de iç denetim
-                    ekiplerinizi rahatlatırsınız.
-                  </p>
-                  <ul className="text-xs text-slate-300 space-y-1.5">
-                    <li>• Veriler AES-256 ile şifrelenir.</li>
-                    <li>
-                      • Erişim rolleri RBAC (Role Based Access Control) ile
-                      sınırlandırılır.
-                    </li>
-                    <li>
-                      • Tüm işlemler audit log’lara JSON formatında kaydedilir.
-                    </li>
-                    <li>
-                      • Veri saklama bölgeleri Türkiye ve EU datacenter
-                      lokasyonlarıyla sınırlıdır.
-                    </li>
-                  </ul>
-                  <a
-                    href="/security"
-                    className="inline-flex items-center text-xs text-emerald-300 mt-2 hover:text-emerald-200"
-                  >
-                    Güvenlik politikamızı inceleyin →
-                  </a>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 text-[11px] text-slate-200 font-mono overflow-x-auto">
-                  <div className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-2">
-                    Audit log örneği
-                  </div>
-                  <pre className="whitespace-pre text-[11px] leading-snug">
-{`{
-  "document_id": "FATURA-2025-03-0012",
-  "row": 42,
-  "column": "KDV_TUTAR",
-  "old_value": "0",
-  "new_value": "1.280,50",
-  "model_version": "botexcel-gemma-1.3",
-  "updated_by": "ai_engine",
-  "timestamp": "2025-03-21T10:14:32Z"
-}`}
-                  </pre>
-                </div>
-              </div>
-            </section>
-
+            <TrustSection />
             {/* Teknik özellikler / API bölümü */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
               <header className="mb-6">
@@ -1487,63 +1221,7 @@ const BotExcelScrollDemo: React.FC = () => {
             <BlogSection />
             <ResourcesSection />
 
-            {/* SSS */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-300 mb-2">
-                  Sık sorulan sorular
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Kararsız kalanlar için son netleştirmeler.
-                </h2>
-              </header>
-
-              <div className="space-y-4 text-sm text-slate-200">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <h3 className="font-semibold mb-1 text-slate-50">
-                    Verilerim nereye kaydediliyor?
-                  </h3>
-                  <p className="text-sm text-slate-300">
-                    Verileriniz tercih ettiğiniz bölgedeki (Türkiye veya EU)
-                    veri merkezlerinde saklanır. Varsayılan ayarda, yalnızca
-                    işleme için gerekli minimum süre boyunca tutulur ve
-                    isterseniz tüm belgeler işleme sonrası otomatik olarak
-                    silinebilir.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <h3 className="font-semibold mb-1 text-slate-50">
-                    BotExcel hangi dosya türlerini destekliyor?
-                  </h3>
-                  <p className="text-sm text-slate-300">
-                    PDF, JPG, PNG, Excel (XLSX), CSV ve yaygın banka ekstre
-                    formatlarını destekliyoruz. Özel formatlar için entegrasyon
-                    ekibimizle birlikte çalışabiliyoruz.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <h3 className="font-semibold mb-1 text-slate-50">
-                    AI yanlış alan tespit ederse ne olur?
-                  </h3>
-                  <p className="text-sm text-slate-300">
-                    Hücre bazlı audit trail sayesinde, her değişikliğin
-                    kaynağını görebilir ve tek tıkla eski değere
-                    dönebilirsiniz. Ayrıca doğrulama kurallarıyla (örn. KDV
-                    oranı, toplam tutar) otomatik uyarılar alırsınız.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <h3 className="font-semibold mb-1 text-slate-50">
-                    Çevrimdışı (on-prem) kullanabilir miyim?
-                  </h3>
-                  <p className="text-sm text-slate-300">
-                    Evet. Kurumsal müşteriler için tüm AI motorunu, loglama
-                    altyapısını ve entegrasyon katmanını kendi veri merkezinize
-                    kurabileceğimiz on-prem paket sunuyoruz.
-                  </p>
-                </div>
-              </div>
-            </section>
+            <FAQSection />
 
             {/* Son çağrı */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-16 text-slate-50">

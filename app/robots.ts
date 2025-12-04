@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: ["/"],
       disallow: ["/api", "/admin"],
     },
-    sitemap: "https://www.botexcel.pro/sitemap.xml",
+    sitemap: "https://botexcel.pro/sitemap.xml",
   };
 }

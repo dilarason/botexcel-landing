@@ -1,31 +1,37 @@
 import type { Metadata } from "next";
 
 export const defaultSEO: Metadata = {
-  metadataBase: new URL("https://www.botexcel.pro"),
+  metadataBase: new URL("https://botexcel.pro"),
   title: {
-    default: "BotExcel — Belgelerden Excel'e Anında Dönüşüm",
+    default:
+      "BotExcel – Belgelerini akıllı Excel panolarına dönüştüren yapay zekâ asistanı",
     template: "%s | BotExcel",
   },
   description:
-    "PDF, görsel, doküman ve karmaşık tabloları saniyeler içinde temiz bir Excel’e çeviren yapay zeka platformu.",
+    "PDF, görsel, doküman ve karmaşık tabloları saniyeler içinde temiz, sunuma hazır Excel panolarına dönüştüren yapay zekâ platformu.",
+  alternates: {
+    canonical: "https://botexcel.pro/",
+  },
   keywords: [
-    "excel",
+    "excel otomasyonu",
     "pdf to excel",
-    "tablo otomasyon",
     "ai excel",
     "ocr excel",
     "botexcel",
     "veri temizleme",
     "ai document processing",
+    "belge dönüştürme",
+    "excel raporlama",
   ],
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    url: "https://www.botexcel.pro",
+    url: "https://botexcel.pro/",
     siteName: "BotExcel",
-    title: "BotExcel — Belgelerden Excel'e Anında Dönüşüm",
+    title:
+      "BotExcel – Belgelerini akıllı Excel panolarına dönüştüren yapay zekâ asistanı",
     description:
-      "PDF, resim, belge, CSV ve daha fazlasını saniyeler içinde hatasız Excel’e çeviren yapay zeka motoru.",
+      "PDF, resim, belge, CSV ve daha fazlasını saniyeler içinde hatasız, denetime hazır Excel’e çeviren yapay zeka motoru.",
     images: [
       {
         url: "/og-image.png",
@@ -38,8 +44,10 @@ export const defaultSEO: Metadata = {
   twitter: {
     card: "summary_large_image",
     creator: "@botexcel",
-    title: "BotExcel — Belgelerden Excel'e Anında Dönüşüm",
-    description: "PDF → Excel dönüşümünü yapay zeka ile otomatikleştir.",
+    title:
+      "BotExcel – Belgelerini akıllı Excel panolarına dönüştüren yapay zekâ asistanı",
+    description:
+      "PDF → Excel dönüşümünü yapay zekâ ile otomatikleştir, temiz tabloları saniyeler içinde elde et.",
     images: ["/og-image.png"],
   },
 };

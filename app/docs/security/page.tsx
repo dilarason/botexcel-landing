@@ -2,9 +2,36 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://botexcel.pro"),
   title: "Veri Güvenliği & KVKK | BotExcel",
   description:
     "BotExcel’in veri güvenliği, KVKK uyumluluğu ve audit katmanı için teknik dokümantasyon iskeleti. Güvenlik politikaları ve loglama modeli daha sonra burada detaylandırılacaktır.",
+  alternates: {
+    canonical: "https://botexcel.pro/docs/security",
+  },
+  openGraph: {
+    title: "BotExcel Veri Güvenliği & KVKK",
+    description:
+      "BotExcel’in yerel yapay zekâ mimarisi, erişim kontrolleri ve audit loglaması için güvenlik taslağı.",
+    url: "https://botexcel.pro/docs/security",
+    siteName: "BotExcel",
+    type: "article",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "BotExcel güvenlik dokümantasyonu",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "BotExcel Veri Güvenliği & KVKK",
+    description:
+      "BotExcel veri güvenliği, KVKK uyumluluğu ve audit katmanı için teknik dokümantasyon taslağı.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function SecurityDocsPage() {
@@ -58,4 +85,3 @@ export default function SecurityDocsPage() {
     </main>
   );
 }
-

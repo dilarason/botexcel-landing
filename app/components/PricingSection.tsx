@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { CustomOfferForm } from "./CustomOfferForm";
+import { useAuth } from "./providers/AuthProvider";
+import { usePlan } from "../hooks/usePlan";
 
 // ---- Mini SVG ikonlar ----
 
@@ -164,6 +166,9 @@ const plans = [
 ];
 
 export function PricingSection() {
+  const { isAuthenticated } = useAuth();
+  const { planInfo } = usePlan();
+  const currentPlanId = planInfo?.plan_id;
   return (
     <section
       id="pricing"
@@ -188,6 +193,18 @@ export function PricingSection() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {plans.map((plan) => {
             const Icon = plan.icon;
+            const targetHref = isAuthenticated
+              ? `/purchase?plan=${plan.id}`
+              : plan.href || `/register?plan=${plan.id}`;
+            const isCurrent = Boolean(currentPlanId && currentPlanId === plan.id);
+            const ctaLabel = isCurrent
+              ? "Mevcut planın"
+              : isAuthenticated
+              ? plan.id === "free"
+                ? "Panelime Git"
+                : "Planımı Seç"
+              : plan.ctaLabel;
+            const href = isCurrent ? "#" : targetHref;
             return (
               <article
                 key={plan.id}
@@ -241,18 +258,27 @@ export function PricingSection() {
 
                 <div className="mt-4">
                   <Link
-                    href={plan.href}
+                    href={href}
+                    aria-disabled={isCurrent}
+                    data-analytics={`pricing_choose_plan_${plan.id}`}
                     className={[
                       "inline-flex w-full items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition",
-                      plan.id === "free"
+                      isCurrent
+                        ? "border border-emerald-400/60 bg-slate-900 text-emerald-200 cursor-default"
+                        : plan.id === "free"
                         ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
                         : "bg-slate-800 text-slate-50 hover:bg-slate-700",
                     ]
                       .filter(Boolean)
                       .join(" ")}
                   >
-                    {plan.ctaLabel}
+                    {ctaLabel}
                   </Link>
+                  {isCurrent ? (
+                    <p className="mt-2 text-[11px] text-emerald-200">
+                      Mevcut planın aktif. Daha yüksek limite geçmek için üst planları seçebilirsin.
+                    </p>
+                  ) : null}
                 </div>
               </article>
             );

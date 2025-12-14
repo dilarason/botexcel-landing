@@ -3,8 +3,8 @@
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { getApiBase } from "../lib/api";
-import { getPersistedSource } from "../lib/source";
+import { getApiBase } from "@/lib/api";
+import { getPersistedSource } from "@/lib/source";
 
 type DemoState = "idle" | "uploading" | "success" | "error" | "limit" | "plan_limit";
 

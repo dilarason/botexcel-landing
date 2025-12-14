@@ -1,117 +1,100 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getApiBase } from "../_lib/apiBase";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function getEnv() {
+  const BOTEXCEL_API_BASE = process.env.BOTEXCEL_API_BASE || "http://127.0.0.1:5000";
+  const BOTEXCEL_API_TOKEN = process.env.BOTEXCEL_API_TOKEN || "";
+  return { BOTEXCEL_API_BASE, BOTEXCEL_API_TOKEN };
+}
 
-export async function POST(req: NextRequest) {
-  let body: any = {};
+function copySetCookie(upstream: Response, headers: Headers) {
+  // Next/Undici ortamına göre set-cookie birden fazla olabilir.
+  const anyHeaders = upstream.headers as any;
+
+  const multi: string[] | undefined =
+    typeof anyHeaders.getSetCookie === "function" ? anyHeaders.getSetCookie() : undefined;
+
+  if (multi && multi.length) {
+    for (const sc of multi) headers.append("set-cookie", sc);
+    return;
+  }
+
+  const single = upstream.headers.get("set-cookie");
+  if (single) headers.set("set-cookie", single);
+}
+
+async function tryFetch(
+  url: string,
+  init: RequestInit,
+): Promise<{ res: Response; url: string } | null> {
   try {
-    body = await req.json();
+    const res = await fetch(url, init);
+    return { res, url };
   } catch {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "invalid_json",
-        message: "Geçersiz JSON gönderildi.",
-        details: {},
-      },
-      { status: 400 }
-    );
+    return null;
   }
+}
 
-  const email = (body?.email || "").toString().trim().toLowerCase();
-  const password = (body?.password || "").toString();
+export async function POST(req: Request) {
+  const { BOTEXCEL_API_BASE, BOTEXCEL_API_TOKEN } = getEnv();
 
-  if (!email || !password) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "validation_error",
-        message: "E-posta ve şifre zorunlu.",
-        details: { fields: ["email", "password"] },
+  const bodyText = await req.text();
+
+  const candidates: Array<{
+    url: string;
+    method: "POST" | "GET";
+    body?: string;
+  }> = [
+    { url: `${BOTEXCEL_API_BASE}/api/login`, method: "POST", body: bodyText },
+    { url: `${BOTEXCEL_API_BASE}/login`, method: "POST", body: bodyText },
+    // dev shortcut (varsa): cookie set eden endpoint
+    { url: `${BOTEXCEL_API_BASE}/dev/autologin`, method: "GET" },
+  ];
+
+  const attempts: Array<{ url: string; ok: boolean; status?: number }> = [];
+
+  for (const c of candidates) {
+    const attempt = await tryFetch(c.url, {
+      method: c.method,
+      headers: {
+        "content-type": "application/json",
+        ...(BOTEXCEL_API_TOKEN ? { authorization: `Bearer ${BOTEXCEL_API_TOKEN}` } : {}),
       },
-      { status: 400 }
-    );
-  }
-
-  if (!emailRegex.test(email)) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "invalid_email",
-        message: "Lütfen geçerli bir e-posta adresi girin.",
-        details: { fields: ["email"] },
-      },
-      { status: 400 }
-    );
-  }
-
-  const API_BASE = getApiBase();
-  const url = `${API_BASE}/api/login`;
-  const host = req.headers.get("host") || "";
-
-  try {
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: c.method === "POST" ? c.body : undefined,
       redirect: "manual",
     });
 
-    const text = await upstream.text();
-    let parsed: any;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      parsed = { raw: text };
+    if (!attempt) {
+      attempts.push({ url: c.url, ok: false });
+      continue;
     }
 
-    const success = parsed?.ok === true || upstream.ok;
-    let normalized: any;
-    if (success) {
-      normalized = { ok: true, data: parsed?.data ?? parsed ?? {} };
-    } else {
-      const code =
-        parsed?.code ||
-        (upstream.status === 401 ? "invalid_credentials" : "login_failed");
-      const message =
-        parsed?.message ||
-        (upstream.status === 401
-          ? "E-posta veya şifre hatalı."
-          : "Giriş başarısız.");
-      normalized = {
-        ok: false,
-        code,
-        message,
-        details: parsed?.details || {},
-      };
+    const { res, url } = attempt;
+    attempts.push({ url, ok: res.ok, status: res.status });
+
+    // 404/405 ise sıradakini dene; 5xx ise de sıradakini dene (ama sonunda raporla)
+    if (res.status === 404 || res.status === 405 || res.status >= 500) {
+      continue;
     }
 
-    const res = NextResponse.json(normalized, { status: upstream.status });
-    const setCookie = upstream.headers.get("set-cookie");
-    if (setCookie) {
-      // Rewrite cookie domain so session is available on the current host (e.g., www.botexcel.pro)
-      const bareHost = host.replace(/^www\./i, "");
-      const cookieDomain = bareHost ? `. ${bareHost}`.replace(/\s+/g, "") : bareHost;
-      const rewritten = cookieDomain
-        ? setCookie.replace(/Domain=[^;]+/gi, `Domain=${cookieDomain}`)
-        : setCookie;
-      res.headers.set("set-cookie", rewritten);
-    }
-    return res;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "server_error",
-        message: "Giriş sırasında beklenmeyen bir hata oluştu.",
-        details: { error: message },
-      },
-      { status: 502 }
-    );
+    // başarılı veya 401/403 gibi "backend cevap veriyor" durumlarında cevabı geri taşı
+    const outHeaders = new Headers();
+    const ct = res.headers.get("content-type") || "application/json; charset=utf-8";
+    outHeaders.set("content-type", ct);
+    copySetCookie(res, outHeaders);
+
+    return new Response(res.body, { status: res.status, headers: outHeaders });
   }
+
+  return NextResponse.json(
+    {
+      error: "Login upstream failed",
+      base: BOTEXCEL_API_BASE,
+      attempts,
+      hint:
+        "BOTEXCEL_API_BASE yanlış/kapalı olabilir veya backend login endpoint farklı olabilir. Curl ile BASE/health ve BASE/login test et.",
+    },
+    { status: 502 },
+  );
 }

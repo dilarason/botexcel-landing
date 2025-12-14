@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { mapErrorCodeToMessage } from "../lib/errorMessages";
+import { mapErrorCodeToMessage } from "@/lib/errorMessages";
 
 const PLANS = [
   { value: "free", label: "Ücretsiz • ayda 3 belge" },

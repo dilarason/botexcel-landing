@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
 
-import { mockUser, purchasePlans } from "../lib/plans";
+import { mockUser, purchasePlans } from "@/lib/plans";
 
 export const metadata = {
   title: "Satın Al | BotExcel",

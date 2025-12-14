@@ -25,7 +25,6 @@ export function useRecentJobs(limit: number = 10, enabled: boolean = true): Rece
     let cancelled = false;
 
     if (!enabled) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({ status: "idle" });
       return () => {
         cancelled = true;

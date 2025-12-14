@@ -1,0 +1,16 @@
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextPlugin from "@next/eslint-plugin-next";
+
+const nextRecommended = nextPlugin.configs.recommended;
+const nextCoreWebVitals = nextPlugin.configs["core-web-vitals"];
+
+export default defineConfig([
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+  {
+    ...nextRecommended,
+    rules: {
+      ...(nextRecommended.rules ?? {}),
+      ...(nextCoreWebVitals.rules ?? {}),
+    },
+  },
+]);

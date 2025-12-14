@@ -2,36 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://botexcel.pro"),
   title: "BotExcel REST & CLI Dokümantasyonu | BotExcel",
   description:
     "BotExcel’in REST API ve komut satırı arayüzü için dokümantasyon iskeleti. Kimlik doğrulama, örnek istekler ve dönüş formatları daha sonra detaylandırılacaktır.",
-  alternates: {
-    canonical: "https://botexcel.pro/docs/api",
-  },
-  openGraph: {
-    title: "BotExcel REST & CLI Dokümantasyonu",
-    description:
-      "BotExcel API ve CLI entegrasyonları için kimlik doğrulama, istek örnekleri ve yanıt formatlarının taslağı.",
-    url: "https://botexcel.pro/docs/api",
-    siteName: "BotExcel",
-    type: "article",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "BotExcel API dokümantasyonu",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "BotExcel REST & CLI Dokümantasyonu",
-    description:
-      "BotExcel API ve CLI için entegrasyon taslağı: kimlik doğrulama, örnek istekler, yanıt formatları.",
-    images: ["/og-image.png"],
-  },
 };
 
 export default function ApiDocsPage() {
@@ -82,3 +55,4 @@ export default function ApiDocsPage() {
     </main>
   );
 }
+

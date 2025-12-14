@@ -1,92 +1,46 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Lenis from "@studio-freight/lenis";
-import { useRouter } from "next/navigation";
-import WhiteoutTransition from "./WhiteoutTransition";
+import { useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
+import * as THREE from 'three';
 
-export default function ClaritySection() {
-  const [active, setActive] = useState(false);
-  const router = useRouter();
+const GRID_SIZE = 20;
+const CELL_SIZE = 0.5;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const progress =
-        window.scrollY / Math.max(1, document.body.scrollHeight - window.innerHeight);
-      if (progress > 0.92 && !active) {
-        setActive(true);
-        try {
-          const win = window as unknown as { lenis?: Lenis };
-          const lenis = win.lenis;
-          if (lenis) lenis.stop();
-        } catch {
-          /* ignore */
-        }
-      }
-    };
+export function ClaritySection({ progress }: { progress: number }) {
+  const gridRef = useRef<THREE.Group>(null!);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [active]);
-
-  const handleCTA = () => {
-    try {
-      const win = window as unknown as { lenis?: Lenis };
-      const lenis = win.lenis;
-      if (lenis) lenis.start();
-    } catch {
-      /* ignore */
-    }
-    router.push("/upload");
-  };
+  useFrame(() => {
+    if (!gridRef.current) return;
+    gridRef.current.rotation.x = Math.PI * 0.5 - progress * 0.3;
+    gridRef.current.position.y = -5 + progress * 3;
+  });
 
   return (
-    <AnimatePresence>
-      {active && (
-        <>
-          <WhiteoutTransition active={active} />
-          {/* Arka Plan Blur */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 0.6 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-white/70 backdrop-blur-xl z-[90]"
+    <group ref={gridRef}>
+      <gridHelper
+        args={[GRID_SIZE, GRID_SIZE / CELL_SIZE, 0x10b981, 0x1e3a8a]}
+        rotation={[0, 0, 0]}
+      />
+      {Array.from({ length: 5 }).map((_, i) => (
+        <mesh
+          key={i}
+          position={[
+            (Math.random() - 0.5) * GRID_SIZE * 0.8,
+            Math.sin(progress * Math.PI + i) * 2,
+            (Math.random() - 0.5) * GRID_SIZE * 0.8
+          ]}
+        >
+          <boxGeometry args={[0.3, 0.3, 0.3]} />
+          <meshStandardMaterial
+            color="#10b981"
+            emissive="#10b981"
+            emissiveIntensity={0.5}
+            metalness={0.8}
+            roughness={0.2}
           />
-
-          {/* CTA Paneli */}
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[91] flex items-center justify-center"
-          >
-            <div
-              className="
-              w-[90%] max-w-md rounded-2xl
-              bg-neutral-900 text-white shadow-2xl
-              border border-neutral-700 p-6 space-y-4 text-center
-            "
-            >
-              <h2 className="text-xl font-semibold">
-                Belgeni Excel&apos;e çevir — 3 ücretsiz dönüşüm seni bekliyor
-              </h2>
-
-              <p className="text-neutral-300 text-sm">
-                Karmaşadan düzen yarat. BotExcel dosyanı otomatik ayıklayıp tabloya dönüştürür.
-              </p>
-
-              <button
-                onClick={handleCTA}
-                className="mt-2 w-full rounded-xl bg-emerald-600 hover:bg-emerald-500
-                  transition py-2.5 font-semibold text-white"
-              >
-                Kendi belgenle dene
-              </button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        </mesh>
+      ))}
+    </group>
   );
 }

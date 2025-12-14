@@ -2,36 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://botexcel.pro"),
   title: "Excel’de Barkodlu Stok Takibi Rehberi | BotExcel",
   description:
     "Barkodlu stok takibini Excel ve BotExcel entegrasyonuyla nasıl kuracağınız hakkında adım adım rehber. Şimdilik özet bir taslak sayfa.",
-  alternates: {
-    canonical: "https://botexcel.pro/guides/barcode-stock-tracking",
-  },
-  openGraph: {
-    title: "Excel’de Barkodlu Stok Takibi Rehberi",
-    description:
-      "Barkodlu stok takibi, Excel şablonları ve BotExcel entegrasyonuna dair taslak rehber.",
-    url: "https://botexcel.pro/guides/barcode-stock-tracking",
-    siteName: "BotExcel",
-    type: "article",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "BotExcel barkodlu stok takibi rehberi",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Excel’de Barkodlu Stok Takibi Rehberi",
-    description:
-      "Barkod okuyucu ve BotExcel entegrasyonuyla stok takibi kurulumuna dair taslak rehber.",
-    images: ["/og-image.png"],
-  },
 };
 
 export default function BarcodeStockTrackingGuidePage() {
@@ -81,3 +54,4 @@ export default function BarcodeStockTrackingGuidePage() {
     </main>
   );
 }
+

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { UsageBar } from "./UsageBar";
-import { UpgradeModal } from "./UpgradeModal";
-import { useWhoAmI } from "../hooks/useWhoAmI";
+import { UsageBar } from "@/components/UsageBar";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { useWhoAmI } from "@/hooks/useWhoAmI";
 
 const PLAN_LIMITS: Record<string, number | null> = {
   free: 3,

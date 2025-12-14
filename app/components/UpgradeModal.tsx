@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UsageBar } from "./UsageBar";
-import { mapErrorCodeToMessage } from "../lib/errorMessages";
+import { UsageBar } from "@/components/UsageBar";
+import { mapErrorCodeToMessage } from "@/lib/errorMessages";
 
 type PlanKey = "pro" | "business";
 

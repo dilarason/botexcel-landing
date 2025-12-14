@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { fetchWithTimeout } from "../lib/http";
-import { mapErrorCodeToMessage } from "../lib/errorMessages";
+import { fetchWithTimeout } from "@/lib/http";
+import { mapErrorCodeToMessage } from "@/lib/errorMessages";
 
 type RequestState = "idle" | "loading" | "error" | "success";
 

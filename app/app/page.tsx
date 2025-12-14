@@ -3,9 +3,9 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 
-import DemoUploader from "../components/DemoUploader";
-import { useWhoAmI } from "../hooks/useWhoAmI";
-import { useRecentJobs } from "../hooks/useRecentJobs";
+import DemoUploader from "@/components/DemoUploader";
+import { useWhoAmI } from "@/hooks/useWhoAmI";
+import { useRecentJobs } from "@/hooks/useRecentJobs";
 
 export default function AppDashboardPage() {
   const who = useWhoAmI();

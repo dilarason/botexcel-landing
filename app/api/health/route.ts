@@ -1,38 +1,30 @@
 import { Agent, request } from "undici";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getApiBase } from "../_lib/apiBase";
 
 const IPV4_AGENT = new Agent({
   connect: { family: 4 },
 });
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const base = getApiBase();
 
-  const url = `${base}/api/whoami`;
+  const url = `${base}/api/health`;
 
   try {
     const { body, statusCode, headers } = await request(url, {
       dispatcher: IPV4_AGENT,
-      headers: {
-        accept: "application/json",
-        cookie: req.headers.get("cookie") || "",
-      },
+      headers: { accept: "application/json" },
     });
 
     const text = await body.text();
 
-    const res = new NextResponse(text, {
+    return new NextResponse(text, {
       status: statusCode,
       headers: {
         "content-type": String(headers["content-type"] || "application/json"),
       },
     });
-
-    const setCookie = headers["set-cookie"];
-    if (setCookie) res.headers.set("set-cookie", String(setCookie));
-
-    return res;
   } catch (err: any) {
     return NextResponse.json(
       {

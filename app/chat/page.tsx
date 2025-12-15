@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChatHeader } from "@/app/components/chat/ChatHeader";
 import { useContextSwitch, ContextInfo } from "@/app/hooks/useContextSwitch";
+import { SourceSection } from "@/app/components/chat/SourceSection";
 
 type Role = "user" | "assistant" | "system";
-type ChatMessage = { id: string; role: Role; content: string; ts: number };
+type Source = { sheet_name?: string; cell_range?: string; row_count?: number; label?: string };
+type ChatMessage = { id: string; role: Role; content: string; ts: number; sources?: Source[]; file_version?: string };
 
 type ChatSession = {
   id: string;
@@ -152,9 +154,15 @@ export default function ChatPage() {
               buffer = "";
               break;
             }
-            // data JSON: { token?: string, text?: string, error?: string }
+            // data JSON: { token?: string, text?: string, error?: string, sources?: Source[], file_version?: string }
             try {
-              const obj = JSON.parse(data) as { token?: string; text?: string; error?: string };
+              const obj = JSON.parse(data) as {
+                token?: string;
+                text?: string;
+                error?: string;
+                sources?: Source[];
+                file_version?: string;
+              };
               if (obj.error) throw new Error(obj.error);
               const piece = obj.token ?? obj.text ?? "";
               if (piece) {
@@ -163,8 +171,26 @@ export default function ChatPage() {
                   const msgs = [...s.messages];
                   const last = msgs[msgs.length - 1];
                   if (!last || last.id !== assistantMsg.id) return s;
-                  msgs[msgs.length - 1] = { ...last, content: finalText };
+                  msgs[msgs.length - 1] = {
+                    ...last,
+                    content: finalText,
+                    sources: obj.sources ?? last.sources,
+                    file_version: obj.file_version ?? last.file_version,
+                  };
                   return { ...s, updatedAt: Date.now(), messages: msgs };
+                });
+              }
+              if (obj.sources && obj.sources.length) {
+                updateActive((s) => {
+                  const msgs = [...s.messages];
+                  const last = msgs[msgs.length - 1];
+                  if (!last || last.id !== assistantMsg.id) return s;
+                  msgs[msgs.length - 1] = {
+                    ...last,
+                    sources: obj.sources,
+                    file_version: obj.file_version ?? last.file_version,
+                  };
+                  return { ...s, messages: msgs, updatedAt: Date.now() };
                 });
               }
             } catch {
@@ -181,8 +207,8 @@ export default function ChatPage() {
           }
         }
       }
-    } catch (e: any) {
-      setStreamError(e?.message ?? "Stream error");
+    } catch (e: unknown) {
+      setStreamError(e instanceof Error ? e.message : "Stream error");
     } finally {
       setIsStreaming(false);
       abortRef.current = null;
@@ -285,6 +311,12 @@ export default function ChatPage() {
                   }`}
                 >
                   <div className="whitespace-pre-wrap">{m.content}</div>
+                  {m.role === "assistant" && (
+                    <SourceSection
+                      sources={m.sources}
+                      fileVersionLabel={m.file_version ? `Versiyon: ${m.file_version}` : undefined}
+                    />
+                  )}
                 </div>
               ))}
               {streamError && (

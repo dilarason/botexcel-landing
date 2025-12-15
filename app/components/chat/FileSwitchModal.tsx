@@ -21,8 +21,8 @@ export function FileSwitchModal({ open, onClose, onConfirm }: FileSwitchModalPro
     setError(null);
     try {
       await onConfirm(fileId.trim(), fileVersion.trim() || undefined);
-    } catch (e: any) {
-      setError(e?.message || "İşlem başarısız.");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "İşlem başarısız.");
     } finally {
       setSubmitting(false);
     }

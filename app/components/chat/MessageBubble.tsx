@@ -1,6 +1,6 @@
 'use client';
 
-import { User, Bot, Copy, Download, RotateCcw, Check } from 'lucide-react';
+import { User, Bot, Copy, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 

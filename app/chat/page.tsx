@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ChatHeader } from "@/app/components/chat/ChatHeader";
+import { useContextSwitch, ContextInfo } from "@/app/hooks/useContextSwitch";
 
 type Role = "user" | "assistant" | "system";
 type ChatMessage = { id: string; role: Role; content: string; ts: number };
@@ -49,9 +51,11 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
+  const [context, setContext] = useState<ContextInfo | null>(null);
 
   const abortRef = useRef<AbortController | null>(null);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const { createContext, loading: contextLoading } = useContextSwitch();
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -106,14 +110,15 @@ export default function ChatPage() {
       const payload = {
         session_id: active.id,
         messages: [...active.messages, userMsg].map((m) => ({ role: m.role, content: m.content })),
+        context_id: context?.contextId,
       };
 
-      const res = await fetch("/api/chat/stream", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
+        const res = await fetch("/api/chat/stream", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
 
       if (!res.ok || !res.body) {
         const t = await res.text().catch(() => "");
@@ -190,6 +195,28 @@ export default function ChatPage() {
     setIsStreaming(false);
   }
 
+  async function handleContextChange(fileId: string, fileVersion?: string) {
+    const nextContext = await createContext(fileId, fileVersion);
+    if (!nextContext) return;
+    setContext(nextContext);
+    // sohbeti temizle ve yeni başlat
+    const s: ChatSession = {
+      id: uid(),
+      title: nextContext.fileName || "Yeni sohbet",
+      updatedAt: Date.now(),
+      messages: [
+        {
+          id: uid(),
+          role: "assistant",
+          content: `${nextContext.fileName} için yeni bir sohbet başlatıldı.`,
+          ts: Date.now(),
+        },
+      ],
+    };
+    setSessions([s]);
+    setActiveId(s.id);
+  }
+
   return (
     <div className="min-h-[100vh] bg-slate-950 text-slate-100">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-4 px-4 py-6 md:grid-cols-[280px_1fr]">
@@ -225,6 +252,7 @@ export default function ChatPage() {
 
         {/* Main */}
         <main className="rounded-2xl border border-slate-800 bg-slate-950/60">
+          <ChatHeader context={context} onContextChange={handleContextChange} busy={isStreaming || contextLoading} />
           <div className="flex items-center justify-between border-b border-slate-800 px-4 py-3">
             <div className="text-sm font-semibold">{active.title}</div>
             <div className="flex items-center gap-2 text-xs text-slate-400">

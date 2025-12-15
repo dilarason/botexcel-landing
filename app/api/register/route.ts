@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getApiBase } from "../_lib/apiBase";
+import { isRecord } from "@/app/lib/typeguards";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export async function POST(req: NextRequest) {
-  let body: any = {};
+  let body: unknown = {};
   try {
     body = await req.json();
   } catch {
@@ -22,9 +23,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const email = (body?.email || "").toString().trim().toLowerCase();
-  const password = (body?.password || "").toString();
-  const plan = (body?.plan || "free").toString().trim().toLowerCase();
+  const email = isRecord(body) ? (body.email || "").toString().trim().toLowerCase() : "";
+  const password = isRecord(body) ? (body.password || "").toString() : "";
+  const plan = isRecord(body) ? (body.plan || "free").toString().trim().toLowerCase() : "free";
 
   if (!email || !password) {
     return NextResponse.json(
@@ -76,28 +77,31 @@ export async function POST(req: NextRequest) {
     });
 
     const text = await upstream.text();
-    let parsed: any;
+    let parsed: unknown;
     try {
       parsed = JSON.parse(text);
     } catch {
       parsed = { raw: text };
     }
 
-    const success = parsed?.ok === true || upstream.ok;
-    let normalized: any;
+    const success = isRecord(parsed) && parsed.ok === true ? true : upstream.ok;
+    let normalized: Record<string, unknown>;
     if (success) {
-      normalized = { ok: true, data: parsed?.data ?? parsed ?? {} };
+      const data = isRecord(parsed) && "data" in parsed ? parsed.data : parsed;
+      normalized = { ok: true, data: data ?? {} };
     } else {
       const code =
-        parsed?.code ||
+        (isRecord(parsed) && typeof parsed.code === "string"
+          ? parsed.code
+          : undefined) ||
         (upstream.status === 409
           ? "email_exists"
           : upstream.status === 400
             ? "validation_error"
             : "register_failed");
       const message =
-        parsed?.message ||
-        parsed?.error ||
+        (isRecord(parsed) && typeof parsed.message === "string" ? parsed.message : undefined) ||
+        (isRecord(parsed) && typeof parsed.error === "string" ? parsed.error : undefined) ||
         (upstream.status === 409
           ? "Bu e-posta zaten kayıtlı."
           : "Kayıt sırasında hata oluştu.");
@@ -105,7 +109,7 @@ export async function POST(req: NextRequest) {
         ok: false,
         code,
         message,
-        details: parsed?.details || {},
+        details: (isRecord(parsed) && parsed.details) || {},
       };
     }
 

@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     if (setCookie) res.headers.set("set-cookie", String(setCookie));
 
     return res;
-  } catch (err: any) {
+  } catch (err: unknown) {
     return NextResponse.json(
       {
         ok: false,
@@ -41,8 +41,8 @@ export async function GET(req: NextRequest) {
         details: {
           base,
           url,
-          error: String(err?.message || err),
-          cause: err?.cause ? String(err.cause) : undefined,
+          error: err instanceof Error ? err.message : String(err),
+          cause: err instanceof Error && err.cause ? String(err.cause) : undefined,
         },
       },
       { status: 502 }

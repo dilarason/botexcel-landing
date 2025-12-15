@@ -221,6 +221,14 @@ const features = [
   },
 ];
 
+void userStories;
+void capabilities;
+void templates;
+void pricingPlans;
+void resources;
+void blogPosts;
+void features;
+
 // Basit, dış dosyaya ihtiyaç duymayan logo bileşeni
 const BotExcelLogo: React.FC = () => (
   <div className="flex items-center gap-2">
@@ -568,7 +576,7 @@ const BotExcelScrollDemo: React.FC = () => {
                   Kullanıcı hikayeleri
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  "İşte ihtiyacım olan buydu" dedirten çözümler.
+                  &ldquo;İşte ihtiyacım olan buydu&rdquo; dedirten çözümler.
                 </h2>
                 <p className="text-sm text-slate-300 max-w-2xl">
                   Finans, operasyon ve KOBİ ekipleri için gerçek hikayeler. Detaylar kullanıcı sayfasında.

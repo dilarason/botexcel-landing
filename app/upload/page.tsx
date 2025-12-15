@@ -10,6 +10,7 @@ import { ResultCard } from "@/components/upload/ResultCard";
 import { UploadHeader } from "@/components/UploadHeader";
 import { getApiBase } from "@/lib/api";
 import { mapErrorCodeToMessage } from "@/lib/errorMessages";
+import { isRecord } from "@/lib/typeguards";
 
 type FlowState =
   | "idle"
@@ -19,6 +20,22 @@ type FlowState =
   | "error"
   | "quota_blocked"
   | "auth_required";
+
+type ConvertResult = {
+  id?: string;
+  download_url?: string;
+  original_name?: string;
+  format?: string;
+  rows?: unknown;
+  [key: string]: unknown;
+};
+
+type ConvertResponse = {
+  ok?: boolean;
+  code?: string;
+  message?: string;
+  data?: unknown;
+};
 
 export default function UploadPage() {
   const [refreshToken, setRefreshToken] = useState(0);
@@ -35,7 +52,7 @@ export default function UploadPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ConvertResult | null>(null);
   const isBusy = flowState === "uploading" || flowState === "converting" || loading;
 
   useEffect(() => {
@@ -118,15 +135,15 @@ export default function UploadPage() {
       if (!res.ok) {
         const rawText = await res.text().catch(() => "");
         const safeTs = new Date().toISOString();
-        let parsed: any = null;
+        let parsed: unknown = null;
         try {
           parsed = rawText ? JSON.parse(rawText) : null;
         } catch {
           parsed = null;
         }
 
-        const code = parsed?.code;
-        const message = parsed?.message;
+        const code = isRecord(parsed) && typeof parsed.code === "string" ? parsed.code : undefined;
+        const message = isRecord(parsed) && typeof parsed.message === "string" ? parsed.message : undefined;
         setErrorDetail(
           JSON.stringify(
             {
@@ -182,11 +199,11 @@ export default function UploadPage() {
         return;
       }
 
-      const data = await res.json();
+      const data = (await res.json()) as unknown;
 
-      if (data.ok === false) {
-        const code = data.code || "server_error";
-        const message = mapErrorCodeToMessage(code, data.message);
+      if (isRecord(data) && data.ok === false) {
+        const code = typeof data.code === "string" ? data.code : "server_error";
+        const message = mapErrorCodeToMessage(code, typeof data.message === "string" ? data.message : undefined);
         if (code === "plan_limit") {
           setStatusMessage("⚠ Aylık limitiniz doldu. Planınızı yükseltin.");
           setError("⚠ Aylık limitiniz doldu. Planınızı yükseltin.");
@@ -206,14 +223,15 @@ export default function UploadPage() {
         return;
       }
 
-      const normalizedResult = data.data ?? data;
+      const normalizedResult =
+        (isRecord(data) && "data" in data ? (data as ConvertResponse).data : data) as ConvertResult;
       setResult(normalizedResult);
       setRefreshToken((n) => n + 1);
       setRecentRefresh((n) => n + 1);
       setStatusMessage("✓ Hazır. Excel dosyanızı indirebilirsiniz.");
       setFlowState("success");
     } catch (err) {
-      if ((err as any)?.name === "AbortError") {
+      if (err instanceof DOMException && err.name === "AbortError") {
         setError("⚠ İşlem çok uzun sürdü. Tekrar deneyin.");
         setStatusMessage("⚠ İşlem çok uzun sürdü. Tekrar deneyin.");
         setFlowState("error");
@@ -362,72 +380,70 @@ export default function UploadPage() {
                     )}
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={handleConvert}
-                  disabled={disableConvert}
-                  aria-disabled={disableConvert}
-                  className="flex flex-1 min-w-[200px] items-center justify-center gap-2 rounded-lg bg-emerald-500 py-3 font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {isBusy ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin" />
-                      İşleniyor...
-                    </>
-                  ) : (
-                    "Excel'e Dönüştür"
-                  )}
-                </button>
-                {(flowState === "error" || flowState === "quota_blocked") && (
+                <div className="flex flex-wrap gap-3">
                   <button
-                    type="button"
                     onClick={handleConvert}
                     disabled={disableConvert}
                     aria-disabled={disableConvert}
-                    className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-3 text-sm font-semibold text-slate-100 transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex flex-1 min-w-[200px] items-center justify-center gap-2 rounded-lg bg-emerald-500 py-3 font-semibold text-slate-950 transition-colors hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <RefreshCcw className="h-4 w-4" />
-                    Tekrar dene
+                    {isBusy ? (
+                      <>
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        İşleniyor...
+                      </>
+                    ) : (
+                      "Excel'e Dönüştür"
+                    )}
                   </button>
-                )}
-                {flowState === "auth_required" && (
-                  <a
-                    href="/login"
-                    className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/60 px-3 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10"
-                  >
-                    Giriş Yap
-                  </a>
-                )}
-                {flowState === "quota_blocked" && (
-                  <a
-                    href="/pricing"
-                    className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/60 px-3 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10"
-                  >
-                    <ShieldAlert className="h-4 w-4" />
-                    Planını yükselt
-                  </a>
-                )}
+                  {(flowState === "error" || flowState === "quota_blocked") && (
+                    <button
+                      type="button"
+                      onClick={handleConvert}
+                      disabled={disableConvert}
+                      aria-disabled={disableConvert}
+                      className="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-3 text-sm font-semibold text-slate-100 transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <RefreshCcw className="h-4 w-4" />
+                      Tekrar dene
+                    </button>
+                  )}
+                  {flowState === "auth_required" && (
+                    <a
+                      href="/login"
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/60 px-3 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10"
+                    >
+                      Giriş Yap
+                    </a>
+                  )}
+                  {flowState === "quota_blocked" && (
+                    <a
+                      href="/pricing"
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/60 px-3 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-500/10"
+                    >
+                      <ShieldAlert className="h-4 w-4" />
+                      Planını yükselt
+                    </a>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="space-y-6">
-            {result && (
-              <ResultCard
-                fileName={result.original_name || file?.name || "Dosya"}
-                format={result.format || format}
-                rowCount={
-                  Array.isArray(result.rows) ? result.rows.length : undefined
-                }
-                downloadUrl={downloadUrl}
-              />
-            )}
+            <div className="space-y-6">
+              {result && (
+                <ResultCard
+                  fileName={result.original_name || file?.name || "Dosya"}
+                  format={result.format || format}
+                  rowCount={Array.isArray(result.rows) ? result.rows.length : undefined}
+                  downloadUrl={downloadUrl}
+                />
+              )}
 
-            <div className="glass-card space-y-4 rounded-2xl p-6">
-              <h2 className="text-xl font-semibold">Son Dönüşümlerim</h2>
-              <RecentTable refreshKey={recentRefresh} />
+              <div className="glass-card space-y-4 rounded-2xl p-6">
+                <h2 className="text-xl font-semibold">Son Dönüşümlerim</h2>
+                <RecentTable refreshKey={recentRefresh} />
+              </div>
             </div>
           </div>
         </div>

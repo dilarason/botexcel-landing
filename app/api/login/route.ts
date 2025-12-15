@@ -10,10 +10,14 @@ function getEnv() {
 
 function copySetCookie(upstream: Response, headers: Headers) {
   // Next/Undici ortamına göre set-cookie birden fazla olabilir.
-  const anyHeaders = upstream.headers as any;
+  const headerObj = upstream.headers as unknown;
+  const getSetCookie =
+    headerObj && typeof headerObj === "object" && "getSetCookie" in (headerObj as Record<string, unknown>)
+      ? (headerObj as { getSetCookie?: () => string[] | undefined }).getSetCookie
+      : undefined;
 
   const multi: string[] | undefined =
-    typeof anyHeaders.getSetCookie === "function" ? anyHeaders.getSetCookie() : undefined;
+    typeof getSetCookie === "function" ? getSetCookie() : undefined;
 
   if (multi && multi.length) {
     for (const sc of multi) headers.append("set-cookie", sc);

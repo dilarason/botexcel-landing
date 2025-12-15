@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getApiBase } from "../lib/api";
+import { isRecord } from "../lib/typeguards";
 
 export type RecentJob = {
   id?: string;
@@ -19,60 +20,59 @@ type RecentState =
   | { status: "error"; error: string };
 
 export function useRecentJobs(limit: number = 10, enabled: boolean = true): RecentState {
-  const [state, setState] = useState<RecentState>({ status: "idle" });
+  const [state, setState] = useState<RecentState>(() => (enabled ? { status: "loading" } : { status: "idle" }));
 
   useEffect(() => {
     let cancelled = false;
 
-    if (!enabled) {
-      setState({ status: "idle" });
-      return () => {
-        cancelled = true;
-      };
-    }
+    if (enabled) {
+      const fetchRecent = async () => {
+        setState({ status: "loading" });
+        try {
+          const url = new URL(`${getApiBase()}/recent.json`);
+          url.searchParams.set("limit", String(limit));
+          url.searchParams.set("user", "me");
+          url.searchParams.set("order", "desc");
 
-    const fetchRecent = async () => {
-      setState({ status: "loading" });
-      try {
-        const url = new URL(`${getApiBase()}/recent.json`);
-        url.searchParams.set("limit", String(limit));
-        url.searchParams.set("user", "me");
-        url.searchParams.set("order", "desc");
+          const res = await fetch(url.toString(), {
+            credentials: "include",
+          });
 
-        const res = await fetch(url.toString(), {
-          credentials: "include",
-        });
-
-        if (!res.ok) {
-          if (!cancelled) {
-            setState({ status: "error", error: `HTTP ${res.status}` });
+          if (!res.ok) {
+            if (!cancelled) {
+              setState({ status: "error", error: `HTTP ${res.status}` });
+            }
+            return;
           }
-          return;
-        }
 
-        const data = await res.json().catch(() => []);
-        if (cancelled) return;
+          const data = await res.json().catch(() => null);
+          if (cancelled) return;
 
-        const items: RecentJob[] = Array.isArray(data.items)
-          ? data.items
-          : Array.isArray(data)
+          const items: RecentJob[] = Array.isArray(data)
             ? data
-            : [];
+            : isRecord(data) && Array.isArray(data.items)
+              ? data.items
+              : [];
 
-        setState({ status: "loaded", items });
-      } catch {
-        if (!cancelled) {
-          setState({ status: "error", error: "recent.json isteği başarısız." });
+          setState({ status: "loaded", items });
+        } catch {
+          if (!cancelled) {
+            setState({ status: "error", error: "recent.json isteği başarısız." });
+          }
         }
-      }
-    };
+      };
 
-    fetchRecent();
+      fetchRecent();
+    }
 
     return () => {
       cancelled = true;
     };
   }, [limit, enabled]);
+
+  if (!enabled) {
+    return { status: "idle" };
+  }
 
   return state;
 }

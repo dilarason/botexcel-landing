@@ -4,13 +4,12 @@ import { Download, RotateCcw, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 
 interface QuickActionsProps {
-    messageId: string;
     content: string;
     onRetry?: () => void;
     downloadUrl?: string;
 }
 
-export function QuickActions({ messageId, content, onRetry, downloadUrl }: QuickActionsProps) {
+export function QuickActions({ content, onRetry, downloadUrl }: QuickActionsProps) {
     const [copied, setCopied] = useState(false);
 
     const handleCopy = () => {

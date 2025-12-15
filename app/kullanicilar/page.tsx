@@ -12,10 +12,12 @@ export default function KullanicilarPage() {
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-12 space-y-12">
         <header className="space-y-3 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300">Kullanıcı hikayeleri</p>
-          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">"İşte ihtiyacım olan buydu."</h1>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            &ldquo;İşte ihtiyacım olan buydu.&rdquo;
+          </h1>
           <p className="mx-auto max-w-3xl text-sm text-slate-300 md:text-base">
-            Finans, operasyon, KOBİ ve kurumsal ekipler için eski landing’deki aynı kartlar burada. Yeni iddia yok, aynı
-            dil ve görsel yapı.
+            Finans, operasyon, KOBİ ve kurumsal ekipler için eski landing&rsquo;deki aynı kartlar burada. Yeni iddia yok,
+            aynı dil ve görsel yapı.
           </p>
         </header>
 

@@ -19,11 +19,15 @@ export function ChaosField({ count = 1500 }: ChaosFieldProps) {
 
   const positions = useMemo(() => {
     const arr = new Float32Array(count * 3);
+    const seeded = (seed: number) => {
+      const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+      return x - Math.floor(x);
+    };
     for (let i = 0; i < count; i++) {
       const i3 = i * 3;
-      arr[i3 + 0] = (Math.random() - 0.5) * 10;
-      arr[i3 + 1] = (Math.random() - 0.5) * 10;
-      arr[i3 + 2] = (Math.random() - 0.5) * 10;
+      arr[i3 + 0] = (seeded(i * 3) - 0.5) * 10;
+      arr[i3 + 1] = (seeded(i * 3 + 1) - 0.5) * 10;
+      arr[i3 + 2] = (seeded(i * 3 + 2) - 0.5) * 10;
     }
     return arr;
   }, [count]);

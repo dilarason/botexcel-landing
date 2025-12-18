@@ -1,36 +1,30 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import {
-  getApiBaseOrNull,
   fetchJsonUpstream,
-  copyEtag,
+  getApiBaseOrNull,
+  isRecord,
   json500MissingConfig,
-  json502Unreachable,
-  json504Timeout,
   json502InvalidJson,
   json502InvalidShape,
-  isRecord,
+  json502Unreachable,
+  json504Timeout,
 } from "../_lib/proxy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  // 1. Check env
+export async function GET(): Promise<NextResponse> {
   const base = getApiBaseOrNull();
   if (!base) return json500MissingConfig();
 
-  // 2. Build request with query params
-  const search = req.nextUrl.search; // includes leading '?'
-  const url = `${base}/recent.json${search}`;
-  const cookie = req.headers.get("cookie") ?? "";
+  const primaryUrl = `${base}/api/health`;
+  const primary = await fetchJsonUpstream(primaryUrl, { method: "GET" });
 
-  // 3. Fetch upstream
-  const result = await fetchJsonUpstream(url, {
-    method: "GET",
-    cookie: cookie || undefined,
-  });
+  const result =
+    primary.error === undefined || primary.status !== 404
+      ? primary
+      : await fetchJsonUpstream(`${base}/health`, { method: "GET" });
 
-  // 4. Handle errors
   if (result.error === "invalid_json") {
     const snippet = isRecord(result.data) ? String(result.data.raw ?? "") : "";
     return json502InvalidJson(result.status, snippet);
@@ -48,9 +42,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return json502Unreachable(result.errorMessage ?? "Upstream unreachable");
   }
 
-  // 5. Build response with ETag passthrough
-  const res = NextResponse.json(result.data, { status: result.status });
-  copyEtag(result.headers, res);
-
-  return res;
+  return NextResponse.json(result.data, { status: result.status });
 }
+

@@ -4,6 +4,7 @@ import {
   fetchJsonUpstream,
   json500MissingConfig,
   json502Unreachable,
+  json504Timeout,
   json502InvalidJson,
   json502InvalidShape,
   isRecord,
@@ -37,8 +38,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return json502InvalidShape(result.status);
   }
 
-  if (result.error) {
-    return json502Unreachable(result.error);
+  if (result.error === "timeout") {
+    return json504Timeout();
+  }
+
+  if (result.error === "unreachable") {
+    return json502Unreachable(result.errorMessage ?? "Upstream unreachable");
   }
 
   // 5. Return upstream response as-is

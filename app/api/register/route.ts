@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  getApiBase,
+  getApiBaseOrNull,
   parseRegisterBody,
   fetchJsonUpstream,
   copySetCookie,
-  jsonError,
+  json500MissingConfig,
+  json502InvalidJson,
+  json502InvalidShape,
+  json502Unreachable,
+  json504Timeout,
   isRecord,
   type JsonRecord,
 } from "../_lib/proxy";
@@ -13,34 +17,43 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const base = getApiBaseOrNull();
+  if (!base) return json500MissingConfig();
+
   // 1. Parse and validate body (includes password length check)
   const parsed = await parseRegisterBody(req);
   if ("error" in parsed) return parsed.error;
 
   const { email, password, plan } = parsed.body;
   const host = req.headers.get("host") ?? "";
+  const cookie = req.headers.get("cookie") ?? "";
 
   // 2. Fetch upstream
-  const base = getApiBase();
   const url = `${base}/api/register`;
 
   const result = await fetchJsonUpstream(url, {
     method: "POST",
     body: JSON.stringify({ email, password, plan }),
     contentType: "application/json",
+    cookie: cookie || undefined,
   });
 
   // 3. Handle fetch error
   if (result.error === "invalid_json") {
     const snippet = isRecord(result.data) ? String(result.data.raw ?? "") : "";
-    return jsonError(502, "invalid_upstream_json", "Upstream did not return JSON", {
-      status: result.status,
-      text: snippet.slice(0, 200),
-    });
+    return json502InvalidJson(result.status, snippet);
   }
 
-  if (result.error) {
-    return jsonError(502, "upstream_unreachable", result.error);
+  if (result.error === "invalid_shape") {
+    return json502InvalidShape(result.status);
+  }
+
+  if (result.error === "timeout") {
+    return json504Timeout();
+  }
+
+  if (result.error === "unreachable") {
+    return json502Unreachable(result.errorMessage ?? "Upstream unreachable");
   }
 
   // 4. Normalize response

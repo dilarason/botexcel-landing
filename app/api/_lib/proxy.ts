@@ -1,6 +1,6 @@
 /**
  * Typesafe proxy helper module for Next.js API routes.
- * Zero `any` types. Maintainable for 12+ months.
+ * Strictly typed. Maintainable for 12+ months.
  */
 
 import { NextResponse } from "next/server";
@@ -95,6 +95,10 @@ export function json502Unreachable(errorMessage: string): NextResponse<ProxyErro
     return jsonError(502, "upstream_unreachable", errorMessage);
 }
 
+export function json504Timeout(): NextResponse<ProxyErrorResponse> {
+    return jsonError(504, "upstream_timeout", "Upstream timed out");
+}
+
 export function json502InvalidJson(status: number, textSnippet: string): NextResponse<ProxyErrorResponse> {
     return jsonError(502, "invalid_upstream_json", "Upstream did not return JSON", {
         status,
@@ -120,12 +124,15 @@ export interface FetchUpstreamOptions {
     timeoutMs?: number;
 }
 
+export type FetchUpstreamError = "invalid_json" | "invalid_shape" | "timeout" | "unreachable";
+
 export interface FetchUpstreamResult {
     ok: boolean;
     status: number;
     data: JsonRecord;
     headers: Headers;
-    error?: string;
+    error?: FetchUpstreamError;
+    errorMessage?: string;
 }
 
 /**
@@ -198,13 +205,17 @@ export async function fetchJsonUpstream(
         };
     } catch (err) {
         clearTimeout(timeoutId);
+        const isTimeout =
+            err instanceof Error &&
+            (err.name === "AbortError" || err.message.toLowerCase().includes("aborted"));
         const message = err instanceof Error ? err.message : String(err);
         return {
             ok: false,
             status: 0,
             data: {},
             headers: new Headers(),
-            error: message,
+            error: isTimeout ? "timeout" : "unreachable",
+            errorMessage: message,
         };
     }
 }

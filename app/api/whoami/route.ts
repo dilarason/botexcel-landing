@@ -1,51 +1,78 @@
-import { Agent, request } from "undici";
-import { NextRequest, NextResponse } from "next/server";
-import { getApiBase } from "../_lib/apiBase";
+import { NextResponse } from "next/server";
 
-const IPV4_AGENT = new Agent({
-  connect: { family: 4 },
-});
+const API_BASE = process.env.BOTEXCEL_API_BASE || "http://127.0.0.1:8000";
 
-export async function GET(req: NextRequest) {
-  const base = getApiBase();
+function jsonOk(data: any) {
+  return NextResponse.json({ ok: true, data });
+}
 
-  const url = `${base}/api/whoami`;
+function jsonErr(status: number, code: string, message: string, details?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, code, message, details: details ?? {} }, { status });
+}
 
-  try {
-    const { body, statusCode, headers } = await request(url, {
-      dispatcher: IPV4_AGENT,
-      headers: {
-        accept: "application/json",
-        cookie: req.headers.get("cookie") || "",
-      },
-    });
+async function fetchWhoami(authHeader?: string) {
+  const candidates = [`${API_BASE}/api/whoami`, `${API_BASE}/whoami`];
 
-    const text = await body.text();
-
-    const res = new NextResponse(text, {
-      status: statusCode,
-      headers: {
-        "content-type": String(headers["content-type"] || "application/json"),
-      },
-    });
-
-    const setCookie = headers["set-cookie"];
-    if (setCookie) res.headers.set("set-cookie", String(setCookie));
-
-    return res;
-  } catch (err: unknown) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "bad_gateway",
-        details: {
-          base,
-          url,
-          error: err instanceof Error ? err.message : String(err),
-          cause: err instanceof Error && err.cause ? String(err.cause) : undefined,
-        },
-      },
-      { status: 502 }
-    );
+  let last: any = null;
+  for (const url of candidates) {
+    try {
+      const r = await fetch(url, {
+        method: "GET",
+        headers: authHeader ? { Authorization: authHeader } : undefined,
+      });
+      const text = await r.text().catch(() => "");
+      let data: any = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = { raw: text };
+      }
+      if (!r.ok) {
+        last = { url, status: r.status, data };
+        continue;
+      }
+      return { ok: true as const, url, data };
+    } catch (e) {
+      last = { url, error: String((e as any)?.message ?? e) };
+    }
   }
+  return { ok: false as const, last };
+}
+
+export async function GET(req: Request) {
+  // 1) Öncelik: client Authorization gönderirse onu kullan
+  const incomingAuth = req.headers.get("authorization");
+
+  // 2) Yoksa: login’in yazdığı HttpOnly cookie’den token al
+  const cookieHeader = req.headers.get("cookie") || "";
+  const m = cookieHeader.match(/(?:^|;\s*)botexcel_access_token=([^;]+)/);
+  const token = !incomingAuth && m ? decodeURIComponent(m[1]) : null;
+
+  const auth = incomingAuth || (token ? `Bearer ${token}` : undefined);
+
+  const res = await fetchWhoami(auth);
+
+  if (!res.ok) {
+    // token yoksa guest dönmek mantıklı (502 yerine)
+    if (!auth) return jsonOk({ authenticated: false });
+
+    return jsonErr(502, "upstream_unreachable", "Whoami upstream hatası.", {
+      api_base: API_BASE,
+      last: res.last,
+    });
+  }
+
+  // Backend farklı şekillerde dönebilir; normalize et
+  const d = res.data;
+  const authenticated = Boolean(
+    d?.authenticated ??
+      d?.data?.authenticated ??
+      (d?.ok === true && d?.authenticated === true) ??
+      false
+  );
+
+  // authenticated true ise backend’in payload’ını da koru
+  if (authenticated) return jsonOk({ authenticated: true, upstream: d });
+
+  return jsonOk({ authenticated: false });
 }

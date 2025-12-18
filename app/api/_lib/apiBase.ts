@@ -1,4 +1,5 @@
-const fallbackBase = "https://api.botexcel.pro";
+// Local dev default: proxy on 8000. Production should always set BOTEXCEL_API_BASE explicitly.
+const fallbackBase = "http://127.0.0.1:8000";
 
 export function getApiBase(): string {
   const raw =

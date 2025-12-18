@@ -1,104 +1,110 @@
 import { NextResponse } from "next/server";
 
-export const runtime = "nodejs";
+const API_BASE = process.env.BOTEXCEL_API_BASE || "http://127.0.0.1:8000";
+const IS_PROD = process.env.NODE_ENV === "production";
 
-function getEnv() {
-  const BOTEXCEL_API_BASE = process.env.BOTEXCEL_API_BASE || "http://127.0.0.1:5000";
-  const BOTEXCEL_API_TOKEN = process.env.BOTEXCEL_API_TOKEN || "";
-  return { BOTEXCEL_API_BASE, BOTEXCEL_API_TOKEN };
+// Tokenı tek yerden yakala (hybrid response’lara tolerans)
+function pickAccessToken(data: any): string | null {
+  if (!data) return null;
+  return (
+    data.access_token ??
+    data?.data?.access_token ??
+    data?.data?.data?.access_token ??
+    null
+  );
 }
 
-function copySetCookie(upstream: Response, headers: Headers) {
-  // Next/Undici ortamına göre set-cookie birden fazla olabilir.
-  const headerObj = upstream.headers as unknown;
-  const getSetCookie =
-    headerObj && typeof headerObj === "object" && "getSetCookie" in (headerObj as Record<string, unknown>)
-      ? (headerObj as { getSetCookie?: () => string[] | undefined }).getSetCookie
-      : undefined;
-
-  const multi: string[] | undefined =
-    typeof getSetCookie === "function" ? getSetCookie() : undefined;
-
-  if (multi && multi.length) {
-    for (const sc of multi) headers.append("set-cookie", sc);
-    return;
-  }
-
-  const single = upstream.headers.get("set-cookie");
-  if (single) headers.set("set-cookie", single);
-}
-
-async function tryFetch(
-  url: string,
-  init: RequestInit,
-): Promise<{ res: Response; url: string } | null> {
-  try {
-    const res = await fetch(url, init);
-    return { res, url };
-  } catch {
-    return null;
-  }
+function jsonError(status: number, code: string, message: string, details?: Record<string, unknown>) {
+  return NextResponse.json({ ok: false, code, message, details: details ?? {} }, { status });
 }
 
 export async function POST(req: Request) {
-  const { BOTEXCEL_API_BASE, BOTEXCEL_API_TOKEN } = getEnv();
-
-  const bodyText = await req.text();
-
-  const candidates: Array<{
-    url: string;
-    method: "POST" | "GET";
-    body?: string;
-  }> = [
-    { url: `${BOTEXCEL_API_BASE}/api/login`, method: "POST", body: bodyText },
-    { url: `${BOTEXCEL_API_BASE}/login`, method: "POST", body: bodyText },
-    // dev shortcut (varsa): cookie set eden endpoint
-    { url: `${BOTEXCEL_API_BASE}/dev/autologin`, method: "GET" },
-  ];
-
-  const attempts: Array<{ url: string; ok: boolean; status?: number }> = [];
-
-  for (const c of candidates) {
-    const attempt = await tryFetch(c.url, {
-      method: c.method,
-      headers: {
-        "content-type": "application/json",
-        ...(BOTEXCEL_API_TOKEN ? { authorization: `Bearer ${BOTEXCEL_API_TOKEN}` } : {}),
-      },
-      body: c.method === "POST" ? c.body : undefined,
-      redirect: "manual",
-    });
-
-    if (!attempt) {
-      attempts.push({ url: c.url, ok: false });
-      continue;
-    }
-
-    const { res, url } = attempt;
-    attempts.push({ url, ok: res.ok, status: res.status });
-
-    // 404/405 ise sıradakini dene; 5xx ise de sıradakini dene (ama sonunda raporla)
-    if (res.status === 404 || res.status === 405 || res.status >= 500) {
-      continue;
-    }
-
-    // başarılı veya 401/403 gibi "backend cevap veriyor" durumlarında cevabı geri taşı
-    const outHeaders = new Headers();
-    const ct = res.headers.get("content-type") || "application/json; charset=utf-8";
-    outHeaders.set("content-type", ct);
-    copySetCookie(res, outHeaders);
-
-    return new Response(res.body, { status: res.status, headers: outHeaders });
+  let body: any;
+  try {
+    body = await req.json();
+  } catch {
+    return jsonError(400, "bad_request", "Geçersiz JSON body.");
   }
 
-  return NextResponse.json(
-    {
-      error: "Login upstream failed",
-      base: BOTEXCEL_API_BASE,
-      attempts,
-      hint:
-        "BOTEXCEL_API_BASE yanlış/kapalı olabilir veya backend login endpoint farklı olabilir. Curl ile BASE/health ve BASE/login test et.",
-    },
-    { status: 502 },
-  );
+  const email = String(body?.email ?? "").trim();
+  const password = String(body?.password ?? "").trim();
+  if (!email || !password) {
+    return jsonError(400, "bad_request", "email ve password zorunlu.");
+  }
+
+  const payload = JSON.stringify({ email, password });
+
+  // backend farklı path’lerde olabilir: sırayla dene
+  const candidates: Array<{ url: string; method: "POST" | "GET"; body?: string }> = [
+    { url: `${API_BASE}/api/login`, method: "POST", body: payload },
+    { url: `${API_BASE}/login`, method: "POST", body: payload },
+    { url: `${API_BASE}/dev/autologin`, method: "GET" },
+  ];
+
+  let lastErr: unknown = null;
+
+  for (const c of candidates) {
+    try {
+      const r = await fetch(c.url, {
+        method: c.method,
+        headers: c.method === "POST" ? { "Content-Type": "application/json" } : undefined,
+        body: c.method === "POST" ? c.body : undefined,
+      });
+
+      const text = await r.text().catch(() => "");
+      let data: any = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = { raw: text };
+      }
+
+      if (r.status === 401 || r.status === 403) {
+        return jsonError(401, "invalid_credentials", "Giriş başarısız.", {
+          upstream: c.url,
+          upstream_status: r.status,
+          upstream_body: text.slice(0, 300),
+        });
+      }
+
+      if (!r.ok) {
+        lastErr = new Error(`Upstream ${c.url} -> ${r.status}`);
+        continue;
+      }
+
+      const token = pickAccessToken(data);
+      if (!token) {
+        // login 200 ama token yoksa: backend kontratı farklıdır
+        return jsonError(502, "bad_upstream_response", "Login başarılı görünüyor ama access_token bulunamadı.", {
+          upstream: c.url,
+          upstream_body: data,
+        });
+      }
+
+      // ✅ Kritik fix: token’ı HttpOnly cookie olarak set et
+      const resp = NextResponse.json({ ok: true, access_token: token, data });
+
+      resp.cookies.set({
+        name: "botexcel_access_token",
+        value: token,
+        httpOnly: true,
+        sameSite: "lax",
+        secure: IS_PROD,
+        path: "/",
+        // dev’de de çalışsın diye kısa ama kalıcı bir süre veriyoruz
+        maxAge: 60 * 60 * 24 * 7, // 7 gün
+      });
+
+      return resp;
+    } catch (e) {
+      lastErr = e;
+      continue;
+    }
+  }
+
+  console.error("[api/login] All upstream candidates failed:", lastErr);
+  return jsonError(502, "upstream_unreachable", "Backend login endpoint'ine ulaşılamadı.", {
+    api_base: API_BASE,
+    last_error: String((lastErr as any)?.message ?? lastErr ?? ""),
+  });
 }

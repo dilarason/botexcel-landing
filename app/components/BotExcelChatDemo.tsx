@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, useRef } from "react";
+import clsx from "clsx";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 type ChatRole = "user" | "assistant";
@@ -17,33 +18,7 @@ type KpiState = {
   margin: string;
 };
 
-// Basit bir sınıf birleştirici; clsx alternatifi
-function cx(
-  ...values: Array<
-    | string
-    | false
-    | null
-    | undefined
-    | Record<string, boolean | null | undefined>
-  >
-): string {
-  const parts: string[] = [];
-
-  for (const value of values) {
-    if (!value) continue;
-
-    if (typeof value === "string") {
-      parts.push(value);
-      continue;
-    }
-
-    for (const [key, active] of Object.entries(value)) {
-      if (active) parts.push(key);
-    }
-  }
-
-  return parts.join(" ");
-}
+const cx = clsx;
 
 export default function BotExcelChatDemo() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);

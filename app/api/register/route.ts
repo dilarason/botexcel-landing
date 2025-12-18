@@ -1,136 +1,80 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApiBase } from "../_lib/apiBase";
+import {
+  getApiBase,
+  parseRegisterBody,
+  fetchJsonUpstream,
+  copySetCookie,
+  jsonError,
+  isRecord,
+  type JsonRecord,
+} from "../_lib/proxy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  // 1. Parse and validate body (includes password length check)
+  const parsed = await parseRegisterBody(req);
+  if ("error" in parsed) return parsed.error;
 
-export async function POST(req: NextRequest) {
-  let body: any = {};
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "invalid_json",
-        message: "Geçersiz JSON gönderildi.",
-        details: {},
-      },
-      { status: 400 }
-    );
-  }
+  const { email, password, plan } = parsed.body;
+  const host = req.headers.get("host") ?? "";
 
-  const email = (body?.email || "").toString().trim().toLowerCase();
-  const password = (body?.password || "").toString();
-  const plan = (body?.plan || "free").toString().trim().toLowerCase();
+  // 2. Fetch upstream
+  const base = getApiBase();
+  const url = `${base}/api/register`;
 
-  if (!email || !password) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "validation_error",
-        message: "E-posta ve şifre zorunlu.",
-        details: { fields: ["email", "password"] },
-      },
-      { status: 400 }
-    );
-  }
+  const result = await fetchJsonUpstream(url, {
+    method: "POST",
+    body: JSON.stringify({ email, password, plan }),
+    contentType: "application/json",
+  });
 
-  if (!emailRegex.test(email)) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "invalid_email",
-        message: "Lütfen geçerli bir e-posta adresi girin.",
-        details: { fields: ["email"] },
-      },
-      { status: 400 }
-    );
-  }
-
-  if (password.length < 8) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "validation_error",
-        message: "Şifre en az 8 karakter olmalı.",
-        details: { fields: ["password"] },
-      },
-      { status: 400 }
-    );
-  }
-
-  const API_BASE = getApiBase();
-  const url = `${API_BASE}/api/register`;
-  const host = req.headers.get("host") || "";
-
-  try {
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password, plan }),
-      redirect: "manual",
+  // 3. Handle fetch error
+  if (result.error === "invalid_json") {
+    const snippet = isRecord(result.data) ? String(result.data.raw ?? "") : "";
+    return jsonError(502, "invalid_upstream_json", "Upstream did not return JSON", {
+      status: result.status,
+      text: snippet.slice(0, 200),
     });
-
-    const text = await upstream.text();
-    let parsed: any;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      parsed = { raw: text };
-    }
-
-    const success = parsed?.ok === true || upstream.ok;
-    let normalized: any;
-    if (success) {
-      normalized = { ok: true, data: parsed?.data ?? parsed ?? {} };
-    } else {
-      const code =
-        parsed?.code ||
-        (upstream.status === 409
-          ? "email_exists"
-          : upstream.status === 400
-            ? "validation_error"
-            : "register_failed");
-      const message =
-        parsed?.message ||
-        parsed?.error ||
-        (upstream.status === 409
-          ? "Bu e-posta zaten kayıtlı."
-          : "Kayıt sırasında hata oluştu.");
-      normalized = {
-        ok: false,
-        code,
-        message,
-        details: parsed?.details || {},
-      };
-    }
-
-    const res = NextResponse.json(normalized, { status: upstream.status });
-    const setCookie = upstream.headers.get("set-cookie");
-    if (setCookie) {
-      // Rewrite cookie domain so session is available on the current host (e.g., www.botexcel.pro)
-      const bareHost = host.replace(/^www\./i, "");
-      const cookieDomain = bareHost ? `. ${bareHost}`.replace(/\s+/g, "") : bareHost;
-      const rewritten = cookieDomain
-        ? setCookie.replace(/Domain=[^;]+/gi, `Domain=${cookieDomain}`)
-        : setCookie;
-      res.headers.set("set-cookie", rewritten);
-    }
-    return res;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "server_error",
-        message: "Kayıt isteği gönderilemedi.",
-        details: { error: message },
-      },
-      { status: 502 }
-    );
   }
+
+  if (result.error) {
+    return jsonError(502, "upstream_unreachable", result.error);
+  }
+
+  // 4. Normalize response
+  const data = result.data;
+  const success = data.ok === true || result.ok;
+
+  let normalized: JsonRecord;
+  if (success) {
+    const innerData = isRecord(data.data) ? data.data : data;
+    normalized = { ok: true, data: innerData };
+  } else {
+    const code =
+      typeof data.code === "string"
+        ? data.code
+        : result.status === 409
+          ? "email_exists"
+          : result.status === 400
+            ? "validation_error"
+            : "register_failed";
+    const message =
+      typeof data.message === "string"
+        ? data.message
+        : typeof data.error === "string"
+          ? data.error
+          : result.status === 409
+            ? "Bu e-posta zaten kayıtlı."
+            : "Kayıt sırasında hata oluştu.";
+    const details = isRecord(data.details) ? data.details : {};
+    normalized = { ok: false, code, message, details };
+  }
+
+  // 5. Build response with cookie passthrough
+  const res = NextResponse.json(normalized, { status: result.status });
+  copySetCookie(result.headers, res, host);
+
+  return res;
 }

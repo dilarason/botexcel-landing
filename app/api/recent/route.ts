@@ -1,70 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getApiBase } from "../_lib/apiBase";
+import {
+  getApiBaseOrNull,
+  fetchJsonUpstream,
+  copyEtag,
+  json500MissingConfig,
+  json502Unreachable,
+  json502InvalidJson,
+  json502InvalidShape,
+  isRecord,
+} from "../_lib/proxy";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  const API_BASE = getApiBase();
-  if (!API_BASE) {
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "server_error",
-        message: "Sunucu yapılandırması eksik (BOTEXCEL_API_BASE).",
-        details: {},
-      },
-      { status: 500 },
-    );
-  }
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  // 1. Check env
+  const base = getApiBaseOrNull();
+  if (!base) return json500MissingConfig();
 
-  const url = new URL(`${API_BASE}/recent.json`);
+  // 2. Build request with query params
+  const search = req.nextUrl.search; // includes leading '?'
+  const url = `${base}/recent.json${search}`;
+  const cookie = req.headers.get("cookie") ?? "";
 
-  // İstemciden gelen query parametrelerini upstream'e aktar
-  req.nextUrl.searchParams.forEach((value, key) => {
-    url.searchParams.set(key, value);
+  // 3. Fetch upstream
+  const result = await fetchJsonUpstream(url, {
+    method: "GET",
+    cookie: cookie || undefined,
   });
 
-  const cookieHeader = req.headers.get("cookie") || "";
-
-  try {
-    const upstream = await fetch(url.toString(), {
-      method: "GET",
-      headers: cookieHeader ? { cookie: cookieHeader } : {},
-      redirect: "manual",
-    });
-
-    const text = await upstream.text();
-    let parsed: unknown;
-    try {
-      parsed = text ? JSON.parse(text) : {};
-    } catch {
-      parsed = { raw: text };
-    }
-
-    if (typeof parsed === "string") {
-      return new NextResponse(parsed, {
-        status: upstream.status,
-        headers: {
-          "content-type":
-            upstream.headers.get("content-type") ||
-            "application/json; charset=utf-8",
-        },
-      });
-    }
-
-    return NextResponse.json(parsed, { status: upstream.status });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      {
-        ok: false,
-        code: "server_error",
-        message: "recent.json okunamadı.",
-        details: { error: message },
-      },
-      { status: 502 },
-    );
+  // 4. Handle errors
+  if (result.error === "invalid_json") {
+    const snippet = isRecord(result.data) ? String(result.data.raw ?? "") : "";
+    return json502InvalidJson(result.status, snippet);
   }
-}
 
+  if (result.error === "invalid_shape") {
+    return json502InvalidShape(result.status);
+  }
+
+  if (result.error) {
+    return json502Unreachable(result.error);
+  }
+
+  // 5. Build response with ETag passthrough
+  const res = NextResponse.json(result.data, { status: result.status });
+  copyEtag(result.headers, res);
+
+  return res;
+}

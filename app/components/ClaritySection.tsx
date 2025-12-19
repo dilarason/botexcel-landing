@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { track } from "../lib/telemetry";
 
 function getPageProgress(): number {
   const doc = document.documentElement;
@@ -87,6 +88,7 @@ export default function ClaritySection() {
   const handleClose = () => setActive(false);
 
   const handleCTA = () => {
+    track("clarity_cta_try_own_doc", { source: "clarity" });
     unlockBodyScroll(bodyLockRef);
     router.push("/upload");
   };

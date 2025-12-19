@@ -1,14 +1,47 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useI18n } from "../lib/i18n";
+import { getABVariant, track } from "../lib/telemetry";
 
 export function OutputQualitySection() {
   const { t } = useI18n();
+  const sectionRef = useRef<HTMLElement | null>(null);
+
+  const abKey = "output_quality_download";
+  const variant = useMemo(() => getABVariant(abKey), []);
+  const downloadLabel =
+    variant === "B" ? t.outputQuality.downloadCtaB : t.outputQuality.downloadCta;
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+
+    let fired = false;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (fired) return;
+          if (e.isIntersecting) {
+            fired = true;
+            track("view_output_quality", { source: "output-quality" }, { abKey });
+            io.disconnect();
+          }
+        }
+      },
+      { threshold: 0.35 }
+    );
+
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
     <motion.section
+      ref={(node) => {
+        sectionRef.current = node;
+      }}
       id="output-quality"
       className="w-full bg-slate-950 px-4 py-16 text-slate-50 md:px-8 lg:px-16"
       initial={{ opacity: 0, filter: "blur(16px)" }}
@@ -74,24 +107,35 @@ export function OutputQualitySection() {
             </span>
           </p>
 
+          {/* CTA hierarchy: Upload PRIMARY, Download SECONDARY */}
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <a
+              href="/upload"
+              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+              aria-label={t.outputQuality.tryOwnDoc}
+              data-analytics="output_quality_try_own_doc"
+              onClick={() =>
+                track("output_quality_try_own_doc", { source: "output-quality" }, { abKey })
+              }
+            >
+              {t.outputQuality.tryOwnDoc}
+            </a>
+
             <a
               href="/samples/fatura_ozet_2025Q1.xlsx"
               download
               className="inline-flex items-center justify-center rounded-full border border-emerald-400/70 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-500/20"
-              aria-label="Örnek Excel indir"
+              aria-label={downloadLabel}
               data-analytics="output_quality_download_sample"
+              onClick={() =>
+                track(
+                  "output_quality_download_sample",
+                  { source: "output-quality", href: "/samples/fatura_ozet_2025Q1.xlsx" },
+                  { abKey }
+                )
+              }
             >
-              {t.outputQuality.downloadCta}
-            </a>
-
-            <a
-              href="/upload"
-              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
-              aria-label="Kendi belgenle dene"
-              data-analytics="output_quality_try_own_doc"
-            >
-              Kendi belgenle dene
+              {downloadLabel}
             </a>
           </div>
         </div>

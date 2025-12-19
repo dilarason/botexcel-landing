@@ -4,6 +4,7 @@ import React, { useEffect, useState, FormEvent } from "react";
 import { UploadHeader } from "../components/UploadHeader";
 import { mapErrorCodeToMessage } from "../lib/errorMessages";
 import { useWhoAmI } from "../hooks/useWhoAmI";
+import { track } from "../lib/telemetry";
 
 type ConvertResult = {
   id?: string;
@@ -49,6 +50,7 @@ export default function UploadPage() {
 
   // 1) Auth guard: /whoami kontrolü
   useEffect(() => {
+    void track("visit_upload", { source: "upload" });
     if (who.status === "anonymous" && typeof window !== "undefined") {
       window.location.href = "/login";
     }

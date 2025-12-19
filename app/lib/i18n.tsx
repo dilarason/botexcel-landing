@@ -245,6 +245,8 @@ const translations = {
             comparison: "14 sayfalık fatura yığını ≈ 45 dakika manuel temizlik yerine,",
             comparisonHighlight: "BotExcel ile 2 dakikada sunuma hazır Excel.",
             downloadCta: "Örnek çıktıyı gör",
+            downloadCtaB: "Gerçek Excel'i indir",
+            tryOwnDoc: "Kendi belgenle dene",
         },
         // Team Story Section
         teamStory: {
@@ -528,6 +530,8 @@ const translations = {
             comparison: "14-page invoice pile ≈ 45 minutes of manual cleanup, instead:",
             comparisonHighlight: "Presentation-ready Excel in 2 minutes with BotExcel.",
             downloadCta: "View sample output",
+            downloadCtaB: "Download Real Excel",
+            tryOwnDoc: "Try with your document",
         },
         // Team Story Section
         teamStory: {

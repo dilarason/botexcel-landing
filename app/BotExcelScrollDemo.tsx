@@ -21,129 +21,9 @@ const stageBand = (p: number, start: number, peak: number, end: number) => {
   return clamp(1 - (p - peak) / (end - peak), 0, 1);
 };
 
-// İçerik verileri
-const userStories = [
-  {
-    title: "Finans & Denetim ekipleri",
-    description:
-      "Ay sonunda yüzlerce fatura ve banka ekstresiyle uğraşan finans yöneticileri, BotExcel sayesinde birkaç dakikada birleşik ve doğrulanmış tabloya ulaşıyor.",
-    bullets: [
-      "PDF → Excel dönüşümü 3 dakika altında",
-      "Yanlış toplam riskine karşı akıllı uyarılar",
-      "Audit trail ile izlenebilir hücreler",
-    ],
-  },
-  {
-    title: "Operasyon & Lojistik",
-    description:
-      "Sevk irsaliyelerini ve kargo fişlerini kamerayla okut, stok tablosu otomatik güncellensin; eksik ürünler için eylem listesi hazır olsun.",
-    bullets: [
-      "Barkod ve optik karakter tanıma ile tek seferde kayıt",
-      "Gerçek zamanlı stok ve tedarik görünürlüğü",
-      "Operasyonel raporlar dakikalar içinde",
-    ],
-  },
-  {
-    title: "KOBİ'ler",
-    description:
-      "Manavdan kırtasiyeye tüm küçük işletmeler, fiş ve makbuzlarını BotExcel’e yükleyerek günlük satış ve giderlerini zahmetsizce takip ediyor.",
-    bullets: [
-      "Buluta bağımlı olmayan masaüstü zekâ",
-      "Logo, Mikro, Paraşüt entegrasyonları",
-      "Basit Excel şablonlarıyla satış & stok takibi",
-    ],
-  },
-  {
-    title: "Kurumsal / Enterprise",
-    description:
-      "Bankacılık ve denetim ekipleri, yerel yapay zekâ ve ayrıntılı erişim kontrolleri sayesinde KVKK uyumlu veri temizleme süreçlerini otomatikleştiriyor.",
-    bullets: [
-      "On-prem yapay zekâ seçeneği",
-      "ERP / CRM / BI entegrasyon kitleri",
-      "Detaylı loglama ve raporlama",
-    ],
-  },
-];
+// Content data arrays are now derived from i18n translations inside the component
+// See t.userStories.items, t.capabilities.items, t.templates.items, t.features.items
 
-const capabilities = [
-  {
-    title: "Evrensel Dönüştürücü Motoru",
-    text:
-      "PDF, TXT, e-posta ve fotoğraflardaki verileri temiz, biçimlendirilmiş Excel tablolara dönüştürür; sayı formatlarını ve para birimlerini otomatik düzeltir.",
-  },
-  {
-    title: "Doğruluk & Audit Trail",
-    text:
-      "Her hücre kaynağı, satır numarası, model sürümü ve işlem tarihiyle kaydedilir; denetime hazır, hesap verilebilir yapay zekâ standardı sunar.",
-  },
-  {
-    title: "Barkod + Optik Tarama Analitiği",
-    text:
-      "Barkod, QR ve optik karakter tanıma (OCR) ile kağıt üzerindeki metinleri yakalar; stok ve kargo tablolarını otomatik hazırlar.",
-  },
-  {
-    title: "API & CLI Otomasyonu",
-    text:
-      "Tek AI motoru REST API veya komut satırı üzerinden çalışır; ERP, CRM ve BI entegrasyonlarını birkaç komutla hayata geçirin.",
-  },
-];
-
-const templates = [
-  {
-    title: "Finans Dashboard",
-    text:
-      "Pivot tablolar, dönemsel KDV özetleri ve nakit akışı grafikleriyle sunuma hazır finans raporu. Her ay otomatik güncellenir.",
-  },
-  {
-    title: "Stok & Sevkiyat İzleme",
-    text:
-      "Barkodlu stok giriş-çıkış, kritik eşik uyarıları ve otomatik tedarik önerileri; tedarik planınız sabah hazır olur.",
-  },
-  {
-    title: "Audit & KVKK Kayıtları",
-    text:
-      "Hücre bazlı değişiklik logu, kullanıcı aksiyonları ve denetim notlarını tek dosyada toplayın; denetim oturumlarında hazır olun.",
-  },
-  {
-    title: "Satış / POS Konsolidasyonu",
-    text:
-      "WhatsApp, e-ticaret ve POS verilerini normalize edip gelir tablosuna dönüştürür; büyüme kanallarınızı net görmenizi sağlar.",
-  },
-];
-
-// Özellikler bölümü verisi
-const features = [
-  {
-    title: "Akıllı Dönüştürme Motoru",
-    desc:
-      "PDF, DOCX, CSV veya görsel fark etmez - BotExcel tüm formatları tanır ve dakikalar içinde okunabilir Excel tablolara dönüştürür.",
-  },
-  {
-    title: "Yapay Zekâ ile Alan Tanıma",
-    desc:
-      "LLM destekli analiz; belge içindeki tarih, tutar, hesap, firma gibi alanları otomatik algılar ve doğru sütunlara yerleştirir.",
-  },
-  {
-    title: "Gerçek Excel, Gerçek Formüller",
-    desc:
-      "Sadece veri değil, yapısıyla anlamlı bir Excel üretir: formüller, koşullu biçimler ve özet tablolar otomatik olarak eklenir.",
-  },
-  {
-    title: "Audit Trail ve Güvenlik",
-    desc:
-      "Her dönüşüm kim tarafından, ne zaman yapıldı - kayıt altındadır. Veriler şifreli, KVKK ve GDPR uyumlu şekilde saklanır.",
-  },
-  {
-    title: "Doğrulama ve Tutarlılık Kontrolü",
-    desc:
-      "AI, tablo içindeki toplam değerleri, tekrar eden kayıtları ve hatalı alanları tespit ederek tutarlılık konusunda uyarır.",
-  },
-  {
-    title: "Barkod ve Görsel Tanıma",
-    desc:
-      "Kamera veya dosyadan barkod okutur, ürün bilgisini tanır ve doğrudan Excel'e işler - özellikle küçük işletmeler için ideal.",
-  },
-];
 
 type DemoStage = "idle" | "uploading" | "analyzing" | "ready" | "error";
 
@@ -730,6 +610,12 @@ const BotExcelScrollDemo: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [progress, setProgress] = useState(0);
 
+  // Derive data arrays from i18n translations
+  const features = t.features.items;
+  const userStories = t.userStories.items;
+  const capabilities = t.capabilities.items;
+  const templates = t.templates.items;
+
   // Scroll oranını sadece animasyon bölümüne göre hesapla
   useEffect(() => {
     const container = containerRef.current;
@@ -958,10 +844,10 @@ const BotExcelScrollDemo: React.FC = () => {
           <div className="relative bg-slate-950 text-left">
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-6 text-center text-slate-50">
               <h2 className="text-2xl md:text-3xl font-semibold mb-2">
-                Belgeni yükle, 3 ücretsiz dönüşüm al
+                {t.sections.uploadCta}
               </h2>
               <p className="text-sm md:text-base text-slate-300 max-w-2xl mx-auto">
-                Animasyon bitti, şimdi tek aksiyonla kendi belgeni dene. BotExcel karmaşık dosyaları dakikalar içinde Excel&apos;e çevirir.
+                {t.sections.uploadCtaDesc}
               </p>
               <div className="mt-4 flex justify-center">
                 <AuthAwareCTA />
@@ -972,16 +858,13 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-12 pb-10 sm:pt-16 sm:pb-14 text-slate-50">
               <header className="mb-6 text-center">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300 mb-2">
-                  Özellikler
+                  {t.features.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Veri karmaşasından tablo netliğine giden tüm adımlar tek
-                  yerde.
+                  {t.sections.featuresHeader}
                 </h2>
                 <p className="text-sm text-slate-300 max-w-3xl mx-auto">
-                  BotExcel belgeleri yalnızca Excel&apos;e dönüştürmekle
-                  kalmaz; yapay zekâ ile anlar, doğrular, açıklar ve güvenle
-                  saklanabilir hale getirir.
+                  {t.sections.featuresSubheader}
                 </p>
               </header>
               <div className="grid gap-4 md:grid-cols-2">
@@ -998,11 +881,9 @@ const BotExcelScrollDemo: React.FC = () => {
                 ))}
               </div>
               <p className="text-center text-xs text-slate-400 mt-6 max-w-2xl mx-auto">
-                Manuel veri girişi, dosya birleştirme ve tablo temizleme derdine
-                son. BotExcel, belgelerinizi dakikalar içinde anlamlı,
-                doğrulanmış ve paylaşılabilir Excel tablolara dönüştürür.
+                {t.sections.featuresFooter}
                 <br />
-                AI + PDF + Görsel + Audit + Excel
+                {t.sections.featuresExtra}
               </p>
             </section>
 
@@ -1010,15 +891,13 @@ const BotExcelScrollDemo: React.FC = () => {
             <section id="cozumler" className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-400 mb-2">
-                  Kullanıcı hikayeleri
+                  {t.userStories.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  &ldquo;İşte ihtiyacım olan buydu&rdquo; dedirten çözümler.
+                  {t.userStories.sectionTitle}
                 </h2>
                 <p className="text-sm text-slate-300 max-w-2xl">
-                  BotExcel yalnızca dönüştürmekle kalmaz; doğrulama, audit
-                  trail ve zengin Excel çıktılarıyla finans, operasyon ve KOBİ
-                  ekiplerinin günlük işini hızlandırır.
+                  {t.userStories.sectionDesc}
                 </p>
               </header>
 
@@ -1054,17 +933,13 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
               <header className="mb-6 text-center sm:text-left">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300 mb-2">
-                  Canlı demo
+                  {t.sections.demoTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Kendi belgenizle deneyin.
+                  {t.sections.demoTitle}
                 </h2>
                 <p className="text-sm text-slate-300 max-w-2xl mx-auto sm:mx-0">
-                  Ürüne karar vermeden önce ne göreceğinizi bilmek istersiniz.
-                  BotExcel, ilk temasınızı olabildiğince zahmetsiz hale getirir:
-                  Belgenizi seçin ya da hazır demo örneklerinden birini kullanın,
-                  birkaç saniye içinde örnek Excel çıktısını görün. İlk demo gerçek
-                  belgeniz üzerinden işlenir, limit dolduğunda plan yükseltme çağrısı görürsünüz.
+                  {t.sections.demoDesc}
                 </p>
               </header>
 
@@ -1075,11 +950,10 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-400 mb-2">
-                  Öne çıkan yetkinlikler
+                  {t.sections.capabilitiesTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Sadece dönüştürmek değil; doğrulamak, güzelleştirmek,
-                  anlamlandırmak.
+                  {t.sections.capabilitiesTitle}
                 </h2>
               </header>
               <div className="grid md:grid-cols-2 gap-4">
@@ -1101,18 +975,16 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <div className="rounded-3xl border border-emerald-500/60 bg-gradient-to-br from-emerald-900/60 via-slate-900/80 to-slate-950 p-5 sm:p-6 flex flex-col gap-3">
                 <div className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300">
-                  Sosyal kanıt
+                  {t.sections.socialProofTag}
                 </div>
                 <h2 className="text-base sm:text-lg font-semibold text-emerald-50">
-                  Tİ İthalat & İhracat ve yüzlerce kurum BotExcel’e güveniyor.
+                  {t.sections.socialProofTitle}
                 </h2>
                 <p className="text-sm text-emerald-50/90">
-                  “PDF dekontlarını ve banka ekstrelerini BotExcel ile 8
-                  dakikada rapora dönüştürüyoruz. Audit trail sayesinde denetim
-                  raporları hiç olmadığı kadar hızlı hazırlandı.”
+                  &ldquo;{t.sections.socialProofQuote}&rdquo;
                 </p>
                 <div className="text-xs text-emerald-100/90 font-medium">
-                  Tİ İthalat & İhracat
+                  {t.sections.socialProofAuthor}
                 </div>
               </div>
             </section>
@@ -1121,55 +993,40 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-300 mb-2">
-                  Ekibin hikayesi
+                  {t.teamStory.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Veriye insani bir bakış getirmek için yola çıktık.
+                  {t.teamStory.sectionTitle}
                 </h2>
               </header>
               <div className="grid md:grid-cols-2 gap-4 items-start">
                 <div className="text-sm text-slate-300 space-y-3">
                   <p>
-                    BotExcel, “veri işi”nin sadece satırlardan ibaret
-                    olmadığını bilen bir ekip tarafından geliştirildi. Bir
-                    tarafında yıllarca bağımsız denetim ve finans raporlamada
-                    çalışmış uzmanlar, diğer tarafında üretici yapay zekâ
-                    modelleri üzerine çalışan mühendisler var.
+                    {t.teamStory.paragraph1}
                   </p>
                   <p>
-                    Amacımız, ekiplerinizi manuel Excel işlerinden kurtarıp,
-                    zamanlarını asıl değer ürettikleri kararlara ayırmalarını
-                    sağlamak.
+                    {t.teamStory.paragraph2}
                   </p>
                   <ul className="text-xs text-slate-400 space-y-1.5">
-                    <li>
-                      • İlk satırlarımızı, bir denetim ekibinin 3 günlük işini
-                      40 dakikaya indirmek için yazdık.
-                    </li>
-                    <li>
-                      • BotExcel’in çekirdeğinde, Gemma tabanlı AI ve denetime
-                      hazır loglama mantığı birlikte çalışır.
-                    </li>
+                    <li>• {t.teamStory.bullet1}</li>
+                    <li>• {t.teamStory.bullet2}</li>
                   </ul>
                 </div>
                 <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-300 flex flex-col gap-3">
                   <div>
                     <div className="font-semibold text-slate-100 mb-1">
-                      Kimlerle çalışıyoruz?
+                      {t.teamStory.workWithTitle}
                     </div>
                     <p>
-                      Finans ekipleri, operasyon liderleri, denetim uzmanları
-                      ve geliştiricilerle aynı masada oturup gerçek kullanım
-                      senaryolarına göre ürün geliştiriyoruz.
+                      {t.teamStory.workWithDesc}
                     </p>
                   </div>
                   <div>
                     <div className="font-semibold text-slate-100 mb-1">
-                      Sosyal güven
+                      {t.teamStory.socialTrustTitle}
                     </div>
                     <p>
-                      Ekibi daha yakından tanımak için BotExcel kurucularını ve
-                      ürün ekibini LinkedIn üzerinden takip edebilirsiniz.
+                      {t.teamStory.socialTrustDesc}
                     </p>
                   </div>
                 </div>
@@ -1180,10 +1037,10 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-amber-300 mb-2">
-                  Hazır Excel şablonları
+                  {t.templatesSection.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  En çok kullanılan raporlar tek tıkla indirilmeye hazır.
+                  {t.templatesSection.sectionTitle}
                 </h2>
               </header>
               <div className="grid md:grid-cols-2 gap-4">
@@ -1232,18 +1089,16 @@ const BotExcelScrollDemo: React.FC = () => {
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <div className="rounded-3xl border border-emerald-500/60 bg-gradient-to-br from-emerald-900/60 via-slate-900/80 to-slate-950 p-5 sm:p-6 flex flex-col gap-3">
                 <div className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300">
-                  Sosyal kanıt
+                  {t.sections.socialProofTag}
                 </div>
                 <h2 className="text-base sm:text-lg font-semibold text-emerald-50">
-                  Tİ İthalat & İhracat ve yüzlerce kurum BotExcel’e güveniyor.
+                  {t.sections.socialProofTitle}
                 </h2>
                 <p className="text-sm text-emerald-50/90">
-                  “PDF dekontlarını ve banka ekstrelerini BotExcel ile 8
-                  dakikada rapora dönüştürüyoruz. Audit trail sayesinde denetim
-                  raporları hiç olmadığı kadar hızlı hazırlandı.”
+                  &ldquo;{t.sections.socialProofQuote}&rdquo;
                 </p>
                 <div className="text-xs text-emerald-100/90 font-medium">
-                  Tİ İthalat & İhracat
+                  {t.sections.socialProofAuthor}
                 </div>
               </div>
             </section>

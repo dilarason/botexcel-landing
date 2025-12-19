@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
 import "./globals.css";
 import { defaultSEO } from "./seo";
+import Navbar from "./components/Navbar";
+import Providers from "./components/Providers";
 
 export const metadata = defaultSEO;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="tr">
+    <html lang="tr" suppressHydrationWarning>
       <head>
         <script
           defer
@@ -36,7 +38,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <Providers>
+          <Navbar />
+          <main className="pt-16">{children}</main>
+        </Providers>
+      </body>
     </html>
   );
 }
+
+

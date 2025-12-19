@@ -1,16 +1,13 @@
-/* eslint-disable react/no-unescaped-entities */
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 
 import { OutputQualitySection } from "./components/OutputQualitySection";
 import BlogSection from "./components/BlogSection";
 import ResourcesSection from "./components/ResourcesSection";
-import DemoUploaderWidget from "./components/DemoUploader";
 import { AuthAwareCTA } from "./components/AuthAwareCTA";
-import ClaritySection from "./components/scrolly/ClaritySection";
+import { useI18n } from "./lib/i18n";
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(value, min), max);
@@ -164,223 +161,203 @@ const demoSamples: Array<{
   badge: string;
   output: DemoResult;
 }> = [
-  {
-    id: "invoice",
-    label: "Örnek fatura.pdf",
-    badge: "Perakende satış özeti",
-    output: {
-      fileName: "fatura_demo.xlsx",
-      downloadName: "botexcel-fatura-demo.csv",
-      columns: [
-        "Kalem",
-        "Kategori",
-        "Adet",
-        "Birim Fiyat (TL)",
-        "KDV",
-        "Ara Toplam",
-      ],
-      rows: [
-        [
-          "FAT-2025-0312",
-          "Elektronik",
-          "4",
-          "3.250,00",
-          "18%",
-          "12.870,00",
+    {
+      id: "invoice",
+      label: "Örnek fatura.pdf",
+      badge: "Perakende satış özeti",
+      output: {
+        fileName: "fatura_demo.xlsx",
+        downloadName: "botexcel-fatura-demo.csv",
+        columns: [
+          "Kalem",
+          "Kategori",
+          "Adet",
+          "Birim Fiyat (TL)",
+          "KDV",
+          "Ara Toplam",
         ],
-        [
-          "FAT-2025-0313",
-          "Ofis Sarf",
-          "9",
-          "420,00",
-          "10%",
-          "4.158,00",
+        rows: [
+          [
+            "FAT-2025-0312",
+            "Elektronik",
+            "4",
+            "3.250,00",
+            "18%",
+            "12.870,00",
+          ],
+          [
+            "FAT-2025-0313",
+            "Ofis Sarf",
+            "9",
+            "420,00",
+            "10%",
+            "4.158,00",
+          ],
+          [
+            "FAT-2025-0314",
+            "Hizmet",
+            "1",
+            "2.950,00",
+            "18%",
+            "3.481,00",
+          ],
+          [
+            "Genel Toplam",
+            "—",
+            "—",
+            "—",
+            "—",
+            "20.509,00",
+          ],
         ],
-        [
-          "FAT-2025-0314",
-          "Hizmet",
-          "1",
-          "2.950,00",
-          "18%",
-          "3.481,00",
-        ],
-        [
-          "Genel Toplam",
-          "—",
-          "—",
-          "—",
-          "—",
-          "20.509,00",
-        ],
-      ],
-      summary:
-        "12 satır tespit edildi, 3 farklı KDV oranı eşleştirildi ve toplam 20.509,00 TL olarak doğrulandı.",
+        summary:
+          "12 satır tespit edildi, 3 farklı KDV oranı eşleştirildi ve toplam 20.509,00 TL olarak doğrulandı.",
+      },
     },
-  },
-  {
-    id: "bank",
-    label: "banka_ekstresi.csv",
-    badge: "Finansal hareket dökümü",
-    output: {
-      fileName: "banka_ekstresi_demo.xlsx",
-      downloadName: "botexcel-banka-demo.csv",
-      columns: [
-        "Tarih",
-        "Açıklama",
-        "Banka",
-        "Kategori",
-        "Tutar (TL)",
-        "Bakiye",
-      ],
-      rows: [
-        [
-          "05.03.2025",
-          "POS Satış #18372",
-          "BotBank",
-          "Gelir",
-          "+18.920,00",
-          "246.580,00",
+    {
+      id: "bank",
+      label: "banka_ekstresi.csv",
+      badge: "Finansal hareket dökümü",
+      output: {
+        fileName: "banka_ekstresi_demo.xlsx",
+        downloadName: "botexcel-banka-demo.csv",
+        columns: [
+          "Tarih",
+          "Açıklama",
+          "Banka",
+          "Kategori",
+          "Tutar (TL)",
+          "Bakiye",
         ],
-        [
-          "05.03.2025",
-          "TEDAŞ Otomatik Ödeme",
-          "BotBank",
-          "Gider",
-          "-6.840,00",
-          "239.740,00",
+        rows: [
+          [
+            "05.03.2025",
+            "POS Satış #18372",
+            "BotBank",
+            "Gelir",
+            "+18.920,00",
+            "246.580,00",
+          ],
+          [
+            "05.03.2025",
+            "TEDAŞ Otomatik Ödeme",
+            "BotBank",
+            "Gider",
+            "-6.840,00",
+            "239.740,00",
+          ],
+          [
+            "06.03.2025",
+            "Havale - Tedarikçi",
+            "BotBank",
+            "Gider",
+            "-42.000,00",
+            "197.740,00",
+          ],
+          [
+            "06.03.2025",
+            "Akşam Kapanış",
+            "BotBank",
+            "Özet",
+            "—",
+            "197.740,00",
+          ],
         ],
-        [
-          "06.03.2025",
-          "Havale - Tedarikçi",
-          "BotBank",
-          "Gider",
-          "-42.000,00",
-          "197.740,00",
-        ],
-        [
-          "06.03.2025",
-          "Akşam Kapanış",
-          "BotBank",
-          "Özet",
-          "—",
-          "197.740,00",
-        ],
-      ],
-      summary:
-        "Dekontlardaki artı/eksi hareketler sınıflandırıldı, bakiye uyumu doğrulandı ve otomatik rapor hazırlandı.",
+        summary:
+          "Dekontlardaki artı/eksi hareketler sınıflandırıldı, bakiye uyumu doğrulandı ve otomatik rapor hazırlandı.",
+      },
     },
-  },
-  {
-    id: "receipt",
-    label: "kasiyer_fisi.jpg",
-    badge: "Görselden OCR",
-    output: {
-      fileName: "ocr_fis_demo.xlsx",
-      downloadName: "botexcel-ocr-demo.csv",
-      columns: ["Ürün", "Adet", "Birim", "KDV", "Tutar (TL)"],
-      rows: [
-        ["Filtre Kahve", "2", "85,00", "10%", "187,00"],
-        ["Sandviç", "1", "120,00", "10%", "132,00"],
-        ["Kurabiye", "3", "32,00", "1%", "97,00"],
-        ["Ara Toplam", "—", "—", "—", "416,00"],
-        ["KDV Toplamı", "—", "—", "—", "21,60"],
-        ["Ödenecek", "—", "—", "—", "437,60"],
-      ],
-      summary:
-        "OCR ile ürünler tanımlandı, KDV oranları otomatik eşleşti ve kasiyer fişi Excel tabloya dönüştürüldü.",
+    {
+      id: "receipt",
+      label: "kasiyer_fisi.jpg",
+      badge: "Görselden OCR",
+      output: {
+        fileName: "ocr_fis_demo.xlsx",
+        downloadName: "botexcel-ocr-demo.csv",
+        columns: ["Ürün", "Adet", "Birim", "KDV", "Tutar (TL)"],
+        rows: [
+          ["Filtre Kahve", "2", "85,00", "10%", "187,00"],
+          ["Sandviç", "1", "120,00", "10%", "132,00"],
+          ["Kurabiye", "3", "32,00", "1%", "97,00"],
+          ["Ara Toplam", "—", "—", "—", "416,00"],
+          ["KDV Toplamı", "—", "—", "—", "21,60"],
+          ["Ödenecek", "—", "—", "—", "437,60"],
+        ],
+        summary:
+          "OCR ile ürünler tanımlandı, KDV oranları otomatik eşleşti ve kasiyer fişi Excel tabloya dönüştürüldü.",
+      },
     },
-  },
-  {
-    id: "contract",
-    label: "sozlesme_ek.pdf",
-    badge: "Sözleşme madde özetleri",
-    output: {
-      fileName: "sozlesme_ek_demo.xlsx",
-      downloadName: "botexcel-sozlesme-demo.csv",
-      columns: [
-        "Madde",
-        "Başlık",
-        "Sorumlu",
-        "Termin",
-        "Durum",
-        "Not",
-      ],
-      rows: [
-        [
-          "Madde 4.2",
-          "Teslimat Takvimi",
-          "Operasyon",
-          "15.03.2025",
-          "Takipte",
-          "Kurye entegrasyonu bekleniyor.",
+    {
+      id: "contract",
+      label: "sozlesme_ek.pdf",
+      badge: "Sözleşme madde özetleri",
+      output: {
+        fileName: "sozlesme_ek_demo.xlsx",
+        downloadName: "botexcel-sozlesme-demo.csv",
+        columns: [
+          "Madde",
+          "Başlık",
+          "Sorumlu",
+          "Termin",
+          "Durum",
+          "Not",
         ],
-        [
-          "Madde 6.1",
-          "Ücretlendirme",
-          "Finans",
-          "01.04.2025",
-          "Hazır",
-          "Fiyat artış klausulü eklendi.",
+        rows: [
+          [
+            "Madde 4.2",
+            "Teslimat Takvimi",
+            "Operasyon",
+            "15.03.2025",
+            "Takipte",
+            "Kurye entegrasyonu bekleniyor.",
+          ],
+          [
+            "Madde 6.1",
+            "Ücretlendirme",
+            "Finans",
+            "01.04.2025",
+            "Hazır",
+            "Fiyat artış klausulü eklendi.",
+          ],
+          [
+            "Madde 8.4",
+            "Gizlilik",
+            "Hukuk",
+            "Devamlı",
+            "Yeni NDA şartları onaylandı.",
+          ],
         ],
-        [
-          "Madde 8.4",
-          "Gizlilik",
-          "Hukuk",
-          "Devamlı",
-          "Yeni NDA şartları onaylandı.",
-        ],
-      ],
-      summary:
-        "PDF sözleşme içeriği madde bazlı tabloya dönüştürüldü, sorumlu ekip ve termin tarihleri eşleştirildi.",
+        summary:
+          "PDF sözleşme içeriği madde bazlı tabloya dönüştürüldü, sorumlu ekip ve termin tarihleri eşleştirildi.",
+      },
     },
-  },
-];
-
-// Basit, dış dosyaya ihtiyaç duymayan logo bileşeni
-const BotExcelLogo: React.FC = () => (
-  <div className="flex items-center gap-3">
-    <span className="relative inline-flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-emerald-400/60 bg-emerald-500/10 shadow-sm">
-      <Image
-        src="/botexcel-logo.svg"
-        alt="BotExcel"
-        width={40}
-        height={40}
-        priority
-        className="h-10 w-10 object-cover"
-      />
-    </span>
-    <span className="text-base font-semibold tracking-tight text-slate-100 sm:text-lg">
-      BotExcel
-    </span>
-  </div>
-);
+  ];
 
 const demoStageDetails: Array<{
   key: Exclude<DemoStage, "idle" | "error">;
   title: string;
   description: string;
 }> = [
-  {
-    key: "uploading",
-    title: "1. Yükleniyor",
-    description:
-      "Belgeniz şifreli bağlantı üzerinden BotExcel motoruna aktarılıyor.",
-  },
-  {
-    key: "analyzing",
-    title: "2. Alanlar tanımlanıyor",
-    description:
-      "Başlıklar, tutarlar, tarih ve KDV alanları otomatik olarak eşleştiriliyor.",
-  },
-  {
-    key: "ready",
-    title: "3. Excel hazır",
-    description:
-      "Tablo, formüller ve özetlerle Excel'e aktarılıyor; indirmeye hazır.",
-  },
-];
+    {
+      key: "uploading",
+      title: "1. Yükleniyor",
+      description:
+        "Belgeniz şifreli bağlantı üzerinden BotExcel motoruna aktarılıyor.",
+    },
+    {
+      key: "analyzing",
+      title: "2. Alanlar tanımlanıyor",
+      description:
+        "Başlıklar, tutarlar, tarih ve KDV alanları otomatik olarak eşleştiriliyor.",
+    },
+    {
+      key: "ready",
+      title: "3. Excel hazır",
+      description:
+        "Tablo, formüller ve özetlerle Excel'e aktarılıyor; indirmeye hazır.",
+    },
+  ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const DemoUploader: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const timersRef = useRef<Array<ReturnType<typeof setTimeout>>>([]);
@@ -441,19 +418,19 @@ const DemoUploader: React.FC = () => {
       progress: number;
       message: string;
     }> = [
-      {
-        delay: 900,
-        stage: "analyzing",
-        progress: 0.65,
-        message: "Alanlar, başlıklar ve toplamlar analiz ediliyor…",
-      },
-      {
-        delay: 1700,
-        stage: "ready",
-        progress: 1,
-        message: "Excel önizlemesi hazır.",
-      },
-    ];
+        {
+          delay: 900,
+          stage: "analyzing",
+          progress: 0.65,
+          message: "Alanlar, başlıklar ve toplamlar analiz ediliyor…",
+        },
+        {
+          delay: 1700,
+          stage: "ready",
+          progress: 1,
+          message: "Excel önizlemesi hazır.",
+        },
+      ];
 
     let accumulatedDelay = 0;
     steps.forEach((step) => {
@@ -606,11 +583,10 @@ const DemoUploader: React.FC = () => {
                     key={sample.id}
                     type="button"
                     onClick={() => handleSampleClick(sample.id, sample.label)}
-                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] transition ${
-                      isActive
-                        ? "border-emerald-400 bg-emerald-500/10 text-emerald-200"
-                        : "border-slate-700 text-slate-200 hover:bg-slate-800"
-                    }`}
+                    className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] transition ${isActive
+                      ? "border-emerald-400 bg-emerald-500/10 text-emerald-200"
+                      : "border-slate-700 text-slate-200 hover:bg-slate-800"
+                      }`}
                   >
                     <span>{sample.label}</span>
                     <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-300">
@@ -642,8 +618,8 @@ const DemoUploader: React.FC = () => {
             {state.stage === "idle"
               ? "Belge seçerek demo sürecini başlatın."
               : state.stage === "error"
-              ? state.message ?? "Bir hata oluştu."
-              : state.message}
+                ? state.message ?? "Bir hata oluştu."
+                : state.message}
           </div>
           <ul className="mt-3 space-y-1 text-[11px] text-slate-400">
             {state.logs.map((log, index) => (
@@ -687,8 +663,8 @@ const DemoUploader: React.FC = () => {
           const className = isActive
             ? `${baseClasses} border-emerald-400 bg-emerald-500/15 text-emerald-100`
             : isCompleted
-            ? `${baseClasses} border-emerald-400/60 bg-emerald-500/10 text-emerald-100`
-            : `${baseClasses} border-slate-800 bg-slate-950/60 text-slate-300`;
+              ? `${baseClasses} border-emerald-400/60 bg-emerald-500/10 text-emerald-100`
+              : `${baseClasses} border-slate-800 bg-slate-950/60 text-slate-300`;
           return (
             <div key={detail.key} className={className}>
               <div className="font-semibold text-slate-100">{detail.title}</div>
@@ -749,6 +725,7 @@ const DemoUploader: React.FC = () => {
 };
 
 const BotExcelScrollDemo: React.FC = () => {
+  const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [progress, setProgress] = useState(0);
@@ -926,13 +903,6 @@ const BotExcelScrollDemo: React.FC = () => {
 
   return (
     <div className="w-full h-screen flex flex-col bg-black text-white font-sans">
-      {/* Üst sabit bar + logo */}
-      <header className="z-30 flex items-center justify-between border-b border-slate-800 bg-slate-950/80 px-4 py-2 text-sm">
-        <BotExcelLogo />
-        <div className="hidden items-center gap-4 sm:flex">
-          <AuthAwareCTA />
-        </div>
-      </header>
 
       <div
         ref={containerRef}
@@ -956,7 +926,7 @@ const BotExcelScrollDemo: React.FC = () => {
                   }}
                 >
                   <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
-                    Veri karmaşasından tablo netliğine.
+                    {t.hero.tagline}
                   </h1>
                 </div>
 
@@ -965,19 +935,19 @@ const BotExcelScrollDemo: React.FC = () => {
                     className="text-lg md:text-2xl font-medium text-emerald-300 drop-shadow"
                     style={{ opacity: o2 }}
                   >
-                    Dosya yükleniyor…
+                    {t.hero.uploading}
                   </div>
                   <div
                     className="text-lg md:text-2xl font-medium text-sky-300 drop-shadow"
                     style={{ opacity: o3 }}
                   >
-                    Veri ayrıştırılıyor…
+                    {t.hero.analyzing}
                   </div>
                   <div
                     className="text-xl md:text-3xl font-semibold text-emerald-200 drop-shadow"
                     style={{ opacity: o4 }}
                   >
-                    Excel hazır.
+                    {t.hero.ready}
                   </div>
                 </div>
               </div>
@@ -1037,13 +1007,13 @@ const BotExcelScrollDemo: React.FC = () => {
             </section>
 
             {/* Kullanıcı hikayeleri */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
+            <section id="cozumler" className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
                 <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-400 mb-2">
                   Kullanıcı hikayeleri
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  "İşte ihtiyacım olan buydu" dedirten çözümler.
+                  &ldquo;İşte ihtiyacım olan buydu&rdquo; dedirten çözümler.
                 </h2>
                 <p className="text-sm text-slate-300 max-w-2xl">
                   BotExcel yalnızca dönüştürmekle kalmaz; doğrulama, audit
@@ -1077,7 +1047,6 @@ const BotExcelScrollDemo: React.FC = () => {
               </div>
             </section>
 
-            <ClaritySection />
 
             <OutputQualitySection />
 
@@ -1099,7 +1068,7 @@ const BotExcelScrollDemo: React.FC = () => {
                 </p>
               </header>
 
-              <DemoUploaderWidget />
+              <DemoUploader />
             </section>
 
             {/* Öne çıkan yetkinlikler */}
@@ -1375,7 +1344,7 @@ const BotExcelScrollDemo: React.FC = () => {
                 </h2>
                 <p className="text-sm text-slate-300 max-w-2xl">
                   BotExcel, finansal ve operasyonel verilerin ne kadar kritik
-                  olduğunun farkında. Bu yüzden ürünü "önce güvenlik"
+                  olduğunun farkında. Bu yüzden ürünü &ldquo;önce güvenlik&rdquo;
                   prensibiyle tasarladık. Verileriniz yalnızca işlenmek üzere
                   kullanılır, mülkiyeti daima sizde kalır.
                 </p>
@@ -1417,7 +1386,7 @@ const BotExcelScrollDemo: React.FC = () => {
                     Audit log örneği
                   </div>
                   <pre className="whitespace-pre text-[11px] leading-snug">
-{`{
+                    {`{
   "document_id": "FATURA-2025-03-0012",
   "row": 42,
   "column": "KDV_TUTAR",
@@ -1454,7 +1423,7 @@ const BotExcelScrollDemo: React.FC = () => {
                     API çağrısı
                   </div>
                   <pre className="whitespace-pre leading-snug">
-{`curl -X POST https://api.botexcel.com/v1/convert \\
+                    {`curl -X POST https://api.botexcel.com/v1/convert \\
   -H "Authorization: Bearer YOUR_API_KEY" \\
   -F "file=@banka_ekstresi.pdf" \\
   -F "output_format=xlsx"`}
@@ -1465,7 +1434,7 @@ const BotExcelScrollDemo: React.FC = () => {
                     Örnek yanıt
                   </div>
                   <pre className="whitespace-pre leading-snug">
-{`{
+                    {`{
   "job_id": "job_01hv4w98f3",
   "status": "completed",
   "output_url": "https://cdn.botexcel.com/exports/job_01hv4w98f3.xlsx",

@@ -24,13 +24,7 @@ export function useRecentJobs(limit: number = 10, enabled: boolean = true): Rece
   useEffect(() => {
     let cancelled = false;
 
-    if (!enabled) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setState({ status: "idle" });
-      return () => {
-        cancelled = true;
-      };
-    }
+    if (!enabled) return () => { cancelled = true; };
 
     const fetchRecent = async () => {
       setState({ status: "loading" });
@@ -75,5 +69,5 @@ export function useRecentJobs(limit: number = 10, enabled: boolean = true): Rece
     };
   }, [limit, enabled]);
 
-  return state;
+  return enabled ? state : { status: "idle" };
 }

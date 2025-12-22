@@ -25,10 +25,10 @@ export function UsageBar({ used, limit, plan }: UsageBarProps) {
       <div className="space-y-1">
         <div className="flex items-center justify-between text-xs text-neutral-300">
           <span>Kullanım</span>
-          <span className="font-semibold text-emerald-200">Sınırsız</span>
+          <span className="font-semibold text-sky-200">Sınırsız</span>
         </div>
         <div className="h-2 w-full rounded-full bg-neutral-800">
-          <div className="h-2 w-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" />
+          <div className="h-2 w-full rounded-full bg-gradient-to-r from-sky-400 via-teal-400 to-cyan-400" />
         </div>
         <p className="text-[11px] text-neutral-400">Plan: {label}</p>
       </div>
@@ -51,7 +51,7 @@ export function UsageBar({ used, limit, plan }: UsageBarProps) {
           className={`h-2 rounded-full transition-all duration-500 ${
             nearLimit
               ? "bg-gradient-to-r from-amber-400 via-orange-500 to-red-500"
-              : "bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"
+              : "bg-gradient-to-r from-sky-400 via-teal-400 to-cyan-400"
           }`}
           style={{ width: `${pct}%` }}
         />

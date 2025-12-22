@@ -1,0 +1,2 @@
+{"event":"view_output_quality","variant":"A","path":"/","ref":"","ts":"2025-01-01T00:00:00Z","anon_id":"test123","session_id":"sess456","meta":{"source":"curl_test"},"ip":"127.0.0.1"}
+{"event":"view_output_quality","variant":"A","path":"/","ref":"","ts":"2025-01-01T00:00:00Z","anon_id":"test123","session_id":"sess456","meta":{"source":"restart_test"},"ip":"127.0.0.1"}

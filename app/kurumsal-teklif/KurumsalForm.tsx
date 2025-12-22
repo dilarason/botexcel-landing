@@ -65,7 +65,7 @@ export function KurumsalForm() {
   return (
     <section className="mx-auto flex w-full max-w-3xl flex-col gap-8">
       <header className="space-y-3">
-        <p className="text-xs font-medium uppercase tracking-[0.25em] text-emerald-300/80">
+        <p className="text-xs font-medium uppercase tracking-[0.25em] text-sky-300/80">
           Kurumsal Teklif
         </p>
         <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -95,7 +95,7 @@ export function KurumsalForm() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-400/40 placeholder:text-neutral-500 focus:border-emerald-400 focus:ring-1"
+              className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-sky-400/40 placeholder:text-neutral-500 focus:border-sky-400 focus:ring-1"
               placeholder="Adını ve soyadını yaz"
               required
             />
@@ -112,7 +112,7 @@ export function KurumsalForm() {
               type="text"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-400/40 placeholder:text-neutral-500 focus:border-emerald-400 focus:ring-1"
+              className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-sky-400/40 placeholder:text-neutral-500 focus:border-sky-400 focus:ring-1"
               placeholder="Şirket adını yaz (opsiyonel)"
             />
           </div>
@@ -130,7 +130,7 @@ export function KurumsalForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-400/40 placeholder:text-neutral-500 focus:border-emerald-400 focus:ring-1"
+            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-sky-400/40 placeholder:text-neutral-500 focus:border-sky-400 focus:ring-1"
             placeholder="ornek@firma.com"
             required
           />
@@ -148,7 +148,7 @@ export function KurumsalForm() {
             type="text"
             value={volume}
             onChange={(e) => setVolume(e.target.value)}
-            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-400/40 placeholder:text-neutral-500 focus:border-emerald-400 focus:ring-1"
+            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-sky-400/40 placeholder:text-neutral-500 focus:border-sky-400 focus:ring-1"
             placeholder="Örn: 500 fatura / ay, 5.000 dekont / ay..."
           />
         </div>
@@ -165,7 +165,7 @@ export function KurumsalForm() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-emerald-400/40 placeholder:text-neutral-500 focus:border-emerald-400 focus:ring-1"
+            className="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-neutral-50 outline-none ring-sky-400/40 placeholder:text-neutral-500 focus:border-sky-400 focus:ring-1"
             placeholder="Örn: 3 kişilik finans ekibimiz var, muhasebe sistemi ile entegrasyon istiyoruz..."
           />
         </div>
@@ -173,7 +173,7 @@ export function KurumsalForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex items-center justify-center rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-300"
+          className="inline-flex items-center justify-center rounded-lg bg-sky-400 px-4 py-2 text-sm font-semibold text-black shadow-sm transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:bg-neutral-700 disabled:text-neutral-300"
         >
           {submitting ? "Gönderiliyor..." : "Teklif iste"}
         </button>
@@ -184,7 +184,7 @@ export function KurumsalForm() {
           </p>
         )}
         {serverMessage && (
-          <p className="mt-2 rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">
+          <p className="mt-2 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-200">
             {serverMessage}
           </p>
         )}

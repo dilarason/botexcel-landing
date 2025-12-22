@@ -104,7 +104,7 @@ const plans = [
     href: "/register?plan=free",
     ctaLabel: "Ücretsiz Başla",
     accentClasses:
-      "border-emerald-500/80 bg-gradient-to-b from-emerald-950/60 to-slate-950",
+      "border-sky-500/80 bg-gradient-to-b from-sky-950/60 to-slate-950",
     icon: IconFree,
   },
   {
@@ -122,7 +122,7 @@ const plans = [
     ],
     href: "/register?plan=pro",
     ctaLabel: "Pro ile Devam Et",
-    accentClasses: "border-emerald-500/80 bg-slate-900/70",
+    accentClasses: "border-sky-500/80 bg-slate-900/70",
     icon: IconPro,
   },
   {
@@ -140,7 +140,7 @@ const plans = [
     ],
     href: "/register?plan=business",
     ctaLabel: "Business ile Devam Et",
-    accentClasses: "border-emerald-300/80 bg-slate-900/70",
+    accentClasses: "border-sky-300/80 bg-slate-900/70",
     icon: IconBusiness,
   },
   {
@@ -158,7 +158,7 @@ const plans = [
     ],
     href: "/kurumsal-teklif",
     ctaLabel: "Özel Teklif Al",
-    accentClasses: "border-emerald-200/70 bg-slate-900/70",
+    accentClasses: "border-sky-200/70 bg-slate-900/70",
     icon: IconEnterprise,
   },
 ];
@@ -172,7 +172,7 @@ export function PricingSection() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4">
         {/* Başlık alanı */}
         <div className="max-w-3xl space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/80">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300/80">
             FİYATLANDIRMA
           </p>
           <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
@@ -192,7 +192,7 @@ export function PricingSection() {
               <article
                 key={plan.id}
                 className={[
-                  "flex h-full flex-col justify-between rounded-2xl border bg-slate-900/60 p-5 shadow-lg shadow-emerald-500/10",
+                  "flex h-full flex-col justify-between rounded-2xl border bg-slate-900/60 p-5 shadow-lg shadow-sky-500/10",
                   plan.accentClasses,
                 ]
                   .filter(Boolean)
@@ -200,11 +200,11 @@ export function PricingSection() {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-emerald-200">
+                    <div className="text-sky-200">
                       <Icon />
                     </div>
                     {plan.badge && (
-                      <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-200">
+                      <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-sky-200">
                         {plan.badge}
                       </span>
                     )}
@@ -213,7 +213,7 @@ export function PricingSection() {
                     <h3 className="text-base font-semibold text-slate-50">
                       {plan.name}
                     </h3>
-                    <p className="text-xs text-emerald-200/80">{plan.quota}</p>
+                    <p className="text-xs text-sky-200/80">{plan.quota}</p>
                   </div>
 
                   <div className="mt-3 flex items-baseline gap-1">
@@ -232,7 +232,7 @@ export function PricingSection() {
                   <ul className="mt-3 space-y-1.5 text-xs text-slate-200">
                     {plan.highlights.map((h) => (
                       <li key={h} className="flex items-start gap-1.5">
-                        <span className="mt-[3px] h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        <span className="mt-[3px] h-1.5 w-1.5 rounded-full bg-sky-400" />
                         <span>{h}</span>
                       </li>
                     ))}
@@ -245,7 +245,7 @@ export function PricingSection() {
                     className={[
                       "inline-flex w-full items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition",
                       plan.id === "free"
-                        ? "bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+                        ? "bg-sky-500 text-slate-950 hover:bg-sky-400"
                         : "bg-slate-800 text-slate-50 hover:bg-slate-700",
                     ]
                       .filter(Boolean)
@@ -261,7 +261,7 @@ export function PricingSection() {
 
         <p className="text-[11px] text-slate-400">
           Kararsızsan{" "}
-          <span className="font-medium text-emerald-300">
+          <span className="font-medium text-sky-300">
             Free planla başlayıp
           </span>{" "}
           ilk 3 belgeni yükleyebilirsin. Daha sonra ihtiyacına göre Starter, Pro, Business veya

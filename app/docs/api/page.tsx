@@ -40,7 +40,7 @@ export default function ApiDocsPage() {
         <div className="flex flex-wrap gap-3 text-xs">
           <Link
             href="/upload"
-            className="inline-flex items-center rounded-xl bg-emerald-500 px-4 py-2 font-semibold text-slate-950 hover:bg-emerald-400"
+            className="inline-flex items-center rounded-xl bg-sky-500 px-4 py-2 font-semibold text-slate-950 hover:bg-sky-400"
           >
             Dosya yükle
           </Link>

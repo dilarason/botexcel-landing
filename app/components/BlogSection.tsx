@@ -33,7 +33,7 @@ export default function BlogSection() {
     >
       <div className="mx-auto max-w-5xl space-y-10">
         <div className="space-y-3 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-emerald-500">
+          <p className="text-sm font-semibold uppercase tracking-widest text-sky-500">
             Bilgi Merkezi & Blog
           </p>
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 md:text-3xl">
@@ -52,14 +52,14 @@ export default function BlogSection() {
               className="group flex h-full flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60"
             >
               <div className="space-y-3">
-                <h3 className="text-lg font-semibold text-slate-900 transition group-hover:text-emerald-400 dark:text-slate-100">
+                <h3 className="text-lg font-semibold text-slate-900 transition group-hover:text-sky-400 dark:text-slate-100">
                   {post.title}
                 </h3>
                 <p className="text-sm text-slate-600 dark:text-slate-400">{post.summary}</p>
               </div>
               <Link
                 href={post.href}
-                className="mt-4 inline-flex items-center text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                className="mt-4 inline-flex items-center text-sm font-medium text-sky-600 hover:underline dark:text-sky-400"
               >
                 Yazıyı oku
                 <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />

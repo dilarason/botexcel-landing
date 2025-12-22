@@ -174,7 +174,7 @@ export default function UploadPage() {
             Hesap durumun kontrol ediliyor...
           </p>
           <div className="h-1.5 w-40 rounded-full bg-slate-800 overflow-hidden mx-auto">
-            <div className="h-full w-1/2 animate-pulse rounded-full bg-emerald-500" />
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-sky-500" />
           </div>
         </div>
       </div>
@@ -187,7 +187,7 @@ export default function UploadPage() {
       <div className="min-h-screen bg-slate-950 text-slate-50 flex items-center justify-center">
         <p className="text-sm text-slate-400">
           Yönlendiriliyorsun... Eğer yönlenmiyorsa{" "}
-          <a href="/login" className="text-emerald-300 underline">
+          <a href="/login" className="text-sky-300 underline">
             buradan giriş yapabilirsin
           </a>
           .
@@ -234,7 +234,7 @@ export default function UploadPage() {
                 <input
                   type="file"
                   accept=".pdf,.png,.jpg,.jpeg,.csv,.xlsx,.docx"
-                  className="block w-full text-sm text-slate-200 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-slate-950 hover:file:bg-emerald-400 cursor-pointer"
+                  className="block w-full text-sm text-slate-200 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-sky-500 file:text-slate-950 hover:file:bg-sky-400 cursor-pointer"
                   onChange={(e) => {
                     const f = e.target.files?.[0] ?? null;
                     setFile(f);
@@ -254,7 +254,7 @@ export default function UploadPage() {
                   value={format}
                   onChange={(e) => setFormat(e.target.value)}
                   disabled={loading}
-                  className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-emerald-400 transition"
+                  className="w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-400 transition"
                 >
                   <option value="klasik">Klasik tablo</option>
                   <option value="finans">Finans</option>
@@ -277,7 +277,7 @@ export default function UploadPage() {
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex items-center justify-center rounded-lg bg-emerald-500 text-slate-950 text-sm font-semibold px-4 py-2.5 hover:bg-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed transition"
+              className="inline-flex items-center justify-center rounded-lg bg-sky-500 text-slate-950 text-sm font-semibold px-4 py-2.5 hover:bg-sky-400 disabled:opacity-60 disabled:cursor-not-allowed transition"
             >
               {loading ? "Dönüştürülüyor..." : "Dönüştür ve Excel’i hazırla"}
             </button>
@@ -309,7 +309,7 @@ export default function UploadPage() {
                     Dönüşüm devam ediyor, BotExcel sayfaları okuyor...
                   </p>
                   <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
-                    <div className="h-full w-1/2 animate-pulse rounded-full bg-emerald-500" />
+                    <div className="h-full w-1/2 animate-pulse rounded-full bg-sky-500" />
                   </div>
                 </div>
               )}
@@ -341,7 +341,7 @@ export default function UploadPage() {
                       href={downloadHref}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-lg bg-emerald-500 text-slate-950 text-xs font-semibold px-3 py-2 hover:bg-emerald-400 transition"
+                      className="inline-flex items-center justify-center rounded-lg bg-sky-500 text-slate-950 text-xs font-semibold px-3 py-2 hover:bg-sky-400 transition"
                     >
                       Excel çıktısını indir
                     </a>

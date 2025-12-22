@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useI18n } from "../lib/i18n";
-import { getABVariant, track } from "../lib/telemetry";
+import { getABVariant, track, ABVariant } from "../lib/telemetry";
 
 export function OutputQualitySection() {
   const { t } = useI18n();
   const sectionRef = useRef<HTMLElement | null>(null);
+  const downloadLinkRef = useRef<HTMLAnchorElement | null>(null);
 
   const abKey = "output_quality_download";
-  const variant = useMemo(() => getABVariant(abKey), []);
-  const downloadLabel =
-    variant === "B" ? t.outputQuality.downloadCtaB : t.outputQuality.downloadCta;
 
+  // View tracking with IntersectionObserver
   useEffect(() => {
     const el = sectionRef.current;
     if (!el) return;
@@ -37,6 +36,17 @@ export function OutputQualitySection() {
     return () => io.disconnect();
   }, []);
 
+  // Update download label on client only to avoid hydration mismatch
+  useEffect(() => {
+    const link = downloadLinkRef.current;
+    if (!link) return;
+
+    const variant: ABVariant = getABVariant(abKey);
+    const label = variant === "B" ? t.outputQuality.downloadCtaB : t.outputQuality.downloadCta;
+    link.textContent = label;
+    link.setAttribute("aria-label", label);
+  }, [t]);
+
   return (
     <motion.section
       ref={(node) => {
@@ -51,7 +61,7 @@ export function OutputQualitySection() {
     >
       <div className="mx-auto max-w-5xl space-y-8">
         <div className="space-y-3">
-          <p className="text-sm font-semibold uppercase tracking-widest text-emerald-400">
+          <p className="text-sm font-semibold uppercase tracking-widest text-sky-400">
             {t.outputQuality.sectionTag}
           </p>
           <h2 className="text-2xl font-semibold md:text-3xl">
@@ -80,17 +90,17 @@ export function OutputQualitySection() {
             </ul>
           </div>
 
-          <div className="space-y-3 rounded-2xl border border-emerald-500/40 bg-emerald-950/40 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-emerald-300">
+          <div className="space-y-3 rounded-2xl border border-sky-500/40 bg-sky-950/40 p-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-sky-300">
               {t.outputQuality.afterLabel}
             </p>
-            <ul className="space-y-1.5 text-sm text-emerald-50">
+            <ul className="space-y-1.5 text-sm text-sky-50">
               {t.outputQuality.afterItems.map((item, i) => (
                 <li key={i}>• {item}</li>
               ))}
               <li>
                 •{" "}
-                <code className="rounded bg-emerald-900 px-1 py-0.5 text-xs">
+                <code className="rounded bg-sky-900 px-1 py-0.5 text-xs">
                   {t.outputQuality.afterFile}
                 </code>
               </li>
@@ -101,7 +111,7 @@ export function OutputQualitySection() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <p className="text-sm text-slate-300">
             {t.outputQuality.comparison}
-            <span className="font-semibold text-emerald-300">
+            <span className="font-semibold text-sky-300">
               {" "}
               {t.outputQuality.comparisonHighlight}
             </span>
@@ -111,7 +121,7 @@ export function OutputQualitySection() {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <a
               href="/upload"
-              className="inline-flex items-center justify-center rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-500"
+              className="inline-flex items-center justify-center rounded-full bg-sky-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-sky-500"
               aria-label={t.outputQuality.tryOwnDoc}
               data-analytics="output_quality_try_own_doc"
               onClick={() =>
@@ -122,10 +132,11 @@ export function OutputQualitySection() {
             </a>
 
             <a
+              ref={downloadLinkRef}
               href="/samples/fatura_ozet_2025Q1.xlsx"
               download
-              className="inline-flex items-center justify-center rounded-full border border-emerald-400/70 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-500/20"
-              aria-label={downloadLabel}
+              className="inline-flex items-center justify-center rounded-full border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-medium text-sky-100 transition hover:bg-sky-500/20"
+              aria-label={t.outputQuality.downloadCta}
               data-analytics="output_quality_download_sample"
               onClick={() =>
                 track(
@@ -135,7 +146,7 @@ export function OutputQualitySection() {
                 )
               }
             >
-              {downloadLabel}
+              {t.outputQuality.downloadCta}
             </a>
           </div>
         </div>

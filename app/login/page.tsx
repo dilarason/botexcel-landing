@@ -14,7 +14,7 @@ export default function LoginPage() {
 
         <p className="mt-4 text-xs text-slate-400">
           Henüz hesabın yok mu?{" "}
-          <a href="/register" className="text-emerald-400 hover:underline">
+          <a href="/register" className="text-sky-400 hover:underline">
             Ücretsiz hesap aç
           </a>
         </p>

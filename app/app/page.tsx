@@ -36,7 +36,7 @@ export default function AppDashboardPage() {
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold">
-              Hoş geldin, <span className="text-emerald-400">{who.email}</span>
+              Hoş geldin, <span className="text-sky-400">{who.email}</span>
             </h1>
             <p className="mt-1 text-xs text-slate-400">
               Belgelerini yükle, BotExcel geri kalanını halletsin.
@@ -99,7 +99,7 @@ export default function AppDashboardPage() {
                           {job.download_url ? (
                             <a
                               href={job.download_url}
-                              className="text-emerald-400 hover:underline"
+                              className="text-sky-400 hover:underline"
                             >
                               Excel&apos;i indir
                             </a>

@@ -53,6 +53,12 @@ PII (email/isim/telefon) göndermeyin. `meta` sadece kaynak + UX bağlamı içer
 ## Analiz Komutları
 Varsayım: log dosyası `telemetry.log` veya `TELEMETRY_FILE` ile set ettiğin yol.
 
+**Try CTA kırılımı (OutputQuality vs Clarity)**
+```bash
+grep '"event":"output_quality_try_own_doc"\\|"event":"clarity_cta_try_own_doc"' telemetry.log \
+  | jq -r '.event' | sort | uniq -c
+```
+
 **Event sayıları**
 ```bash
 jq -r '.event' telemetry.log | sort | uniq -c | sort -nr
@@ -99,3 +105,48 @@ echo "tries=$tries visits=$visits ratio=$(awk \"BEGIN{if($tries==0)print 0; else
 
 Kazananı seçtikten sonra:
 - `OutputQualitySection` içinde `downloadCta` metnini kazanan kopy’ye sabitle (A/B’yi kaldır) veya `getABVariant()` key’ini kapatacak şekilde feature flag ekle.
+
+## Doğrulama (Local dev + curl)
+
+**1) Dev server**
+```bash
+NEXT_PUBLIC_TELEMETRY=1 TELEMETRY_LOG=1 TELEMETRY_FILE=./telemetry.log pnpm dev
+```
+
+**2) Valid payload (PASS)**
+```bash
+curl -i -X POST http://127.0.0.1:3000/api/telemetry \
+  -H 'content-type: application/json' \
+  -d '{"event":"output_quality_download_sample","variant":"A","path":"/","ref":"","ts":"2025-12-19T00:00:00.000Z","anon_id":"test","session_id":"test","meta":{"source":"manual"}}'
+```
+Beklenen:
+- Response: `{"ok":true}`
+- Server console’da NDJSON satırı
+- `TELEMETRY_FILE` set ise `telemetry.log` içine satır yazılmış olmalı
+
+**3) Invalid event reject (PASS)**
+```bash
+curl -i -X POST http://127.0.0.1:3000/api/telemetry \
+  -H 'content-type: application/json' \
+  -d '{"event":"invalid_event","variant":"A","path":"/","ref":"","ts":"2025-12-19T00:00:00.000Z","anon_id":"test","session_id":"test","meta":{}}'
+```
+Beklenen:
+- Status `400`
+- Response: `{"error":"Invalid event name"}`
+
+## Doğrulama & Kanıt (PASS/FAIL)
+
+**1) Lint / Build**
+```bash
+pnpm lint; echo "LINT_EXIT=$?"
+pnpm run build
+```
+PASS kriteri: `LINT_EXIT=0` ve build hatasız.
+
+**2) Endpoint curl testi**
+- Yukarıdaki “Local dev + curl” adımlarını PASS et.
+
+## Rollback (tek commit revert)
+```bash
+git revert HEAD
+```

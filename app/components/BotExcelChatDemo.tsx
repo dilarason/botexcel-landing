@@ -501,8 +501,8 @@ export default function BotExcelChatDemo() {
             className={cx(
               "flex h-11 w-11 items-center justify-center rounded-2xl border shadow-lg",
               isDark
-                ? "bg-emerald-500/10 border-emerald-400/60 shadow-emerald-500/20"
-                : "bg-emerald-500/5 border-emerald-400/70 shadow-emerald-400/25"
+                ? "bg-sky-500/10 border-sky-400/60 shadow-sky-500/20"
+                : "bg-sky-500/5 border-sky-400/70 shadow-sky-400/25"
             )}
           >
             <Image
@@ -683,8 +683,8 @@ export default function BotExcelChatDemo() {
                 className={cx(
                   "px-2 py-0.5 rounded-full border",
                   isDark
-                    ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                    : "border-emerald-400/70 bg-emerald-50 text-emerald-800"
+                    ? "border-sky-500/40 bg-sky-500/10 text-sky-200"
+                    : "border-sky-400/70 bg-sky-50 text-emerald-800"
                 )}
               >
                 Ciro: {kpis.revenue}
@@ -770,12 +770,12 @@ export default function BotExcelChatDemo() {
                 ☾
               </button>
             </div>
-            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="h-2 w-2 rounded-full bg-sky-400 animate-pulse" />
             <button
               type="button"
               onClick={() => setShowUserPanel((v) => !v)}
               className={cx(
-                "rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400/70 focus:ring-offset-2",
+                "rounded-full focus:outline-none focus:ring-2 focus:ring-sky-400/70 focus:ring-offset-2",
                 isDark
                   ? "focus:ring-offset-slate-950"
                   : "focus:ring-offset-slate-50"
@@ -817,7 +817,7 @@ export default function BotExcelChatDemo() {
                     {mockUser.name}
                   </div>
                 </div>
-                <span className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-[10px] font-medium">
+                <span className="px-2 py-1 rounded-full bg-sky-500/10 text-sky-300 text-[10px] font-medium">
                   {mockUser.plan}
                 </span>
               </div>
@@ -852,8 +852,8 @@ export default function BotExcelChatDemo() {
               : "bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100",
             isDragging &&
               (isDark
-                ? "ring-2 ring-emerald-400/60 ring-offset-2 ring-offset-slate-950"
-                : "ring-2 ring-emerald-400/60 ring-offset-2 ring-offset-slate-50")
+                ? "ring-2 ring-sky-400/60 ring-offset-2 ring-offset-slate-950"
+                : "ring-2 ring-sky-400/60 ring-offset-2 ring-offset-slate-50")
           )}
         >
           {isDragging && (
@@ -861,8 +861,8 @@ export default function BotExcelChatDemo() {
               className={cx(
                 "mb-2 rounded-lg border px-3 py-2 text-[11px] flex items-center gap-2",
                 isDark
-                  ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-200"
-                  : "border-emerald-400/60 bg-emerald-50 text-emerald-800"
+                  ? "border-sky-500/40 bg-sky-500/5 text-sky-200"
+                  : "border-sky-400/60 bg-sky-50 text-emerald-800"
               )}
             >
               <span>Dosyanı buraya bırak, BotExcel tabloya çevirmeye hazırlansın.</span>
@@ -892,8 +892,8 @@ export default function BotExcelChatDemo() {
                       "rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm",
                       isUserMsg
                         ? isDark
-                          ? "bg-emerald-500/15 border border-emerald-400/60 text-emerald-50"
-                          : "bg-emerald-50 border border-emerald-300 text-emerald-900"
+                          ? "bg-sky-500/15 border border-sky-400/60 text-sky-50"
+                          : "bg-sky-50 border border-sky-300 text-sky-900"
                         : isDark
                         ? "bg-slate-900/70 border border-slate-800 text-slate-100"
                         : "bg-white border border-slate-200 text-slate-900"
@@ -1301,8 +1301,8 @@ export default function BotExcelChatDemo() {
             className={cx(
               "mb-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-[11px]",
               isDark
-                ? "border-emerald-500/40 bg-emerald-500/5 text-emerald-200"
-                : "border-emerald-400/60 bg-emerald-50 text-emerald-800"
+                ? "border-sky-500/40 bg-sky-500/5 text-sky-200"
+                : "border-sky-400/60 bg-sky-50 text-emerald-800"
             )}
           >
             <svg
@@ -1429,8 +1429,8 @@ export default function BotExcelChatDemo() {
                   className={cx(
                     "inline-flex h-7 w-7 items-center justify-center rounded-md text-sm font-bold border transition",
                     isDark
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30"
-                      : "bg-emerald-100 text-emerald-700 border-emerald-300 hover:bg-emerald-200"
+                      ? "bg-sky-500/20 text-sky-300 border-sky-500/40 hover:bg-sky-500/30"
+                      : "bg-sky-100 text-sky-700 border-sky-300 hover:bg-sky-200"
                   )}
                 >
                   +
@@ -1504,8 +1504,8 @@ export default function BotExcelChatDemo() {
               className={cx(
                 "px-4 py-3 rounded-xl text-sm font-medium active:scale-95 transition",
                 isDark
-                  ? "bg-emerald-400 text-slate-950 hover:bg-emerald-300 disabled:opacity-60"
-                  : "bg-emerald-500 text-white hover:bg-emerald-400 disabled:opacity-60"
+                  ? "bg-sky-400 text-slate-950 hover:bg-sky-300 disabled:opacity-60"
+                  : "bg-sky-500 text-white hover:bg-sky-400 disabled:opacity-60"
               )}
             >
               {isSending ? "Gönderiliyor..." : "Gönder"}
@@ -1522,8 +1522,8 @@ export default function BotExcelChatDemo() {
                   ? "bg-rose-500/20 text-rose-100 border border-rose-400/50"
                   : "bg-rose-100 text-rose-800 border border-rose-200"
                 : isDark
-                ? "bg-emerald-500/15 text-emerald-100 border border-emerald-400/40"
-                : "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                ? "bg-sky-500/15 text-sky-100 border border-sky-400/40"
+                : "bg-sky-50 text-emerald-800 border border-sky-200"
             )}
           >
             {toast.text}

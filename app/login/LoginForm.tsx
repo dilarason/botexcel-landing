@@ -70,7 +70,7 @@ export function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-sky-500"
           placeholder="ornek@firma.com"
         />
       </div>
@@ -87,7 +87,7 @@ export function LoginForm() {
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-emerald-500"
+          className="w-full rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-50 outline-none focus:border-sky-500"
           placeholder="Şifren"
         />
       </div>
@@ -95,13 +95,13 @@ export function LoginForm() {
       {state === "error" && error && <p className="text-xs text-rose-400">{error}</p>}
 
       {state === "success" && (
-        <p className="text-xs text-emerald-400">Giriş başarılı. Yönlendiriliyorsun…</p>
+        <p className="text-xs text-sky-400">Giriş başarılı. Yönlendiriliyorsun…</p>
       )}
 
       <button
         type="submit"
         disabled={disabled}
-        className="mt-2 flex w-full items-center justify-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+        className="mt-2 flex w-full items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700 disabled:opacity-60"
       >
         {state === "loading" ? "Giriş yapılıyor..." : "Giriş yap"}
       </button>

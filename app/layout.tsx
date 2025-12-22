@@ -38,7 +38,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <Providers>
           <Navbar />
           <main className="pt-16">{children}</main>

@@ -50,7 +50,7 @@ export function UploadHeader({
     <header className="space-y-4 rounded-2xl border border-neutral-800 bg-neutral-950/60 p-4">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-emerald-300/80">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-sky-300/80">
             Canlı Dönüşüm
           </p>
           <h1 className="text-xl font-semibold tracking-tight text-neutral-50 sm:text-2xl">
@@ -65,7 +65,7 @@ export function UploadHeader({
           <button
             type="button"
             onClick={() => setUpgradeOpen(true)}
-            className="rounded-xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-neutral-950 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400"
+            className="rounded-xl bg-sky-500 px-4 py-2 text-sm font-semibold text-neutral-950 shadow-lg shadow-sky-500/30 hover:bg-sky-400"
           >
             Planını yükselt
           </button>

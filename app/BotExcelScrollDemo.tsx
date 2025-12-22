@@ -648,11 +648,11 @@ const BotExcelScrollDemo: React.FC = () => {
       const t = clamp(p, 0, 1);
       ctx.clearRect(0, 0, width, height);
 
-      // Arka plan
+      // Arka plan - Stax.ai colors
       const bgStrength = lerp(0.6, 1, t < 0.7 ? t / 0.7 : 1);
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, "rgba(15,23,42,1)");
-      gradient.addColorStop(1, `rgba(15,23,42,${bgStrength})`);
+      gradient.addColorStop(0, "#002032");
+      gradient.addColorStop(1, `rgba(0,32,50,${bgStrength})`);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
@@ -665,8 +665,8 @@ const BotExcelScrollDemo: React.FC = () => {
         height / 2,
         spotRadius
       );
-      spotGradient.addColorStop(0, "rgba(30,64,175,0.55)");
-      spotGradient.addColorStop(1, "rgba(15,23,42,0)");
+      spotGradient.addColorStop(0, "rgba(0,189,233,0.25)");
+      spotGradient.addColorStop(1, "rgba(0,32,50,0)");
       ctx.fillStyle = spotGradient;
       ctx.fillRect(0, 0, width, height);
 
@@ -682,7 +682,7 @@ const BotExcelScrollDemo: React.FC = () => {
         ctx.rotate(rotation);
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = "#4ade80";
+        ctx.strokeStyle = "#00BDE9";
         ctx.lineWidth = 4;
         ctx.stroke();
         ctx.beginPath();
@@ -691,7 +691,7 @@ const BotExcelScrollDemo: React.FC = () => {
         ctx.moveTo(-10, -radius + 26);
         ctx.lineTo(0, -radius + 10);
         ctx.lineTo(10, -radius + 26);
-        ctx.strokeStyle = "#bbf7d0";
+        ctx.strokeStyle = "#7dd3fc";
         ctx.lineWidth = 3;
         ctx.stroke();
         ctx.restore();
@@ -707,7 +707,7 @@ const BotExcelScrollDemo: React.FC = () => {
           const y = startY + i * bandHeight;
           const shift = (i % 2 === 0 ? 1 : -1) * local * width * 0.15;
           const alpha = 0.08 + local * 0.25;
-          ctx.fillStyle = `rgba(56,189,248,${alpha})`;
+          ctx.fillStyle = `rgba(0,189,233,${alpha})`;
           ctx.fillRect(width * 0.2 + shift, y, width * 0.6, bandHeight * 0.6);
         }
       }
@@ -731,7 +731,7 @@ const BotExcelScrollDemo: React.FC = () => {
         ctx.scale(scale, scale);
 
         ctx.globalAlpha = 0.2 + local * 0.8;
-        ctx.strokeStyle = "rgba(187,247,208,1)";
+        ctx.strokeStyle = "rgba(0,189,233,0.6)";
         ctx.lineWidth = 1;
 
         for (let r = 0; r <= rows; r++) {
@@ -766,7 +766,7 @@ const BotExcelScrollDemo: React.FC = () => {
 
           ctx.save();
           ctx.globalAlpha = 0.2 + 0.8 * cellProgress;
-          ctx.fillStyle = "rgba(34,197,94,0.9)";
+          ctx.fillStyle = "rgba(0,189,233,0.9)";
           ctx.fillRect(x + 4, y + 4 + slideY, cellW - 8, cellH - 8);
           ctx.restore();
         }
@@ -788,11 +788,11 @@ const BotExcelScrollDemo: React.FC = () => {
   const o4 = stageBand(progress, 0.64, 0.78, 0.92);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-black text-white font-sans">
+    <div className="w-full h-screen flex flex-col bg-[#002032] text-white font-sans">
 
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-y-scroll bg-black/95"
+        className="relative flex-1 overflow-y-scroll bg-[#002032]"
       >
         <div className="relative">
           {/* Animasyon bölümü: 300vh + sticky canvas */}
@@ -818,19 +818,19 @@ const BotExcelScrollDemo: React.FC = () => {
 
                 <div className="absolute bottom-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
                   <div
-                    className="text-lg md:text-2xl font-medium text-emerald-300 drop-shadow"
+                    className="text-lg md:text-2xl font-medium text-[#00BDE9] drop-shadow"
                     style={{ opacity: o2 }}
                   >
                     {t.hero.uploading}
                   </div>
                   <div
-                    className="text-lg md:text-2xl font-medium text-sky-300 drop-shadow"
+                    className="text-lg md:text-2xl font-medium text-[#00BDE9] drop-shadow"
                     style={{ opacity: o3 }}
                   >
                     {t.hero.analyzing}
                   </div>
                   <div
-                    className="text-xl md:text-3xl font-semibold text-emerald-200 drop-shadow"
+                    className="text-xl md:text-3xl font-semibold text-[#00BDE9] drop-shadow"
                     style={{ opacity: o4 }}
                   >
                     {t.hero.ready}
@@ -841,7 +841,7 @@ const BotExcelScrollDemo: React.FC = () => {
           </div>
 
           {/* Animasyon bittikten sonra gelen site içerikleri */}
-          <div className="relative bg-slate-950 text-left">
+          <div className="relative bg-[#002032] text-left">
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-6 text-center text-slate-50">
               <h2 className="text-2xl md:text-3xl font-semibold mb-2">
                 {t.sections.uploadCta}
@@ -857,7 +857,7 @@ const BotExcelScrollDemo: React.FC = () => {
             {/* Özellikler – kullanıcı hikayelerinden önce */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-12 pb-10 sm:pt-16 sm:pb-14 text-slate-50">
               <header className="mb-6 text-center">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300 mb-2">
+                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00BDE9] mb-2">
                   {t.features.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
@@ -871,7 +871,7 @@ const BotExcelScrollDemo: React.FC = () => {
                 {features.map((feat) => (
                   <article
                     key={feat.title}
-                    className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-4"
+                    className="flex flex-col gap-2 rounded-2xl border border-[#00BDE9]/20 bg-[#001520] p-4"
                   >
                     <h3 className="text-sm font-semibold text-slate-50">
                       {feat.title}
@@ -890,7 +890,7 @@ const BotExcelScrollDemo: React.FC = () => {
             {/* Kullanıcı hikayeleri */}
             <section id="cozumler" className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-400 mb-2">
+                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00BDE9] mb-2">
                   {t.userStories.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">

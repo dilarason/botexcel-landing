@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 import { useI18n } from "../lib/i18n";
 
@@ -127,29 +126,27 @@ const Navbar: React.FC = () => {
     return (
         <nav
             ref={navRef}
-            className="fixed top-0 left-0 right-0 z-50 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl"
+            className="fixed top-0 left-0 right-0 z-50 border-b border-[#00BDE9]/20 bg-[#002032]/95 backdrop-blur-xl"
         >
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3">
-                        <span className="relative inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-emerald-400/60 bg-emerald-500/10 shadow-sm">
-                            <Image
-                                src="/botexcel-logo.svg"
-                                alt="BotExcel"
-                                width={32}
-                                height={32}
-                                priority
-                                className="h-8 w-8 object-cover"
-                            />
-                        </span>
-                        <span className="text-base font-semibold tracking-tight text-slate-100">
+                    <Link href="/" className="flex items-center gap-2.5">
+                        <Image
+                            src="/botexcel-logo.svg"
+                            alt="BotExcel"
+                            width={36}
+                            height={36}
+                            priority
+                            className="h-9 w-9"
+                        />
+                        <span className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
                             BotExcel
                         </span>
                     </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex md:items-center md:gap-1">
+                    {/* Desktop Navigation - pushed right */}
+                    <div className="hidden md:flex md:items-center md:gap-1 md:ml-auto md:mr-4">
                         {navItems.map((item) => (
                             <div
                                 key={item.label}
@@ -198,23 +195,15 @@ const Navbar: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* Theme & Language Toggles + CTA Buttons */}
-                    <div className="hidden md:flex md:items-center md:gap-2">
-                        <ThemeToggle />
-                        <LanguageToggle />
-                        <div className="w-px h-6 bg-slate-700/50 mx-1" />
+                    {/* CTA Button + Language Toggle */}
+                    <div className="hidden md:flex md:items-center md:gap-3">
                         <Link
                             href="/login"
-                            className="rounded-full border border-slate-700 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:bg-slate-800 hover:border-slate-600"
+                            className="rounded-full border border-[#00BDE9] px-5 py-2 text-sm font-medium text-[#00BDE9] transition-all hover:bg-[#00BDE9] hover:text-[#002032]"
                         >
-                            {t.nav.login}
+                            Giriş / Kayıt
                         </Link>
-                        <Link
-                            href="/register"
-                            className="rounded-full bg-emerald-500 px-4 py-2 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400"
-                        >
-                            {t.nav.tryFree}
-                        </Link>
+                        <LanguageToggle />
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -291,9 +280,8 @@ const Navbar: React.FC = () => {
                             ))}
                         </div>
                         <div className="mt-4 flex items-center justify-between px-3 pt-4 border-t border-slate-800/50">
-                            <span className="text-xs text-slate-500">{t.nav.themeLabel}</span>
+                            <span className="text-xs text-slate-500">Dil</span>
                             <div className="flex items-center gap-1">
-                                <ThemeToggle />
                                 <LanguageToggle />
                             </div>
                         </div>
@@ -307,10 +295,13 @@ const Navbar: React.FC = () => {
                             </Link>
                             <Link
                                 href="/register"
-                                className="w-full rounded-full bg-emerald-500 px-4 py-2.5 text-center text-sm font-medium text-emerald-950 hover:bg-emerald-400"
+                                className="w-full rounded-full bg-sky-500 px-4 py-2.5 text-center text-sm font-medium text-sky-950 hover:bg-sky-400 flex items-center justify-center gap-1.5"
                                 onClick={() => setMobileMenuOpen(false)}
                             >
                                 {t.nav.tryFree}
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
                             </Link>
                         </div>
                     </div>

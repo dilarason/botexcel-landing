@@ -124,7 +124,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
             Planın
           </p>
           <div className="flex items-center gap-2 mt-1">
-            <span className="inline-flex items-center rounded-full border border-emerald-500/60 bg-emerald-500/10 px-3 py-0.5 text-xs font-medium text-emerald-300">
+            <span className="inline-flex items-center rounded-full border border-sky-500/60 bg-sky-500/10 px-3 py-0.5 text-xs font-medium text-sky-300">
               {currentPlan.toUpperCase()}
             </span>
             {usageText && (
@@ -133,7 +133,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
           </div>
         </div>
         {loading && (
-          <div className="text-xs text-emerald-300 animate-pulse">
+          <div className="text-xs text-sky-300 animate-pulse">
             Plan güncelleniyor...
           </div>
         )}
@@ -155,8 +155,8 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
               className={[
                 "group relative flex flex-col items-start gap-1 rounded-xl border p-3 text-left transition",
                 isSelected
-                  ? "border-emerald-500/80 bg-emerald-500/10 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]"
-                  : "border-neutral-800 bg-neutral-950/60 hover:border-emerald-500/60 hover:bg-neutral-900/60",
+                  ? "border-sky-500/80 bg-sky-500/10 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]"
+                  : "border-neutral-800 bg-neutral-950/60 hover:border-sky-500/60 hover:bg-neutral-900/60",
                 isDisabled ? "opacity-50 cursor-not-allowed" : "",
               ].join(" ")}
             >
@@ -165,7 +165,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
                   {p.label}
                 </span>
                 {p.highlight && (
-                  <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-emerald-300">
+                  <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-sky-300">
                     Önerilen
                   </span>
                 )}
@@ -178,7 +178,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
               <p className="text-xs text-neutral-400">{p.description}</p>
 
               {isSelected && !isCurrent && (
-                <span className="mt-1 inline-flex items-center rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-200">
+                <span className="mt-1 inline-flex items-center rounded-full bg-sky-500/10 px-2 py-0.5 text-[10px] text-sky-200">
                   Seçildi, kaydetmek için birkaç saniye bekle...
                 </span>
               )}
@@ -195,7 +195,7 @@ export const PlanSelector: React.FC<PlanSelectorProps> = ({
       {(message || error) && (
         <div className="text-xs">
           {message && (
-            <p className="text-emerald-300">
+            <p className="text-sky-300">
               {message}
             </p>
           )}

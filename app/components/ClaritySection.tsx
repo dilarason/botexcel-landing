@@ -148,7 +148,7 @@ export default function ClaritySection() {
 
               <button
                 onClick={handleCTA}
-                className="mt-2 w-full rounded-xl bg-emerald-600 py-2.5 font-semibold text-white transition hover:bg-emerald-500"
+                className="mt-2 w-full rounded-xl bg-sky-600 py-2.5 font-semibold text-white transition hover:bg-sky-500"
                 data-analytics="clarity_cta_try_own_doc"
               >
                 Kendi belgenle dene

@@ -89,7 +89,7 @@ export function UpgradeModal({
       <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-950 p-6 shadow-2xl ring-1 ring-white/10">
         <div className="mb-4 flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/80">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300/80">
               Planını Yükselt
             </p>
             <h2 className="mt-1 text-xl font-semibold text-neutral-50">
@@ -111,7 +111,7 @@ export function UpgradeModal({
         <div className="mb-4 rounded-xl bg-neutral-900/60 p-4 text-xs text-neutral-200">
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span className="uppercase tracking-[0.18em] text-neutral-400">Plan</span>
-            <span className="rounded-full bg-neutral-800 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">
+            <span className="rounded-full bg-neutral-800 px-2.5 py-1 text-[11px] font-semibold text-sky-300">
               {currentPlan}
             </span>
           </div>
@@ -128,12 +128,12 @@ export function UpgradeModal({
                 onClick={() => setSelected(opt.key)}
                 className={`flex flex-col gap-1 rounded-xl border p-3 text-left text-sm transition ${
                   active
-                    ? "border-emerald-400/80 bg-emerald-500/10"
-                    : "border-white/10 bg-neutral-900/70 hover:border-emerald-300/60"
+                    ? "border-sky-400/80 bg-sky-500/10"
+                    : "border-white/10 bg-neutral-900/70 hover:border-sky-300/60"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-200">
                     {opt.label}
                   </span>
                   <span className="text-[11px] text-neutral-300">{opt.limit}</span>
@@ -157,7 +157,7 @@ export function UpgradeModal({
             <button
               type="button"
               onClick={handleEnterprise}
-              className="rounded-lg border border-emerald-400/60 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/10"
+              className="rounded-lg border border-sky-400/60 px-3 py-1.5 text-xs font-semibold text-sky-200 hover:bg-sky-500/10"
             >
               Özel teklif al
             </button>
@@ -168,7 +168,7 @@ export function UpgradeModal({
           <p className="mt-3 rounded-md bg-red-500/10 px-3 py-2 text-xs text-red-300">{error}</p>
         )}
         {success && (
-          <p className="mt-3 rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-200">{success}</p>
+          <p className="mt-3 rounded-md bg-sky-500/10 px-3 py-2 text-xs text-sky-200">{success}</p>
         )}
 
         <div className="mt-4 flex items-center justify-end gap-3">
@@ -183,7 +183,7 @@ export function UpgradeModal({
             type="button"
             disabled={loading}
             onClick={handleUpgrade}
-            className="rounded-lg bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-neutral-950 hover:bg-emerald-400 disabled:opacity-60"
+            className="rounded-lg bg-sky-500 px-4 py-1.5 text-sm font-semibold text-neutral-950 hover:bg-sky-400 disabled:opacity-60"
           >
             {loading ? "Güncelleniyor..." : "Planı güncelle"}
           </button>

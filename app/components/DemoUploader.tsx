@@ -183,7 +183,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
           <button
             type="button"
             onClick={handleClickSelect}
-            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="inline-flex items-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
           >
             Dosya seç ve dene
           </button>
@@ -213,7 +213,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
         <div className="mt-4 space-y-3">
           <a
             href={downloadUrl}
-            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="inline-flex items-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
           >
             Excel çıktısını indir
           </a>
@@ -228,7 +228,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
             </div>
             <p className="pt-1">
               {resultInfo.real ? (
-                <span className="text-emerald-600">
+                <span className="text-sky-600">
                   Bu çıktı gerçek belgen üzerinden üretildi. Hesabına giriş yaparak sınırsız dönüştürmeye devam edebilirsin.
                 </span>
               ) : (
@@ -242,7 +242,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
               Çıktıyı beğendiysen, bunu her gün kullanmak için hesabını oluştur:
               <a
                 href="/register"
-                className="ml-1 font-semibold text-emerald-700 underline"
+                className="ml-1 font-semibold text-sky-700 underline"
                 onClick={() => track("signup_clicked", { source: resultInfo.real ? "demo_success_real" : "demo_success" })}
               >
                 Ücretsiz hesap aç
@@ -264,7 +264,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
           </p>
           <a
             href="/register"
-            className="inline-flex items-center rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="inline-flex items-center rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
             onClick={() => track("signup_clicked", { source: "demo_limit" })}
           >
             Ücretsiz hesap aç
@@ -283,7 +283,7 @@ export default function DemoUploader({ variant = "anonymous" }: DemoUploaderProp
           <div className="flex items-center gap-2">
             <a
               href="/billing"
-              className="inline-flex items-center rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
+              className="inline-flex items-center rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
               onClick={() => track("upgrade_clicked", { source: "plan_limit" })}
             >
               Planı yükselt

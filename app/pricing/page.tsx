@@ -12,7 +12,7 @@ export default function PricingPage() {
     <main className="min-h-screen bg-slate-950 text-slate-50">
       <header className="border-b border-slate-800 bg-gradient-to-b from-slate-900 to-slate-950/80">
         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-10 md:py-14">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/80">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300/80">
             FİYATLANDIRMA
           </p>
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight">

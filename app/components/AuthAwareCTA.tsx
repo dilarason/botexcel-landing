@@ -68,11 +68,11 @@ export function AuthAwareCTA() {
     return (
       <a
         href="/upload"
-        className={`${baseClasses} bg-emerald-500 text-slate-950 hover:bg-emerald-400`}
+        className={`${baseClasses} bg-sky-500 text-slate-950 hover:bg-sky-400`}
       >
         Belgemle Devam Et
         {plan ? (
-          <span className="ml-2 text-[11px] font-normal text-emerald-950/80 bg-emerald-200/80 rounded-full px-2 py-0.5">
+          <span className="ml-2 text-[11px] font-normal text-sky-950/80 bg-sky-200/80 rounded-full px-2 py-0.5">
             Plan: {plan}
           </span>
         ) : null}
@@ -84,7 +84,7 @@ export function AuthAwareCTA() {
   return (
     <a
       href="/register"
-      className={`${baseClasses} bg-emerald-500 text-slate-950 hover:bg-emerald-400`}
+      className={`${baseClasses} bg-sky-500 text-slate-950 hover:bg-sky-400`}
     >
       Hemen Başla
     </a>

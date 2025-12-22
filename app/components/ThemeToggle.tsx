@@ -113,7 +113,7 @@ const ThemeToggle: React.FC = () => {
                                 type="button"
                                 onClick={() => handleThemeChange(th.value)}
                                 className={`flex w-full items-center gap-2 px-3 py-2 text-sm transition-colors ${theme === th.value
-                                        ? "bg-emerald-500/10 text-emerald-300"
+                                        ? "bg-sky-500/10 text-sky-300"
                                         : "text-slate-300 hover:bg-slate-800/70"
                                     }`}
                             >

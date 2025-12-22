@@ -12,7 +12,7 @@ export default function BarcodeStockTrackingGuidePage() {
     <main className="min-h-screen bg-slate-950 text-slate-50">
       <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-12 md:py-16">
         <header className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300/80">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-300/80">
             Rehber
           </p>
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
@@ -39,7 +39,7 @@ export default function BarcodeStockTrackingGuidePage() {
         <div className="flex flex-wrap gap-3 text-xs">
           <Link
             href="/upload"
-            className="inline-flex items-center rounded-xl bg-emerald-500 px-4 py-2 font-semibold text-slate-950 hover:bg-emerald-400"
+            className="inline-flex items-center rounded-xl bg-sky-500 px-4 py-2 font-semibold text-slate-950 hover:bg-sky-400"
           >
             Belge yükle ve dene
           </Link>

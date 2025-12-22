@@ -7,7 +7,7 @@ import { BookOpen, Code2, ShieldCheck, ArrowRight } from "lucide-react";
 export default function ResourcesSection() {
   const resources = [
     {
-      icon: <BookOpen className="h-5 w-5 text-emerald-400" />,
+      icon: <BookOpen className="h-5 w-5 text-sky-400" />,
       title: "Rehber",
       subtitle: "Excel’de barkodlu stok takibi nasıl yapılır?",
       description:
@@ -39,7 +39,7 @@ export default function ResourcesSection() {
     >
       <div className="mx-auto max-w-5xl space-y-10">
         <div className="space-y-3 text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-emerald-500">
+          <p className="text-sm font-semibold uppercase tracking-widest text-sky-500">
             Kaynaklar
           </p>
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 md:text-3xl">
@@ -60,7 +60,7 @@ export default function ResourcesSection() {
                     {resource.title}
                   </h3>
                 </div>
-                <h4 className="text-lg font-semibold text-slate-900 transition group-hover:text-emerald-400 dark:text-slate-100">
+                <h4 className="text-lg font-semibold text-slate-900 transition group-hover:text-sky-400 dark:text-slate-100">
                   {resource.subtitle}
                 </h4>
                 <p className="text-sm text-slate-600 dark:text-slate-400">
@@ -70,7 +70,7 @@ export default function ResourcesSection() {
 
               <Link
                 href={resource.href}
-                className="mt-4 inline-flex items-center text-sm font-medium text-emerald-600 hover:underline dark:text-emerald-400"
+                className="mt-4 inline-flex items-center text-sm font-medium text-sky-600 hover:underline dark:text-sky-400"
               >
                 Oku
                 <ArrowRight size={16} className="ml-1 transition-transform group-hover:translate-x-1" />

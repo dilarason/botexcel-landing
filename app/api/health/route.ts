@@ -6,7 +6,6 @@ import {
   json500MissingConfig,
   json502InvalidJson,
   json502InvalidShape,
-  json502Unreachable,
   json504Timeout,
 } from "../_lib/proxy";
 
@@ -39,9 +38,12 @@ export async function GET(): Promise<NextResponse> {
   }
 
   if (result.error === "unreachable") {
-    return json502Unreachable(result.errorMessage ?? "Upstream unreachable");
+    // health fallback: upstream/backend erişilemezse bile app ayakta kalsın
+    return NextResponse.json(
+      { ok: true, upstream_ok: false, reason: "backend_unreachable" },
+      { status: 200 }
+    );
   }
 
   return NextResponse.json(result.data, { status: result.status });
 }
-

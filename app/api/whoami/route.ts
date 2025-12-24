@@ -3,7 +3,6 @@ import {
   getApiBaseOrNull,
   fetchJsonUpstream,
   json500MissingConfig,
-  json502Unreachable,
   json504Timeout,
   json502InvalidJson,
   json502InvalidShape,
@@ -43,7 +42,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 
   if (result.error === "unreachable") {
-    return json502Unreachable(result.errorMessage ?? "Upstream unreachable");
+    // guest fallback: upstream/backend erişilemezse landing/demo kırılmasın
+    return NextResponse.json(
+      { authenticated: false, user: null, reason: "backend_unreachable" },
+      { status: 200 }
+    );
   }
 
   // 5. Return upstream response as-is

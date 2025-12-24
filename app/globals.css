@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
-/* Dark theme only - Stax.ai inspired */
+/* New color palette - Deep Indigo with Teal-Purple gradient */
 :root {
-  --background: #002032;
+  --background: #1E1B4B;
+  --background-dark: #0F0D2E;
   --foreground: #f8fafc;
-  --muted: #94a3b8;
-  --card: rgba(0, 32, 50, 0.85);
-  --card-border: rgba(0, 189, 233, 0.2);
-  --card-light: #DFF7FD;
-  --primary: #00BDE9;
-  --primary-foreground: #002032;
-  --secondary: #0891b2;
-  --accent: #00BDE9;
-  --nav-bg: rgba(0, 32, 50, 0.95);
-  --nav-border: rgba(0, 189, 233, 0.25);
-  --dropdown-bg: rgba(0, 32, 50, 0.98);
-  --glow-color: rgba(0, 189, 233, 0.4);
+  --muted: #a5b4fc;
+  --card: rgba(30, 27, 75, 0.85);
+  --card-border: rgba(99, 102, 241, 0.3);
+  --primary: #00D4AA;
+  --primary-foreground: #1E1B4B;
+  --secondary: #6366F1;
+  --accent-teal: #00D4AA;
+  --accent-purple: #6366F1;
+  --accent-gradient: linear-gradient(135deg, #00D4AA 0%, #6366F1 100%);
+  --glow-teal: rgba(0, 212, 170, 0.4);
+  --glow-purple: rgba(99, 102, 241, 0.4);
   --body-gradient:
-    radial-gradient(1200px 800px at 20% 0%, rgba(0, 189, 233, 0.15), transparent 60%),
-    radial-gradient(1000px 680px at 80% 100%, rgba(0, 189, 233, 0.1), transparent 55%),
-    radial-gradient(800px 600px at 50% 50%, rgba(8, 145, 178, 0.08), transparent 70%),
-    linear-gradient(180deg, #002032 0%, #001520 55%, #000a10 100%);
+    radial-gradient(800px 800px at 30% 40%, rgba(0, 212, 170, 0.15), transparent 60%),
+    radial-gradient(600px 600px at 70% 60%, rgba(99, 102, 241, 0.12), transparent 55%),
+    linear-gradient(180deg, #1E1B4B 0%, #151237 50%, #0F0D2E 100%);
 }
 
 @theme inline {

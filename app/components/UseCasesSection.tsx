@@ -45,11 +45,11 @@ const useCases: UseCase[] = [
 
 const UseCasesSection: React.FC = () => {
     return (
-        <section className="py-24 px-4 bg-[#002032]">
+        <section className="py-24 px-4 bg-[#1E1B4B]">
             <div className="max-w-6xl mx-auto">
                 {/* Section Header */}
                 <div className="text-center mb-16">
-                    <p className="text-xs font-mono uppercase tracking-[0.3em] text-[#00BDE9] mb-4">
+                    <p className="text-xs font-mono uppercase tracking-[0.3em] text-[#00D4AA] mb-4">
                         KULLANIM ALANLARI
                     </p>
                     <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4">
@@ -63,12 +63,12 @@ const UseCasesSection: React.FC = () => {
                         <Link
                             key={useCase.id}
                             href="/#demo"
-                            className="group rounded-2xl border border-[#00BDE9]/20 bg-[#001520] p-6 hover:border-[#00BDE9]/40 hover:bg-[#002535] transition-all"
+                            className="group rounded-2xl border border-[#00D4AA]/20 bg-[#151237] p-6 hover:border-[#00D4AA]/40 hover:bg-[#002535] transition-all"
                         >
-                            <span className="text-xs font-mono text-[#00BDE9] uppercase tracking-widest">
+                            <span className="text-xs font-mono text-[#00D4AA] uppercase tracking-widest">
                                 ÖRNEK {useCase.number}
                             </span>
-                            <h3 className="text-lg font-bold text-white mt-3 mb-2 group-hover:text-[#00BDE9] transition-colors">
+                            <h3 className="text-lg font-bold text-white mt-3 mb-2 group-hover:text-[#00D4AA] transition-colors">
                                 {useCase.title}
                             </h3>
                             <p className="text-sm text-slate-400">

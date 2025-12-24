@@ -28,19 +28,16 @@ const LanguageToggle: React.FC = () => {
         { value: "en", label: "English", flag: "🇬🇧" },
     ];
 
-    const currentLang = languages.find((l) => l.value === lang);
-
     return (
         <div ref={dropdownRef} className="relative">
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-slate-300 transition-colors hover:bg-slate-800/50 hover:text-white"
+                className="flex items-center justify-center w-8 h-8 rounded text-slate-400 transition-colors hover:text-white"
                 title="Dil Seçimi"
             >
-                <span className="text-lg">{currentLang?.flag}</span>
                 <svg
-                    className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -49,9 +46,9 @@ const LanguageToggle: React.FC = () => {
                 </svg>
             </button>
 
-            {/* Dropdown with slide animation */}
+            {/* Dropdown - no border, no background */}
             <div
-                className={`absolute right-0 top-full mt-1 w-40 rounded-xl border border-[#00BDE9]/20 bg-[#001520] backdrop-blur-xl shadow-2xl shadow-black/30 z-50 overflow-hidden transition-all duration-200 origin-top ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0 pointer-events-none'
+                className={`absolute right-0 top-full mt-1 z-50 overflow-hidden transition-all duration-200 origin-top ${isOpen ? 'opacity-100 scale-y-100' : 'opacity-0 scale-y-0 pointer-events-none'
                     }`}
             >
                 <div className="py-1">
@@ -60,12 +57,12 @@ const LanguageToggle: React.FC = () => {
                             key={l.value}
                             type="button"
                             onClick={() => handleLanguageChange(l.value)}
-                            className={`flex w-full items-center gap-3 px-4 py-2.5 text-sm transition-colors ${lang === l.value
-                                ? "bg-[#00BDE9]/10 text-[#00BDE9]"
-                                : "text-slate-300 hover:bg-[#002535] hover:text-white"
+                            className={`flex items-center gap-2 px-3 py-2 text-sm whitespace-nowrap transition-colors ${lang === l.value
+                                ? "text-[#00D4AA]"
+                                : "text-slate-300 hover:text-white"
                                 }`}
                         >
-                            <span className="text-lg">{l.flag}</span>
+                            <span className="text-base">{l.flag}</span>
                             <span className="font-medium">{l.label}</span>
                         </button>
                     ))}

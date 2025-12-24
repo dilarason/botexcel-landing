@@ -19,15 +19,15 @@ const DropdownMenu: React.FC<{
     if (!isOpen) return null;
 
     return (
-        <div className="absolute left-0 top-full mt-2 w-72 rounded-xl border border-slate-700/50 bg-slate-900/95 backdrop-blur-xl shadow-2xl shadow-black/20 z-50 overflow-hidden">
+        <div className="absolute left-0 top-full mt-2 w-72 z-50 overflow-hidden">
             <div className="py-2">
                 {items.map((item) => (
                     <Link
                         key={item.label}
                         href={item.href}
-                        className="block px-4 py-3 hover:bg-slate-800/70 transition-colors"
+                        className="block px-4 py-3 transition-colors hover:text-[#00D4AA]"
                     >
-                        <span className="block text-sm font-medium text-slate-100">
+                        <span className="block text-sm font-semibold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)]">
                             {item.label}
                         </span>
                         {item.description && (
@@ -126,21 +126,21 @@ const Navbar: React.FC = () => {
     return (
         <nav
             ref={navRef}
-            className="fixed top-0 left-0 right-0 z-50 border-b border-[#00BDE9]/20 bg-[#002032]/95 backdrop-blur-xl"
+            className="fixed top-0 left-0 right-0 z-50"
         >
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="w-full px-2 sm:px-4">
                 <div className="flex h-16 items-center justify-between">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2.5">
+                    {/* Logo - bigger, can overflow */}
+                    <Link href="/" className="flex items-center gap-2">
                         <Image
                             src="/botexcel-logo.svg"
                             alt="BotExcel"
-                            width={36}
-                            height={36}
+                            width={64}
+                            height={64}
                             priority
-                            className="h-9 w-9"
+                            className="h-16 w-16"
                         />
-                        <span className="text-xl font-bold tracking-tight text-white" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+                        <span className="text-lg font-bold tracking-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
                             BotExcel
                         </span>
                     </Link>
@@ -159,7 +159,7 @@ const Navbar: React.FC = () => {
                                 {item.dropdown ? (
                                     <button
                                         type="button"
-                                        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800/50 hover:text-slate-100"
+                                        className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-colors hover:text-[#00D4AA]"
                                     >
                                         {item.label}
                                         <svg
@@ -180,7 +180,7 @@ const Navbar: React.FC = () => {
                                 ) : (
                                     <Link
                                         href={item.href!}
-                                        className="rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800/50 hover:text-slate-100"
+                                        className="rounded-lg px-3 py-2 text-sm font-semibold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-colors hover:text-[#00D4AA]"
                                     >
                                         {item.label}
                                     </Link>
@@ -195,11 +195,11 @@ const Navbar: React.FC = () => {
                         ))}
                     </div>
 
-                    {/* CTA Button + Language Toggle */}
-                    <div className="hidden md:flex md:items-center md:gap-3">
+                    {/* Login + Language Toggle */}
+                    <div className="hidden md:flex md:items-center md:gap-1">
                         <Link
                             href="/login"
-                            className="rounded-full border border-[#00BDE9] px-5 py-2 text-sm font-medium text-[#00BDE9] transition-all hover:bg-[#00BDE9] hover:text-[#002032]"
+                            className="rounded-lg px-3 py-2 text-sm font-semibold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.2)] transition-colors hover:text-[#00D4AA]"
                         >
                             Giriş / Kayıt
                         </Link>

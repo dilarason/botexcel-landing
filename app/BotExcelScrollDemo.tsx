@@ -7,6 +7,8 @@ import { OutputQualitySection } from "./components/OutputQualitySection";
 import BlogSection from "./components/BlogSection";
 import ResourcesSection from "./components/ResourcesSection";
 import { AuthAwareCTA } from "./components/AuthAwareCTA";
+import { TrustScoreCard } from "./components/TrustScoreCard";
+import { ProofPackagePreview } from "./components/ProofPackagePreview";
 import { useI18n } from "./lib/i18n";
 
 const clamp = (value: number, min: number, max: number) =>
@@ -237,6 +239,17 @@ const demoStageDetails: Array<{
         "Tablo, formüller ve özetlerle Excel'e aktarılıyor; indirmeye hazır.",
     },
   ];
+
+// P0: Demo için deterministik Trust Score'lar (sonra backend API'ye bağlanacak)
+const getDemoTrustScore = (sampleId: string | undefined) => {
+  const presets: Record<string, { score: number; sourceCoverage: number; ruleCompliance: number; changeTrail: number; outputQuality: number }> = {
+    invoice: { score: 78, sourceCoverage: 85, ruleCompliance: 40, changeTrail: 70, outputQuality: 55 },
+    bank: { score: 82, sourceCoverage: 92, ruleCompliance: 66, changeTrail: 74, outputQuality: 58 },
+    receipt: { score: 69, sourceCoverage: 70, ruleCompliance: 52, changeTrail: 68, outputQuality: 46 },
+    contract: { score: 74, sourceCoverage: 80, ruleCompliance: 58, changeTrail: 71, outputQuality: 49 },
+  };
+  return presets[sampleId || ""] || presets.invoice;
+};
 
 const DemoUploader: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -600,6 +613,26 @@ const DemoUploader: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Trust Layer: Score + Proof Package */}
+      {state.result && (
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+          <TrustScoreCard
+            score={getDemoTrustScore(state.sampleId).score}
+            metrics={[
+              { key: "sourceCoverage", value: getDemoTrustScore(state.sampleId).sourceCoverage },
+              { key: "ruleCompliance", value: getDemoTrustScore(state.sampleId).ruleCompliance },
+              { key: "changeTrail", value: getDemoTrustScore(state.sampleId).changeTrail },
+              { key: "outputQuality", value: getDemoTrustScore(state.sampleId).outputQuality },
+            ]}
+            onImproveClick={() => window.location.href = "/register"}
+          />
+          <ProofPackagePreview
+            fileName={`proof_${new Date().toISOString().split("T")[0]}.zip`}
+            timestamp={new Date().toISOString().split("T")[0]}
+          />
+        </div>
+      )}
     </div>
   );
 };
@@ -648,11 +681,11 @@ const BotExcelScrollDemo: React.FC = () => {
       const t = clamp(p, 0, 1);
       ctx.clearRect(0, 0, width, height);
 
-      // Arka plan - Stax.ai colors
+      // Arka plan - New indigo/teal/purple palette
       const bgStrength = lerp(0.6, 1, t < 0.7 ? t / 0.7 : 1);
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, "#002032");
-      gradient.addColorStop(1, `rgba(0,32,50,${bgStrength})`);
+      gradient.addColorStop(0, "#1E1B4B");
+      gradient.addColorStop(1, `rgba(15,13,46,${bgStrength})`);
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
 
@@ -665,8 +698,9 @@ const BotExcelScrollDemo: React.FC = () => {
         height / 2,
         spotRadius
       );
-      spotGradient.addColorStop(0, "rgba(0,189,233,0.25)");
-      spotGradient.addColorStop(1, "rgba(0,32,50,0)");
+      spotGradient.addColorStop(0, "rgba(0,212,170,0.2)");
+      spotGradient.addColorStop(0.5, "rgba(99,102,241,0.15)");
+      spotGradient.addColorStop(1, "rgba(15,13,46,0)");
       ctx.fillStyle = spotGradient;
       ctx.fillRect(0, 0, width, height);
 
@@ -682,7 +716,7 @@ const BotExcelScrollDemo: React.FC = () => {
         ctx.rotate(rotation);
         ctx.beginPath();
         ctx.arc(0, 0, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = "#00BDE9";
+        ctx.strokeStyle = "#00D4AA";
         ctx.lineWidth = 4;
         ctx.stroke();
         ctx.beginPath();
@@ -691,7 +725,7 @@ const BotExcelScrollDemo: React.FC = () => {
         ctx.moveTo(-10, -radius + 26);
         ctx.lineTo(0, -radius + 10);
         ctx.lineTo(10, -radius + 26);
-        ctx.strokeStyle = "#7dd3fc";
+        ctx.strokeStyle = "#6366F1";
         ctx.lineWidth = 3;
         ctx.stroke();
         ctx.restore();
@@ -707,7 +741,9 @@ const BotExcelScrollDemo: React.FC = () => {
           const y = startY + i * bandHeight;
           const shift = (i % 2 === 0 ? 1 : -1) * local * width * 0.15;
           const alpha = 0.08 + local * 0.25;
-          ctx.fillStyle = `rgba(0,189,233,${alpha})`;
+          // Alternate between teal and purple
+          const color = i % 2 === 0 ? `rgba(0,212,170,${alpha})` : `rgba(99,102,241,${alpha})`;
+          ctx.fillStyle = color;
           ctx.fillRect(width * 0.2 + shift, y, width * 0.6, bandHeight * 0.6);
         }
       }
@@ -731,7 +767,7 @@ const BotExcelScrollDemo: React.FC = () => {
         ctx.scale(scale, scale);
 
         ctx.globalAlpha = 0.2 + local * 0.8;
-        ctx.strokeStyle = "rgba(0,189,233,0.6)";
+        ctx.strokeStyle = "rgba(99,102,241,0.6)";
         ctx.lineWidth = 1;
 
         for (let r = 0; r <= rows; r++) {
@@ -766,7 +802,11 @@ const BotExcelScrollDemo: React.FC = () => {
 
           ctx.save();
           ctx.globalAlpha = 0.2 + 0.8 * cellProgress;
-          ctx.fillStyle = "rgba(0,189,233,0.9)";
+          // Create gradient effect for cells
+          const cellGradient = ctx.createLinearGradient(x, y, x + cellW, y + cellH);
+          cellGradient.addColorStop(0, "rgba(0,212,170,0.9)");
+          cellGradient.addColorStop(1, "rgba(99,102,241,0.9)");
+          ctx.fillStyle = cellGradient;
           ctx.fillRect(x + 4, y + 4 + slideY, cellW - 8, cellH - 8);
           ctx.restore();
         }
@@ -788,11 +828,11 @@ const BotExcelScrollDemo: React.FC = () => {
   const o4 = stageBand(progress, 0.64, 0.78, 0.92);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-[#002032] text-white font-sans">
+    <div className="w-full h-screen flex flex-col bg-[#1E1B4B] text-white font-sans">
 
       <div
         ref={containerRef}
-        className="relative flex-1 overflow-y-scroll bg-[#002032]"
+        className="relative flex-1 overflow-y-scroll bg-[#1E1B4B]"
       >
         <div className="relative">
           {/* Animasyon bölümü: 300vh + sticky canvas */}
@@ -812,25 +852,31 @@ const BotExcelScrollDemo: React.FC = () => {
                   }}
                 >
                   <h1 className="text-3xl md:text-5xl font-semibold tracking-tight">
-                    {t.hero.tagline}
+                    {t.trustLayer.heroTagline}
                   </h1>
+                  <p className="mt-4 text-lg md:text-xl text-slate-300 font-medium">
+                    {t.trustLayer.signatureHook}
+                  </p>
+                  <p className="mt-2 text-sm md:text-base text-slate-400">
+                    {t.trustLayer.signatureHookSub}
+                  </p>
                 </div>
 
                 <div className="absolute bottom-[18%] left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
                   <div
-                    className="text-lg md:text-2xl font-medium text-[#00BDE9] drop-shadow"
+                    className="text-lg md:text-2xl font-medium text-[#00D4AA] drop-shadow"
                     style={{ opacity: o2 }}
                   >
                     {t.hero.uploading}
                   </div>
                   <div
-                    className="text-lg md:text-2xl font-medium text-[#00BDE9] drop-shadow"
+                    className="text-lg md:text-2xl font-medium text-[#6366F1] drop-shadow"
                     style={{ opacity: o3 }}
                   >
                     {t.hero.analyzing}
                   </div>
                   <div
-                    className="text-xl md:text-3xl font-semibold text-[#00BDE9] drop-shadow"
+                    className="text-xl md:text-3xl font-semibold text-[#00D4AA] drop-shadow"
                     style={{ opacity: o4 }}
                   >
                     {t.hero.ready}
@@ -841,7 +887,7 @@ const BotExcelScrollDemo: React.FC = () => {
           </div>
 
           {/* Animasyon bittikten sonra gelen site içerikleri */}
-          <div className="relative bg-[#002032] text-left">
+          <div className="relative bg-[#1E1B4B] text-left">
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-10 pb-6 text-center text-slate-50">
               <h2 className="text-2xl md:text-3xl font-semibold mb-2">
                 {t.sections.uploadCta}
@@ -857,7 +903,7 @@ const BotExcelScrollDemo: React.FC = () => {
             {/* Özellikler – kullanıcı hikayelerinden önce */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pt-12 pb-10 sm:pt-16 sm:pb-14 text-slate-50">
               <header className="mb-6 text-center">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00BDE9] mb-2">
+                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00D4AA] mb-2">
                   {t.features.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
@@ -871,7 +917,7 @@ const BotExcelScrollDemo: React.FC = () => {
                 {features.map((feat) => (
                   <article
                     key={feat.title}
-                    className="flex flex-col gap-2 rounded-2xl border border-[#00BDE9]/20 bg-[#001520] p-4"
+                    className="flex flex-col gap-2 rounded-2xl border border-[#00D4AA]/20 bg-[#151237] p-4"
                   >
                     <h3 className="text-sm font-semibold text-slate-50">
                       {feat.title}
@@ -890,7 +936,7 @@ const BotExcelScrollDemo: React.FC = () => {
             {/* Kullanıcı hikayeleri */}
             <section id="cozumler" className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
               <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00BDE9] mb-2">
+                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-[#00D4AA] mb-2">
                   {t.userStories.sectionTag}
                 </p>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-2">
@@ -1057,136 +1103,6 @@ const BotExcelScrollDemo: React.FC = () => {
                 ))}
               </div>
             </section>
-
-
-            {/* Öne çıkan yetkinlikler */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-sky-400 mb-2">
-                  Öne çıkan yetkinlikler
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Sadece dönüştürmek değil; doğrulamak, güzelleştirmek,
-                  anlamlandırmak.
-                </h2>
-              </header>
-              <div className="grid md:grid-cols-2 gap-4">
-                {capabilities.map((cap) => (
-                  <article
-                    key={cap.title}
-                    className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-1.5"
-                  >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {cap.title}
-                    </h3>
-                    <p className="text-xs text-slate-300">{cap.text}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-
-            {/* Sosyal kanıt */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <div className="rounded-3xl border border-emerald-500/60 bg-gradient-to-br from-emerald-900/60 via-slate-900/80 to-slate-950 p-5 sm:p-6 flex flex-col gap-3">
-                <div className="text-xs font-semibold tracking-[0.25em] uppercase text-emerald-300">
-                  {t.sections.socialProofTag}
-                </div>
-                <h2 className="text-base sm:text-lg font-semibold text-emerald-50">
-                  {t.sections.socialProofTitle}
-                </h2>
-                <p className="text-sm text-emerald-50/90">
-                  &ldquo;{t.sections.socialProofQuote}&rdquo;
-                </p>
-                <div className="text-xs text-emerald-100/90 font-medium">
-                  {t.sections.socialProofAuthor}
-                </div>
-              </div>
-            </section>
-
-            {/* Ekibin hikayesi / misyon */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-slate-300 mb-2">
-                  Ekibin hikayesi
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  Veriye insani bir bakış getirmek için yola çıktık.
-                </h2>
-              </header>
-              <div className="grid md:grid-cols-2 gap-4 items-start">
-                <div className="text-sm text-slate-300 space-y-3">
-                  <p>
-                    BotExcel, “veri işi”nin sadece satırlardan ibaret
-                    olmadığını bilen bir ekip tarafından geliştirildi. Bir
-                    tarafında yıllarca bağımsız denetim ve finans raporlamada
-                    çalışmış uzmanlar, diğer tarafında üretici yapay zekâ
-                    modelleri üzerine çalışan mühendisler var.
-                  </p>
-                  <p>
-                    Amacımız, ekiplerinizi manuel Excel işlerinden kurtarıp,
-                    zamanlarını asıl değer ürettikleri kararlara ayırmalarını
-                    sağlamak.
-                  </p>
-                  <ul className="text-xs text-slate-400 space-y-1.5">
-                    <li>
-                      • İlk satırlarımızı, bir denetim ekibinin 3 günlük işini
-                      40 dakikaya indirmek için yazdık.
-                    </li>
-                    <li>
-                      • BotExcel’in çekirdeğinde, Gemma tabanlı AI ve denetime
-                      hazır loglama mantığı birlikte çalışır.
-                    </li>
-                  </ul>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-xs text-slate-300 flex flex-col gap-3">
-                  <div>
-                    <div className="font-semibold text-slate-100 mb-1">
-                      Kimlerle çalışıyoruz?
-                    </div>
-                    <p>
-                      Finans ekipleri, operasyon liderleri, denetim uzmanları
-                      ve geliştiricilerle aynı masada oturup gerçek kullanım
-                      senaryolarına göre ürün geliştiriyoruz.
-                    </p>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-100 mb-1">
-                      Sosyal güven
-                    </div>
-                    <p>
-                      Ekibi daha yakından tanımak için BotExcel kurucularını ve
-                      ürün ekibini LinkedIn üzerinden takip edebilirsiniz.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            {/* Hazır Excel şablonları */}
-            <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-10 sm:pb-14 text-slate-50">
-              <header className="mb-6">
-                <p className="text-xs font-semibold tracking-[0.25em] uppercase text-amber-300 mb-2">
-                  Hazır Excel şablonları
-                </p>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                  En çok kullanılan raporlar tek tıkla indirilmeye hazır.
-                </h2>
-              </header>
-              <div className="grid md:grid-cols-2 gap-4">
-                {templates.map((tpl) => (
-                  <article
-                    key={tpl.title}
-                    className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 flex flex-col gap-1.5"
-                  >
-                    <h3 className="text-sm font-semibold text-slate-50">
-                      {tpl.title}
-                    </h3>
-                    <p className="text-xs text-slate-300">{tpl.text}</p>
-                  </article>
-                ))}
-              </div>
-            </section>
-
 
             {/* Güven & KVKK / denetim bölümü */}
             <section className="mx-auto max-w-5xl px-4 sm:px-6 pb-12 sm:pb-16 text-slate-50">

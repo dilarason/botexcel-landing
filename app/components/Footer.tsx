@@ -8,9 +8,9 @@ const Footer: React.FC = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="bg-[#001520] border-t border-[#00BDE9]/10">
+        <footer className="bg-[#151237] border-t border-[#00D4AA]/10">
             {/* CTA Section */}
-            <div className="border-b border-[#00BDE9]/10">
+            <div className="border-b border-[#00D4AA]/10">
                 <div className="max-w-4xl mx-auto px-6 py-16 text-center">
                     <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
                         Hemen başlayın.
@@ -20,7 +20,7 @@ const Footer: React.FC = () => {
                     </p>
                     <Link
                         href="/register"
-                        className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#00BDE9] text-[#002032] font-semibold hover:bg-[#00d4ff] transition-colors"
+                        className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#00D4AA] text-[#1E1B4B] font-semibold hover:bg-[#2DD4BF] transition-colors"
                     >
                         Ücretsiz Başla
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
 
                     {/* Products */}
                     <div>
-                        <h3 className="text-xs font-mono font-semibold tracking-wider text-[#00BDE9] mb-4">
+                        <h3 className="text-xs font-mono font-semibold tracking-wider text-[#00D4AA] mb-4">
                             ÜRÜNLER
                         </h3>
                         <ul className="space-y-2">
@@ -64,7 +64,7 @@ const Footer: React.FC = () => {
 
                     {/* Company */}
                     <div>
-                        <h3 className="text-xs font-mono font-semibold tracking-wider text-[#00BDE9] mb-4">
+                        <h3 className="text-xs font-mono font-semibold tracking-wider text-[#00D4AA] mb-4">
                             ŞİRKET
                         </h3>
                         <ul className="space-y-2">
@@ -76,7 +76,7 @@ const Footer: React.FC = () => {
 
                     {/* Legal */}
                     <div>
-                        <h3 className="text-xs font-mono font-semibold tracking-wider text-[#00BDE9] mb-4">
+                        <h3 className="text-xs font-mono font-semibold tracking-wider text-[#00D4AA] mb-4">
                             YASAL
                         </h3>
                         <ul className="space-y-2">
@@ -89,7 +89,7 @@ const Footer: React.FC = () => {
             </div>
 
             {/* Bottom Bar */}
-            <div className="border-t border-[#00BDE9]/10">
+            <div className="border-t border-[#00D4AA]/10">
                 <div className="max-w-6xl mx-auto px-6 py-6 text-center">
                     <p className="text-sm text-slate-500">
                         © {currentYear} BotExcel. Tüm hakları saklıdır.

@@ -130,8 +130,6 @@ export default function StatusBadge() {
         }
       } catch (e) {
         console.error("Failed to fetch status", e);
-      } finally {
-        setLoading(false);
       }
     };
 
